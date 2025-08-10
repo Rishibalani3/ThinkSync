@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThinkSync - Connect Your Ideas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#667eea',
+                        'primary-dark': '#5a67d8',
+                        dark: '#1a1a1a',
+                        'dark-secondary': '#2d2d2d',
+                        'dark-tertiary': '#404040'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-dark text-gray-200 min-h-screen">
+    <!-- Top Navigation Bar -->
+    <nav class="bg-dark-secondary border-b border-gray-600 px-5 h-15 flex items-center justify-between fixed w-full top-0 z-50">
+        <div class="flex items-center gap-8">
+            <div class="flex items-center gap-2 text-2xl font-bold text-primary">
+                🧠 <span>ThinkSync</span>
+            </div>
+            <div class="hidden md:flex gap-6">
+                <a href="#" class="text-gray-200 px-3 py-2 rounded-md hover:bg-primary hover:text-white transition-colors bg-primary text-white">Home</a>
+                <a href="#" class="text-gray-200 px-3 py-2 rounded-md hover:bg-primary hover:text-white transition-colors">Explore</a>
+                <a href="#" class="text-gray-200 px-3 py-2 rounded-md hover:bg-primary hover:text-white transition-colors">Tags</a>
+                <a href="#" class="text-gray-200 px-3 py-2 rounded-md hover:bg-primary hover:text-white transition-colors">Users</a>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <div class="relative">
+                <input type="text" placeholder="Search thoughts, ideas, questions..." 
+                       class="bg-dark-tertiary border border-gray-600 px-3 py-2 rounded-md text-gray-200 placeholder-gray-400 w-80 pr-10 focus:outline-none focus:border-primary">
+                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">🔍</span>
+            </div>
+            <div class="flex items-center gap-3 cursor-pointer hover:bg-dark-tertiary px-3 py-2 rounded-md transition-colors">
+                <div class="w-8 h-8 bg-gradient-to-r from-primary to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">JD</div>
+                <span class="text-gray-200">John Doe</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto mt-16 grid grid-cols-1 lg:grid-cols-4 gap-6 p-5">
+        <!-- Left Sidebar -->
+        <div class="lg:col-span-1">
+            <div class="bg-dark-secondary p-5 rounded-lg border border-gray-600 sticky top-24">
+                <!-- Navigation -->
+                <div class="mb-6">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Navigation</h3>
+                    <nav class="space-y-1">
+                        <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md bg-primary text-white">
+                            <span>🏠</span> Home
+                        </a>
+                        <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-200 hover:bg-dark-tertiary hover:text-primary transition-colors">
+                            <span>🔍</span> Explore
+                        </a>
+                        <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-200 hover:bg-dark-tertiary hover:text-primary transition-colors">
+                            <span>💡</span> My Ideas
+                        </a>
+                        <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-200 hover:bg-dark-tertiary hover:text-primary transition-colors">
+                            <span>🔄</span> Connections
+                        </a>
+                        <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-200 hover:bg-dark-tertiary hover:text-primary transition-colors">
+                            <span>📊</span> Analytics
+                        </a>
+                        <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-200 hover:bg-dark-tertiary hover:text-primary transition-colors">
+                            <span>⚙️</span> Settings
+                        </a>
+                    </nav>
+                </div>
+
+                <!-- Stats -->
+                <div class="mb-6">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Your Stats</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-300">Thoughts shared:</span>
+                            <span class="text-primary font-bold">24</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-300">Connections made:</span>
+                            <span class="text-primary font-bold">156</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-300">Ideas built upon:</span>
+                            <span class="text-primary font-bold">43</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="lg:col-span-2">
+            <!-- Content Header -->
+            <div class="bg-dark-secondary p-5 rounded-lg border border-gray-600 mb-5">
+                <div class="flex justify-between items-center mb-4">
+                    <h1 class="text-2xl font-bold text-gray-200">Latest Thoughts</h1>
+                    <a href="#" class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md font-medium transition-colors flex items-center gap-2">
+                        <span>✨</span> Share a Thought
+                    </a>
+                </div>
+                <div class="flex gap-2 flex-wrap">
+                    <button class="px-4 py-2 bg-primary text-white rounded-md text-sm transition-colors">All</button>
+                    <button class="px-4 py-2 bg-dark-tertiary border border-gray-600 text-gray-200 rounded-md text-sm hover:border-primary hover:text-primary transition-colors">💡 Ideas</button>
+                    <button class="px-4 py-2 bg-dark-tertiary border border-gray-600 text-gray-200 rounded-md text-sm hover:border-primary hover:text-primary transition-colors">❓ Questions</button>
+                    <button class="px-4 py-2 bg-dark-tertiary border border-gray-600 text-gray-200 rounded-md text-sm hover:border-primary hover:text-primary transition-colors">💭 Thoughts</button>
+                    <button class="px-4 py-2 bg-dark-tertiary border border-gray-600 text-gray-200 rounded-md text-sm hover:border-primary hover:text-primary transition-colors">🔗 Links</button>
+                </div>
+            </div>
+
+            <!-- Post Creator -->
+            <div class="bg-dark-secondary p-5 rounded-lg border border-gray-600 mb-5">
+                <div class="flex gap-2 mb-4 flex-wrap">
+                    <button class="px-3 py-1 bg-primary text-white rounded-full text-xs font-semibold">💡 Idea</button>
+                    <button class="px-3 py-1 bg-dark-tertiary border border-gray-600 text-gray-200 rounded-full text-xs font-semibold hover:border-primary hover:text-primary transition-colors">❓ Question</button>
+                    <button class="px-3 py-1 bg-dark-tertiary border border-gray-600 text-gray-200 rounded-full text-xs font-semibold hover:border-primary hover:text-primary transition-colors">💭 Thought</button>
+                    <button class="px-3 py-1 bg-dark-tertiary border border-gray-600 text-gray-200 rounded-full text-xs font-semibold hover:border-primary hover:text-primary transition-colors">🔗 Link</button>
+                </div>
+                
+                <textarea placeholder="What's half-forming in your mind? Share your incomplete thoughts, wild ideas, or burning questions..."
+                          class="w-full h-24 bg-dark-tertiary border border-gray-600 rounded-md p-3 text-gray-200 placeholder-gray-400 resize-y mb-4 focus:outline-none focus:border-primary"></textarea>
+                
+                <div class="flex justify-between items-center">
+                    <div class="flex gap-2">
+                        <button class="p-2 bg-dark-tertiary border border-gray-600 rounded-md hover:bg-gray-600 hover:border-primary transition-colors" title="Add image">📷</button>
+                        <button class="p-2 bg-dark-tertiary border border-gray-600 rounded-md hover:bg-gray-600 hover:border-primary transition-colors" title="Add poll">📊</button>
+                        <button class="p-2 bg-dark-tertiary border border-gray-600 rounded-md hover:bg-gray-600 hover:border-primary transition-colors" title="Add tag">🏷️</button>
+                        <button class="p-2 bg-dark-tertiary border border-gray-600 rounded-md hover:bg-gray-600 hover:border-primary transition-colors" title="AI assist">🤖</button>
+                    </div>
+                    <button class="bg-primary hover:bg-primary-dark text-white px-5 py-2 rounded-md font-medium transition-colors">Share Thought</button>
+                </div>
+            </div>
+
+            <!-- Feed -->
+            <div class="space-y-1">
+                <!-- Thought Item 1 -->
+                <div class="bg-dark-secondary border border-gray-600 hover:border-primary transition-colors group rounded-t-lg">
+                    <div class="p-5 flex gap-4 relative">
+                        <!-- Vote Section -->
+                        <div class="flex flex-col items-center min-w-10">
+                            <button class="text-gray-400 hover:text-primary text-xl p-1 rounded hover:bg-dark-tertiary transition-colors">▲</button>
+                            <span class="text-sm font-bold text-gray-200 my-1">23</span>
+                            <button class="text-gray-400 hover:text-primary text-xl p-1 rounded hover:bg-dark-tertiary transition-colors">▼</button>
+                        </div>
+                        
+                        <!-- Content -->
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-3 flex-wrap">
+                                <span class="px-2 py-1 bg-blue-900 text-blue-300 text-xs font-bold uppercase rounded-full">Idea</span>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 bg-gradient-to-r from-primary to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xs">SM</div>
+                                    <a href="#" class="text-primary hover:underline font-medium">Sarah Mitchell</a>
+                                    <span class="text-gray-400 text-sm">2 hours ago</span>
+                                </div>
+                                <div class="ml-auto">
+                                    <span class="px-2 py-1 bg-slate-800 text-slate-400 text-xs rounded">3 connections</span>
+                                </div>
+                            </div>
+                            
+                            <h3 class="text-lg font-bold text-gray-200 mb-3 leading-tight">What if we created a social media platform where your posts automatically disappear unless someone finds them genuinely valuable?</h3>
+                            
+                            <p class="text-gray-300 mb-4 leading-relaxed">Like, if a post doesn't get meaningful engagement within 24 hours, it vanishes. This could reduce noise and promote quality content. I'm thinking about the psychology behind it - would people post more thoughtfully if they knew their content had to earn its place?</p>
+                            
+                            <!-- AI Summary -->
+                            <div class="bg-gradient-to-r from-slate-800 to-slate-700 border border-slate-600 rounded-lg p-4 mb-4">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-slate-300 text-xs font-bold">🤖 AI SUMMARY</span>
+                                </div>
+                                <p class="text-slate-200 text-sm leading-relaxed">This idea explores ephemeral social media with quality-based content persistence, addressing information overload and encouraging thoughtful posting through gamified content curation.</p>
+                            </div>
+                            
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <a href="#" class="px-2 py-1 bg-dark-tertiary border border-gray-600 text-gray-400 text-xs rounded-full hover:bg-primary hover:text-white hover:border-primary transition-colors">#socialmedia</a>
+                                <a href="#" class="px-2 py-1 bg-dark-tertiary border border-gray-600 text-gray-400 text-xs rounded-full hover:bg-primary hover:text-white hover:border-primary transition-colors">#digitalwellbeing</a>
+                                <a href="#" class="px-2 py-1 bg-dark-tertiary border border-gray-600 text-gray-400 text-xs rounded-full hover:bg-primary hover:text-white hover:border-primary transition-colors">#contentcuration</a>
+                            </div>
+                            
+                            <div class="flex gap-4 flex-wrap">
+                                <button class="flex items-center gap-2 px-3 py-2 bg-primary text-white rounded-md text-xs transition-colors">🤔 Intriguing <span>23</span></button>
+                                <button class="flex items-center gap-2 px-3 py-2 bg-dark-tertiary border border-gray-600 text-gray-300 rounded-md text-xs hover:bg-gray-600 hover:border-primary hover:text-primary transition-colors">🏗️ Build on this <span>8</span></button>
+                                <button class="flex items-center gap-2 px-3 py-2 bg-dark-tertiary border border-gray-600 text-gray-300 rounded-md text-xs hover:bg-gray-600 hover:border-primary hover:text-primary transition-colors">❓ Clarify? <span>3</span></button>
+                                <button class="flex items-center gap-2 px-3 py-2 bg-dark-tertiary border border-gray-600 text-gray-300 rounded-md text-xs hover:bg-gray-600 hover:border-primary hover:text-primary transition-colors">💬 Reply <span>12</span></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thought Item 2 -->
+                <div class="bg-dark-secondary border border-gray-600 hover:border-primary transition-colors group">
+                    <div class="p-5 flex gap-4 relative">
+                        <!-- Vote Section -->
+                        <div class="flex flex-col items-center min-w-10">
+                            <button class="text-gray-400 hover:text-primary text-xl p-1 rounded hover:bg-dark-tertiary transition-colors">▲</button>
+                            <span class="text-sm font-bold text-gray-200 my-1">15</span>
+                            <button class="text-gray-400 hover:text-primary text-xl p-1 rounded hover:bg-dark-tertiary transition-colors">▼</button>
+                        </div>
+                        
+                        <!-- Content -->
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-3 flex-wrap">
+                                <span class="px-2 py-1 bg-orange-900 text-orange-300 text-xs font-bold uppercase rounded-full">Question</span>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 bg-gradient-to-r from-primary to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xs">AL</div>
+                                    <a href="#" class="text-primary hover:underline font-medium">Alex Lee</a>
+                                    <span class="text-gray-400 text-sm">4 hours ago</span>
+                                </div>
+                            </div>
+                            
+                            <h3 class="text-lg font-bold text-gray-200 mb-3 leading-tight">Why do we still use QWERTY keyboards when there are more efficient layouts like Dvorak?</h3>
+                            
+                            <p class="text-gray-300 mb-4 leading-relaxed">Is it just because of historical momentum, or are there actual advantages I'm missing? I've been curious about this for a while but never found a definitive answer.</p>
+                            
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <a href="#" class="px-2 py-1 bg-dark-tertiary border border-gray-600 text-gray-400 text-xs rounded-full hover:bg-primary hover:text-white hover:border-primary transition-colors">#technology</a>
+                                <a href="#" class="px-2 py-1 bg-dark-tertiary border border-gray-600 text-gray-400 text-xs rounded-full hover:bg-primary hover:text-white hover:border-primary transition-colors">#design</a>
+                                <a href="#" class="px-2 py-1 bg-dark-tertiary border border-gray-600 text-gray-400 text-xs rounded-full hover:bg-primary hover:text-white hover:border-primary transition-colors">#efficiency</a>
+                            </div>
+                            
+                            <div class="flex gap-4 flex-wrap">
+                                <button class="flex items-center gap-2 px-3 py-2 bg-dark-tertiary border border-gray-600 text-gray-300 rounded-md text-xs hover:bg-gray-600 hover:border-primary hover:text-primary transition-colors">🤔 Intriguing <span>15</span></button>
+                                <button class="flex items-center gap-2 px-3 py-2 bg-dark-tertiary border border-gray-600 text-gray-300 rounded-md text-xs hover:bg-gray-600 hover:border-primary hover:text-primary transition-colors">✅ Agree <span>7</span></button>
+                                <button class="flex items-center gap-2 px-3 py-2 bg-dark-tertiary border border-gray-600 text-gray-300 rounded-md text-xs hover:bg-gray-600 hover:border-primary hover:text-primary transition-colors">❓ Clarify? <span>2</span></button>
+                                <button class="flex items-center gap-2 px-3 py-2 bg-primary text-white rounded-md text-xs transition-colors">💬 Reply <span>18</span></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thought Item 3 -->
+                <div class="bg-dark-secondary border border-gray-600 hover:border-primary transition-colors group rounded-b-lg">
+                    <div class="p-5 flex gap-4 relative">
+                        <!-- Vote Section -->
+                        <div class="flex flex-col items-center min-w-10">
+                            <button class="text-primary text-xl p-1 rounded bg-dark-tertiary">▲</button>
+                            <span class="text-sm font-bold text-gray-200 my-1">42</span>
+                            <button class="text-gray-400 hover:text-primary text-xl p-1 rounded hover:bg-dark-tertiary transition-colors">▼</button>
+                        </div>
+                        
+                        <!-- Content -->
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-3 flex-wrap">
+                                <span class="px-2 py-1 bg-green-900 text-green-300 text-xs font-bold uppercase rounded-full">Thought</span>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 bg-gradient-to-r from-primary to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xs">MR</div>
+                                    <a href="#" class="text-primary hover:underline font-medium">Maya Rodriguez</a>
+                                    <span class="text-gray-400 text-sm">6 hours ago</span>
+                                </div>
+                            </div>
+                            
+                            <h3 class="text-lg font-bold text-gray-200 mb-3 leading-tight">Shower thought: What if procrastination is actually our brain's way of giving our subconscious more time to work on problems?</h3>
+                            
+                            <p class="text-gray-300 mb-4 leading-relaxed">Maybe we're not being lazy, we're marinating ideas. Like, sometimes I procrastinate on writing something and when I finally sit down, the words flow much better than they would have originally.</p>
+                            
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <a href="#" class="px-2 py-1 bg-dark-tertiary border border-gray-600 text-gray-400 text-xs rounded-full hover:bg-primary hover:text-white hover:border-primary transition-colors">#psychology</a>
+                                <a href="#" class="px-2 py-1 bg-dark-tertiary border border-gray-600 text-gray-400 text-xs rounded-full hover:bg-primary hover:text-white hover:border-primary transition-colors">#productivity</a>
+                                <a href="#" class="px-2 py-1 bg-dark-tertiary border border-gray-600 text-gray-400 text-xs rounded-full hover:bg-primary hover:text-white hover:border-primary transition-colors">#mindfulness</a>
+                            </div>
+                            
+                            <div class="flex gap-4 flex-wrap">
+                                <button class="flex items-center gap-2 px-3 py-2 bg-dark-tertiary border border-gray-600 text-gray-300 rounded-md text-xs hover:bg-gray-600 hover:border-primary hover:text-primary transition-colors">🤔 Intriguing <span>42</span></button>
+                                <button class="flex items-center gap-2 px-3 py-2 bg-primary text-white rounded-md text-xs transition-colors">✅ Agree <span>28</span></button>
+                                <button class="flex items-center gap-2 px-3 py-2 bg-dark-tertiary border border-gray-600 text-gray-300 rounded-md text-xs hover:bg-gray-600 hover:border-primary hover:text-primary transition-colors">❌ Disagree <span>5</span></button>
+                                <button class="flex items-center gap-2 px-3 py-2 bg-dark-tertiary border border-gray-600 text-gray-300 rounded-md text-xs hover:bg-gray-600 hover:border-primary hover:text-primary transition-colors">💬 Reply <span>31</span></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex justify-center items-center gap-3 mt-8 p-5 bg-dark-secondary rounded-lg border border-gray-600">
+                <button class="px-3 py-2 bg-dark-tertiary border border-gray-600 text-gray-400 rounded-md text-sm opacity-50 cursor-not-allowed">Previous</button>
+                <button class="px-3 py-2 bg-primary text-white rounded-md text-sm">1</button>
+                <button class="px-3 py-2 bg-dark-tertiary border border-gray-600 text-gray-200 rounded-md text-sm hover:bg-gray-600 hover:border-primary hover:text-primary transition-colors">2</button>
+                <button class="px-3 py-2 bg-dark-tertiary border border-gray-600 text-gray-200 rounded-md text-sm hover:bg-gray-600 hover:border-primary hover:text-primary transition-colors">3</button>
+                <span class="text-gray-400">...</span>
+                <button class="px-3 py-2 bg-dark-tertiary border border-gray-600 text-gray-200 rounded-md text-sm hover:bg-gray-600 hover:border-primary hover:text-primary transition-colors">Next</button>
+            </div>
+        </div>
+
+        <!-- Right Sidebar -->
+        <div class="lg:col-span-1">
+            <div class="space-y-4 sticky top-24">
+                <!-- Trending Topics -->
+                <div class="bg-dark-secondary p-4 rounded-lg border border-gray-600">
+                    <h3 class="font-bold text-gray-200 mb-4 text-base">🔥 Trending Topics</h3>
+                    <div class="space-y-3">
+                        <div class="cursor-pointer hover:bg-dark-tertiary p-2 rounded -m-2 transition-colors">
+                            <div class="font-bold text-primary text-sm">#AIethics</div>
+                            <div class="text-gray-400 text-xs">1,247 thoughts</div>
+                        </div>
+                        <div class="cursor-pointer hover:bg-dark-tertiary p-2 rounded -m-2 transition-colors">
+                            <div class="font-bold text-primary text-sm">#climatetech</div>
+                            <div class="text-gray-400 text-xs">892 thoughts</div>
+                        </div>
+                        <div class="cursor-pointer hover:bg-dark-tertiary p-2 rounded -m-2 transition-colors">
+                            <div class="font-bold text-primary text-sm">#remotework</div>
+                            <div class="text-gray-400 text-xs">743 thoughts</div>
+                        </div>
+                        <div class="cursor-pointer hover:bg-dark-tertiary p-2 rounded -m-2 transition-colors">
+                            <div class="font-bold text-primary text-sm">#mentalhealth</div>
+                            <div class="text-gray-400 text-xs">634 thoughts</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Recommendations -->
+                <div class="bg-dark-secondary p-4 rounded-lg border border-gray-600">
+                    <h3 class="font-bold text-gray-200 mb-4 text-base">🎯 For You</h3>
+                    <div class="bg-gradient-to-r from-primary to-purple-600 text-white p-4 rounded-lg mb-4">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-sm font-bold">🤖 AI INSIGHT</span>
+                        </div>
+                        <p class="text-sm leading-relaxed">Based on your activity, you might enjoy thoughts about technology, psychology, and creative problem-solving.</p>
+                    </div>
+                </div>
+
+                <!-- Recent Connections -->
+                <div class="bg-dark-secondary p-4 rounded-lg border border-gray-600">
+                    <h3 class="font-bold text-gray-200 mb-4 text-base">🔗 Recent Connections</h3>
+                    <div class="text-gray-300 text-sm leading-relaxed">
+                        Your question about "digital minimalism" connected with 3 similar thoughts. 
+                        <a href="#" class="text-primary hover:underline">View connections →</a>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="bg-dark-secondary p-4 rounded-lg border border-gray-600">
+                    <h3 class="font-bold text-gray-200 mb-4 text-base">⚡ Quick Actions</h3>
+                    <div class="space-y-2">
+                        <button class="w-full text-left px-3 py-2 text-gray-300 hover:bg-dark-tertiary hover:text-primary rounded-md transition-colors text-sm">📝 Draft Ideas</button>
+                        <button class="w-full text-left px-3 py-2 text-gray-300 hover:bg-dark-tertiary hover:text-primary rounded-md transition-colors text-sm">🔍 Browse by Tag</button>
+                        <button class="w-full text-left px-3 py-2 text-gray-300 hover:bg-dark-tertiary hover:text-primary rounded-md transition-colors text-sm">👥 Find Thinkers</button>
+                        <button class="w-full text-left px-3 py-2 text-gray-300 hover:bg-dark-tertiary hover:text-primary rounded-md transition-colors text-sm">📈 View Insights</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <script>
+        // Post type selector functionality
+        document.querySelectorAll('.post-type button').forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                this.parentNode.querySelectorAll('button').forEach(btn => {
+                    btn.classList.remove('bg-primary', 'text-white');
+                    btn.classList.add('bg-dark-tertiary', 'border', 'border
