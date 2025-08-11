@@ -349,13 +349,124 @@
             </div>
         </div>
     </div>
-    
 
     <script>
         // Post type selector functionality
-        document.querySelectorAll('.post-type button').forEach(button => {
+        document.querySelectorAll('.post-creator .flex button').forEach(button => {
             button.addEventListener('click', function() {
                 // Remove active class from all buttons
                 this.parentNode.querySelectorAll('button').forEach(btn => {
                     btn.classList.remove('bg-primary', 'text-white');
-                    btn.classList.add('bg-dark-tertiary', 'border', 'border
+                    btn.classList.add('bg-dark-tertiary', 'border', 'border-gray-600', 'text-gray-200');
+                });
+                
+                // Add active class to clicked button
+                this.classList.remove('bg-dark-tertiary', 'border', 'border-gray-600', 'text-gray-200');
+                this.classList.add('bg-primary', 'text-white');
+                
+                // Update placeholder text
+                const textarea = document.querySelector('.post-creator textarea');
+                const placeholders = {
+                    '💡 Idea': "What's your nascent concept or project idea? Share something that's just beginning to form...",
+                    '❓ Question': "What question is burning in your mind? Ask the community anything...",
+                    '💭 Thought': "Share a musing, observation, or shower thought that's been floating around...",
+                    '🔗 Link': "Share an external resource with your thoughts attached..."
+                };
+                
+                const buttonText = this.textContent.trim();
+                textarea.placeholder = placeholders[buttonText] || "What's half-forming in your mind?";
+            });
+        });
+
+        // Filter tabs functionality
+        document.querySelectorAll('.content-filters button').forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all filter buttons
+                this.parentNode.querySelectorAll('button').forEach(btn => {
+                    btn.classList.remove('bg-primary', 'text-white');
+                    btn.classList.add('bg-dark-tertiary', 'border', 'border-gray-600', 'text-gray-200');
+                });
+                
+                // Add active class to clicked button
+                this.classList.remove('bg-dark-tertiary', 'border', 'border-gray-600', 'text-gray-200');
+                this.classList.add('bg-primary', 'text-white');
+            });
+        });
+
+        // Reaction buttons functionality
+        document.querySelectorAll('.flex button').forEach(button => {
+            if (button.textContent.includes('🤔') || button.textContent.includes('🏗️') || 
+                button.textContent.includes('❓') || button.textContent.includes('💬') || 
+                button.textContent.includes('✅') || button.textContent.includes('❌')) {
+                
+                button.addEventListener('click', function() {
+                    // Toggle active state for reaction buttons
+                    if (this.classList.contains('bg-primary')) {
+                        this.classList.remove('bg-primary', 'text-white');
+                        this.classList.add('bg-dark-tertiary', 'border', 'border-gray-600', 'text-gray-300');
+                    } else {
+                        this.classList.remove('bg-dark-tertiary', 'border', 'border-gray-600', 'text-gray-300');
+                        this.classList.add('bg-primary', 'text-white');
+                    }
+                    
+                    // Update count (simulate)
+                    const countSpan = this.querySelector('span');
+                    if (countSpan) {
+                        let count = parseInt(countSpan.textContent);
+                        if (this.classList.contains('bg-primary')) {
+                            count++;
+                        } else {
+                            count--;
+                        }
+                        countSpan.textContent = count;
+                    }
+                });
+            }
+        });
+
+        // Vote buttons functionality
+        document.querySelectorAll('.flex button').forEach(button => {
+            if (button.textContent === '▲' || button.textContent === '▼') {
+                button.addEventListener('click', function() {
+                    const voteContainer = this.parentNode;
+                    const countElement = voteContainer.querySelector('span');
+                    const isUpvote = this.textContent === '▲';
+                    const isActive = this.classList.contains('text-primary');
+                    
+                    // Reset both buttons
+                    voteContainer.querySelectorAll('button').forEach(btn => {
+                        btn.classList.remove('text-primary', 'bg-dark-tertiary');
+                        btn.classList.add('text-gray-400');
+                    });
+                    
+                    if (!isActive) {
+                        // Activate this button
+                        this.classList.remove('text-gray-400');
+                        this.classList.add('text-primary', 'bg-dark-tertiary');
+                        
+                        // Update count
+                        let count = parseInt(countElement.textContent);
+                        countElement.textContent = isUpvote ? count + 1 : count - 1;
+                    }
+                });
+            }
+        });
+
+        // Search functionality
+        document.querySelector('.search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                alert('Search functionality would be implemented here for: ' + this.value);
+            }
+        });
+
+        // Simulate real-time updates
+        setInterval(() => {
+            const timeElements = document.querySelectorAll('.time-ago');
+            timeElements.forEach(el => {
+                // This would normally connect to real-time data
+                console.log('Updating timestamps...');
+            });
+        }, 60000); // Update every minute
+    </script>
+</body>
+</html>
