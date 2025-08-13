@@ -1,61 +1,200 @@
-import React from 'react';
-import { FiSearch } from 'react-icons/fi';
-import { HiOutlineMoon, HiOutlineSun } from 'react-icons/hi2';
+import { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useDarkMode } from '../hooks/useDarkMode';
+import { 
+  FaBrain, 
+  FaSearch, 
+  FaSignOutAlt, 
+  FaBell, 
+  FaSun, 
+  FaMoon,
+  FaHome,
+  FaCompass,
+  FaLightbulb,
+  FaLink,
+  FaCog,
+  FaUser,
+  FaBars,
+  FaTimes
+} from 'react-icons/fa';
+import { useDarkMode } from '../contexts/DarkModeContext';
 
-export default function Navbar() {
-  const { isDark, toggle } = useDarkMode();
+const Navbar = ({ setIsAuthenticated }) => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { isDarkMode, toggleDarkMode } = useDarkMode();
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    navigate('/login');
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    // Handle search functionality
+    console.log('Searching for:', searchQuery);
+  };
+
+  const navItems = [
+    { path: '/', label: 'Home', icon: FaHome },
+    { path: '/explore', label: 'Explore', icon: FaCompass },
+    { path: '/profile', label: 'My Ideas', icon: FaLightbulb },
+    { path: '/connections', label: 'Connections', icon: FaLink },
+    { path: '/settings', label: 'Settings', icon: FaCog },
+  ];
 
   return (
-    <nav className="fixed inset-x-0 top-0 z-50 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-slate-900/60 bg-white/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-700">
-      <div className="max-w-7xl mx-auto h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2 text-2xl font-black text-indigo-600 dark:text-indigo-400">
-            <span role="img" aria-label="brain">🧠</span>
+    <>
+      <nav className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-5 h-16 flex items-center justify-between fixed w-full top-0 z-50 shadow-sm">
+        <div className="flex items-center gap-8">
+          <Link to="/" className="flex items-center gap-2 text-2xl font-bold text-blue-600 dark:text-blue-400">
+            <FaBrain className="text-3xl" />
             <span>ThinkSync</span>
-          </motion.div>
-          <div className="hidden md:flex items-center gap-1 text-sm">
-            {['Home', 'Explore', 'Tags', 'Users'].map((item, idx) => (
-              <motion.a
-                key={item}
-                href="#"
-                initial={{ opacity: 0, y: -6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.05 * (idx + 1) }}
-                className={`px-3 py-2 rounded-md font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400`}
-              >
-                {item}
-              </motion.a>
-            ))}
+          </Link>
+          
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex gap-6">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
+                    isActive
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  <Icon className="text-sm" />
+                  {item.label}
+                </Link>
+              );
+            })}
           </div>
         </div>
-
-        <div className="flex items-center gap-3">
-          <div className="relative hidden sm:block">
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+        
+        <div className="flex items-center gap-4">
+          {/* Search Bar */}
+          <form onSubmit={handleSearch} className="relative hidden sm:block">
             <input
-              className="w-72 pl-9 pr-3 py-2 rounded-lg text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 placeholder:text-slate-400 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+              type="text"
               placeholder="Search thoughts, ideas, questions..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-md text-gray-700 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 w-48 md:w-80 pr-10 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-300"
             />
-          </div>
+            <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          </form>
 
-          <button
-            onClick={toggle}
-            aria-label="Toggle dark mode"
-            className="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+          {/* Dark Mode Toggle */}
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={toggleDarkMode}
+            className="p-2 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           >
-            {isDark ? <HiOutlineMoon size={18} /> : <HiOutlineSun size={18} />}
-          </button>
+            {isDarkMode ? <FaSun className="text-xl" /> : <FaMoon className="text-xl" />}
+          </motion.button>
 
-          <div className="hidden sm:flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-bold grid place-items-center">
-              JD
-            </div>
-            <span className="text-slate-700 dark:text-slate-200 text-sm">John Doe</span>
-          </div>
+          {/* Notifications */}
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className="relative p-2 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            title="Notifications"
+          >
+            <FaBell className="text-xl" />
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              3
+            </span>
+          </motion.button>
+
+          {/* User Profile */}
+          <Link
+            to="/profile"
+            className="flex items-center gap-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 px-3 py-2 rounded-md transition-colors"
+          >
+            <img
+              src="https://placehold.co/32x32/667eea/ffffff?text=JD"
+              alt="User Avatar"
+              className="w-8 h-8 rounded-full"
+            />
+            <span className="text-gray-700 dark:text-gray-200 hidden lg:block">John Doe</span>
+          </Link>
+
+          {/* Logout */}
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={handleLogout}
+            className="text-gray-400 hover:text-red-500 transition-colors p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
+            title="Logout"
+          >
+            <FaSignOutAlt className="text-xl" />
+          </motion.button>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden p-2 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          >
+            {isMobileMenuOpen ? <FaTimes className="text-xl" /> : <FaBars className="text-xl" />}
+          </button>
         </div>
-      </div>
-    </nav>
+      </nav>
+
+      {/* Mobile Menu */}
+      <motion.div
+        initial={{ opacity: 0, height: 0 }}
+        animate={{ 
+          opacity: isMobileMenuOpen ? 1 : 0,
+          height: isMobileMenuOpen ? 'auto' : 0
+        }}
+        transition={{ duration: 0.3 }}
+        className="md:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 fixed top-16 w-full z-40 overflow-hidden"
+      >
+        <div className="p-4 space-y-2">
+          {/* Mobile Search */}
+          <form onSubmit={handleSearch} className="relative">
+            <input
+              type="text"
+              placeholder="Search thoughts, ideas, questions..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-md text-gray-700 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 pr-10 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
+            />
+            <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          </form>
+
+          {/* Mobile Navigation */}
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
+                  isActive
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                }`}
+              >
+                <Icon className="text-lg" />
+                {item.label}
+              </Link>
+            );
+          })}
+        </div>
+      </motion.div>
+    </>
   );
-} 
+};
+
+export default Navbar; 

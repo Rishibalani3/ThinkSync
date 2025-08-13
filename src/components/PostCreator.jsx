@@ -1,54 +1,147 @@
-import React, { useState } from 'react';
-import { FiImage, FiBarChart2, FiTag, FiCpu } from 'react-icons/fi';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { 
+  FaLightbulb, 
+  FaQuestion, 
+  FaComment, 
+  FaPaperPlane,
+  FaImage,
+  FaLink,
+  FaSmile
+} from 'react-icons/fa';
 
-const types = [
-  { key: 'idea', label: 'Idea', emoji: '💡', color: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300' },
-  { key: 'question', label: 'Question', emoji: '❓', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' },
-  { key: 'thought', label: 'Thought', emoji: '💭', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' },
-  { key: 'link', label: 'Link', emoji: '🔗', color: 'bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300' },
-];
+const PostCreator = ({ onNewPost }) => {
+  const [content, setContent] = useState('');
+  const [selectedType, setSelectedType] = useState('idea');
+  const [isExpanded, setIsExpanded] = useState(false);
 
-export default function PostCreator() {
-  const [active, setActive] = useState('idea');
-  const placeholders = {
-    idea: "What's your nascent concept or project idea? Share something that's just beginning to form...",
-    question: 'What question is burning in your mind? Ask the community anything...',
-    thought: "Share a musing, observation, or shower thought that's been floating around...",
-    link: 'Share an external resource with your thoughts attached...'
+  const postTypes = [
+    { id: 'idea', label: '💡 Idea', icon: FaLightbulb },
+    { id: 'question', label: '❓ Question', icon: FaQuestion },
+    { id: 'thought', label: '💭 Thought', icon: FaComment }
+  ];
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (content.trim()) {
+      onNewPost({
+        content: content.trim(),
+        type: selectedType
+      });
+      setContent('');
+      setIsExpanded(false);
+    }
+  };
+
+  const handleFocus = () => {
+    setIsExpanded(true);
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-5 mb-5">
-      <div className="flex gap-2 mb-4 flex-wrap">
-        {types.map(t => (
-          <button
-            key={t.key}
-            onClick={() => setActive(t.key)}
-            className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${active === t.key ? `${t.color}` : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'}`}
-          >
-            {t.emoji} {t.label}
-          </button>
-        ))}
-      </div>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm"
+    >
+      <form onSubmit={handleSubmit}>
+        <div className="flex items-start gap-3">
+          <img
+            src="https://placehold.co/40x40/667eea/ffffff?text=JD"
+            alt="User Avatar"
+            className="w-10 h-10 rounded-full"
+          />
+          <div className="flex-1">
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              onFocus={handleFocus}
+              placeholder="What's half-forming in your mind? Share an idea, question, or thought..."
+              className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-4 text-gray-700 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 resize-none focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 transition-colors"
+              rows={isExpanded ? 4 : 3}
+            />
+            
+            {isExpanded && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="mt-4 space-y-4"
+              >
+                {/* Post Type Selector */}
+                <div className="flex gap-2">
+                  {postTypes.map((type) => {
+                    const Icon = type.icon;
+                    return (
+                      <motion.button
+                        key={type.id}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        type="button"
+                        onClick={() => setSelectedType(type.id)}
+                        className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                          selectedType === type.id
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600'
+                        }`}
+                      >
+                        {type.label}
+                      </motion.button>
+                    );
+                  })}
+                </div>
 
-      <motion.textarea
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        rows={4}
-        placeholder={placeholders[active]}
-        className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 resize-y mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
-      />
+                {/* Action Buttons */}
+                <div className="flex items-center justify-between">
+                  <div className="flex gap-2">
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      type="button"
+                      className="p-2 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                      title="Add Image"
+                    >
+                      <FaImage />
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      type="button"
+                      className="p-2 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                      title="Add Link"
+                    >
+                      <FaLink />
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      type="button"
+                      className="p-2 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                      title="Add Emoji"
+                    >
+                      <FaSmile />
+                    </motion.button>
+                  </div>
 
-      <div className="flex justify-between items-center">
-        <div className="flex gap-2">
-          <button className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 dark:text-white text-black transition-colors" title="Add image"><FiImage /></button>
-          <button className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 dark:text-white text-black transition-colors" title="Add poll"><FiBarChart2 /></button>
-          <button className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 dark:text-white text-black transition-colors" title="Add tag"><FiTag /></button>
-          <button className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 dark:text-white text-black transition-colors" title="AI assist"><FiCpu /></button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    type="submit"
+                    disabled={!content.trim()}
+                    className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 disabled:cursor-not-allowed"
+                  >
+                    <FaPaperPlane className="text-sm" />
+                    Share
+                  </motion.button>
+                </div>
+              </motion.div>
+            )}
+          </div>
         </div>
-        <motion.button whileTap={{ scale: 0.98 }} className="px-5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium">Share Thought</motion.button>
-      </div>
-    </div>
+      </form>
+    </motion.div>
   );
-} 
+};
+
+export default PostCreator; 

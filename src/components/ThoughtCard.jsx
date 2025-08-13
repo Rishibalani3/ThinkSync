@@ -1,79 +1,164 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FiThumbsUp, FiMessageCircle, FiHelpCircle, FiTrendingUp, FiChevronUp, FiChevronDown } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
+import { 
+  FaHeart, 
+  FaComment, 
+  FaShare, 
+  FaBookmark,
+  FaEllipsisH,
+  FaLightbulb,
+  FaQuestion,
+  FaComment as FaThought
+} from 'react-icons/fa';
 
-export default function ThoughtCard({ type, author, initials, time, title, body, tags = [], connections = 0, defaultVotes = 0 }) {
-  const [votes, setVotes] = useState(defaultVotes);
-  const [voteState, setVoteState] = useState(null); // 'up' | 'down' | null
+const ThoughtCard = ({ post, onLike, onBookmark }) => {
+  const [showOptions, setShowOptions] = useState(false);
 
-  const onVote = dir => {
-    if (voteState === dir) return; // prevent double
-    const delta = dir === 'up' ? 1 : -1;
-    setVotes(prev => prev + (voteState ? (dir === 'up' ? 2 : -2) : delta));
-    setVoteState(dir);
+  const getTypeIcon = (type) => {
+    switch (type) {
+      case 'idea':
+        return <FaLightbulb className="text-yellow-500" />;
+      case 'question':
+        return <FaQuestion className="text-blue-500" />;
+      case 'thought':
+        return <FaThought className="text-green-500" />;
+      default:
+        return <FaLightbulb className="text-yellow-500" />;
+    }
   };
 
-  const pill = {
-    Idea: 'bg-indigo-900/50 text-indigo-300',
-    Question: 'bg-amber-900/50 text-amber-300',
-    Thought: 'bg-emerald-900/50 text-emerald-300',
-    Link: 'bg-sky-900/50 text-sky-300',
-  }[type] || 'bg-slate-800 text-slate-300';
+  const getTypeColor = (type) => {
+    switch (type) {
+      case 'idea':
+        return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200';
+      case 'question':
+        return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200';
+      case 'thought':
+        return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200';
+      default:
+        return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200';
+    }
+  };
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden"
+      whileHover={{ y: -2 }}
+      className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-200"
     >
-      <div className="p-5 flex gap-4">
-        <div className="flex flex-col items-center min-w-10">
-          <button onClick={() => onVote('up')} className={`p-1 rounded-lg ${voteState === 'up' ? 'text-indigo-600 dark:text-indigo-400 bg-slate-100 dark:bg-slate-800' : 'text-slate-400 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-800'}`}><FiChevronUp /></button>
-          <span className="text-sm font-bold text-slate-700 dark:text-slate-200 my-1">{votes}</span>
-          <button onClick={() => onVote('down')} className={`p-1 rounded-lg ${voteState === 'down' ? 'text-indigo-600 dark:text-indigo-400 bg-slate-100 dark:bg-slate-800' : 'text-slate-400 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-800'}`}><FiChevronDown /></button>
-        </div>
-
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-3 flex-wrap">
-            <span className={`px-2 py-1 text-xs font-bold uppercase rounded-full ${pill}`}>{type}</span>
+      {/* Header */}
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <img
+            src={post.author.avatar}
+            alt={post.author.name}
+            className="w-10 h-10 rounded-full"
+          />
+          <div>
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-xs font-bold grid place-items-center">{initials}</div>
-              <a href="#" className="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">{author}</a>
-              <span className="text-slate-400 text-sm">{time}</span>
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                {post.author.name}
+              </h3>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                {post.author.username}
+              </span>
             </div>
-            {connections > 0 && (
-              <div className="ml-auto">
-                <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-xs rounded">{connections} connections</span>
-              </div>
-            )}
-          </div>
-
-          <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-3 leading-tight">{title}</h3>
-          {body && <p className="text-slate-700 dark:text-slate-300 mb-4 leading-relaxed">{body}</p>}
-
-          {type === 'Idea' && (
-            <div className="bg-gradient-to-r from-slate-800 to-slate-700 border border-slate-600 rounded-lg p-4 mb-4 text-slate-200">
-              <div className="text-xs font-bold mb-1">🤖 AI SUMMARY</div>
-              <p className="text-sm">This idea explores ephemeral social media with quality-based content persistence, addressing information overload and encouraging thoughtful posting through gamified content curation.</p>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                {post.timestamp}
+              </span>
+              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(post.type)}`}>
+                {getTypeIcon(post.type)} {post.type}
+              </span>
             </div>
-          )}
-
-          {tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-4">
-              {tags.map(tag => (
-                <a key={tag} href="#" className="px-2 py-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 text-xs rounded hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-colors">#{tag}</a>
-              ))}
-            </div>
-          )}
-
-          <div className="flex gap-3 flex-wrap">
-            <button className="flex items-center gap-2 px-3 py-2 rounded-md text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-colors"><FiTrendingUp /> Intriguing</button>
-            <button className="flex items-center gap-2 px-3 py-2 rounded-md text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-colors"><FiHelpCircle /> Clarify?</button>
-            <button className="flex items-center gap-2 px-3 py-2 rounded-md text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-colors"><FiThumbsUp /> Agree</button>
-            <button className="flex items-center gap-2 px-3 py-2 rounded-md text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-colors"><FiMessageCircle /> Reply</button>
           </div>
         </div>
+
+        <div className="relative">
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setShowOptions(!showOptions)}
+            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+          >
+            <FaEllipsisH />
+          </motion.button>
+
+          {showOptions && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="absolute right-0 top-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-2 z-10 min-w-[150px]"
+            >
+              <button className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                Report
+              </button>
+              <button className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                Copy Link
+              </button>
+            </motion.div>
+          )}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="mb-4">
+        <p className="text-gray-800 dark:text-gray-200 leading-relaxed">
+          {post.content}
+        </p>
+      </div>
+
+      {/* Actions */}
+      <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
+        <div className="flex items-center gap-6">
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => onLike(post.id)}
+            className={`flex items-center gap-2 text-sm transition-colors ${
+              post.isLiked
+                ? 'text-red-500'
+                : 'text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400'
+            }`}
+          >
+            <FaHeart className={post.isLiked ? 'fill-current' : ''} />
+            {post.likes}
+          </motion.button>
+
+          <Link
+            to={`/post/${post.id}`}
+            className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+          >
+            <FaComment />
+            {post.comments}
+          </Link>
+
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 transition-colors"
+          >
+            <FaShare />
+            {post.shares}
+          </motion.button>
+        </div>
+
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => onBookmark(post.id)}
+          className={`p-2 rounded-full transition-colors ${
+            post.isBookmarked
+              ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/30'
+              : 'text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+          }`}
+        >
+          <FaBookmark className={post.isBookmarked ? 'fill-current' : ''} />
+        </motion.button>
       </div>
     </motion.div>
   );
-} 
+};
+
+export default ThoughtCard; 
