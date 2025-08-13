@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThinkSync - Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#667eea',
+                        'primary-dark': '#5a67d8',
+                        dark: '#1a1a1a',
+                        'dark-secondary': '#2d2d2d',
+                        'dark-tertiary': '#404040'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-dark text-gray-200 min-h-screen font-sans">
+    <!-- Top Navigation Bar -->
+    <nav class="bg-dark-secondary border-b border-gray-600 px-5 h-16 flex items-center justify-between fixed w-full top-0 z-50">
+        <div class="flex items-center gap-8">
+            <a href="./index.html" class="flex items-center gap-2 text-2xl font-bold text-primary">
+                <i class="fas fa-brain"></i> <span>ThinkSync</span>
+            </a>
+            <div class="hidden md:flex gap-6">
+                <a href="./index.html" class="text-gray-200 px-3 py-2 rounded-md hover:bg-primary hover:text-white transition-colors bg-primary text-white">Home</a>
+                <a href="#" class="text-gray-200 px-3 py-2 rounded-md hover:bg-primary hover:text-white transition-colors">Explore</a>
+                <a href="#" class="text-gray-200 px-3 py-2 rounded-md hover:bg-primary hover:text-white transition-colors">Tags</a>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <div class="relative">
+                <input type="text" placeholder="Search thoughts, ideas, questions..." 
+                       class="bg-dark-tertiary border border-gray-600 px-3 py-2 rounded-md text-gray-200 placeholder-gray-400 w-48 md:w-80 pr-10 focus:outline-none focus:border-primary transition-all duration-300">
+                <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            </div>
+            <a href="./profile.html" class="flex items-center gap-3 cursor-pointer hover:bg-dark-tertiary px-3 py-2 rounded-md transition-colors">
+                <img src="https://placehold.co/32x32/667eea/ffffff?text=JD" alt="User Avatar" class="w-8 h-8 rounded-full">
+                <span class="text-gray-200 hidden lg:block">John Doe</span>
+            </a>
+             <a href="./login.html" class="text-gray-400 hover:text-primary transition-colors" title="Logout">
+                <i class="fas fa-sign-out-alt text-xl"></i>
+            </a>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto mt-16 grid grid-cols-1 lg:grid-cols-10 gap-6 p-5">
+        <!-- Left Sidebar -->
+        <aside class="lg:col-span-2 hidden lg:block">
+            <div class="bg-dark-secondary p-5 rounded-lg border border-gray-600 sticky top-24">
+                <nav class="space-y-1">
+                    <a href="./index.html" class="flex items-center gap-3 px-3 py-2 rounded-md bg-primary text-white">
+                        <i class="fas fa-home fa-fw"></i> Home
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-200 hover:bg-dark-tertiary hover:text-primary transition-colors">
+                        <i class="fas fa-compass fa-fw"></i> Explore
+                    </a>
+                    <a href="./profile.html" class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-200 hover:bg-dark-tertiary hover:text-primary transition-colors">
+                        <i class="fas fa-lightbulb fa-fw"></i> My Ideas
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-200 hover:bg-dark-tertiary hover:text-primary transition-colors">
+                        <i class="fas fa-link fa-fw"></i> Connections
+                    </a>
+                    <a href="./settings.html" class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-200 hover:bg-dark-tertiary hover:text-primary transition-colors">
+                        <i class="fas fa-cog fa-fw"></i> Settings
+                    </a>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="lg:col-span-5">
+            <!-- Post Creator -->
+            <div class="bg-dark-secondary p-5 rounded-lg border border-gray-600 mb-5">
+                <textarea id="post-creator-textarea" placeholder="What's half-forming in your mind? Share an idea, question, or thought..."
+                          class="w-full h-24 bg-dark-tertiary border border-gray-600 rounded-md p-3 text-gray-200 placeholder-gray-400 resize-y mb-4 focus:outline-none focus:border-primary"></textarea>
+                
+                <div class="flex justify-between items-center">
+                    <div id="post-type-selector" class="flex gap-2">
+                         <button class="px-3 py-1 bg-dark-tertiary border border-gray-600 text-gray-200 rounded-full text-xs font-semibold hover:border-primary hover:text-primary transition-colors">💡 Idea</button>
+                         <button class="px-3 py-1 bg-dark-tertiary border border-gray-600 text-gray-200 rounded-full text-xs font-semibold hover:border-primary hover:text-primary transition-colors">❓ Question</button>
+                         <button class="px-3 py-1 bg-dark-tertiary border border-gray-600 text-gray-200 rounded-full text-xs font-semibold hover:border-primary hover:text-primary transition-colors">💭 Thought</button>
+                    </div>
+                    <button class="bg-primary hover:bg-primary-dark text-white px-5 py-2 rounded-md font-medium transition-colors flex items-center gap-2">
+                        <i class="fas fa-paper-plane"></i> Share
+                    </button>
+                </div>
+            </div>
+
+            <!-- Feed -->
+            <div id="feed-container" class="space-y-4">
+                <!-- Thought Item 1 -->
+                <div class="feed-item bg-dark-secondary border border-gray-600 hover:border-primary transition-colors group rounded-lg">
+                    <a href="./post-detail.html" class="block p-5">
+                        <div class="flex items-center gap-3 mb-3 flex-wrap">
+                            <span class="px-2 py-1 bg-blue-900 text-blue-300 text-xs font-bold uppercase rounded-full">Idea</span>
+                            <img src="https://placehold.co/24x24/5a67d8/ffffff?text=SM" alt="Sarah Mitchell" class="w-6 h-6 rounded-full">
+                            <span class="text-primary hover:underline font-medium">Sarah Mitchell</span><span class="text-gray-400 text-sm">· 2 hours ago</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-200 mb-3">What if we created a social media platform where your posts automatically disappear unless someone finds them genuinely valuable?</h3>
+                    </a>
+                    <div class="border-t border-gray-600 px-5 py-3 flex gap-4 flex-wrap reaction-buttons">
+                        <button class="reaction-btn flex items-center gap-2 px-3 py-1 bg-dark-tertiary border border-gray-600 text-gray-300 rounded-full text-xs hover:bg-primary hover:text-white hover:border-primary transition-colors">🤔 Intriguing <span class="font-bold">23</span></button>
+                        <button class="reaction-btn flex items-center gap-2 px-3 py-1 bg-dark-tertiary border border-gray-600 text-gray-300 rounded-full text-xs hover:bg-primary hover:text-white hover:border-primary transition-colors">🏗️ Build on this <span class="font-bold">8</span></button>
+                        <a href="./post-detail.html" class="reaction-btn flex items-center gap-2 px-3 py-1 bg-dark-tertiary border border-gray-600 text-gray-300 rounded-full text-xs hover:bg-primary hover:text-white hover:border-primary transition-colors">💬 Reply <span class="font-bold">12</span></a>
+                    </div>
+                </div>
+
+                <!-- Thought Item 2 (Sensitive Content) -->
+                <div id="sensitive-post" class="feed-item bg-dark-secondary border border-gray-600 rounded-lg">
+                    <div class="p-5">
+                        <div class="flex items-center gap-3 text-yellow-400 mb-3"><i class="fas fa-exclamation-triangle"></i><span class="font-bold text-sm">Sensitive Content</span></div>
+                        <p class="text-gray-400 mb-4">This content was flagged by our AI as potentially sensitive. It discusses topics that may be challenging for some users.</p>
+                        <button id="show-sensitive-content" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">Show Content</button>
+                    </div>
+                </div>
+                <div id="sensitive-post-content" class="feed-item hidden bg-dark-secondary border border-gray-600 hover:border-primary transition-colors group rounded-lg">
+                     <a href="./post-detail.html" class="block p-5">
+                         <h3 class="text-lg font-bold text-gray-200 mb-3">A thought on the philosophical implications of AI consciousness.</h3>
+                         <p class="text-gray-300">If an AI achieves sentience, what moral obligations do we have towards it? This is a deep and potentially uncomfortable question we need to start addressing seriously.</p>
+                    </a>
+                </div>
+
+                <!-- Thought Item 3 -->
+                <div class="feed-item bg-dark-secondary border border-gray-600 hover:border-primary transition-colors group rounded-lg">
+                     <a href="./post-detail.html" class="block p-5">
+                        <div class="flex items-center gap-3 mb-3 flex-wrap">
+                            <span class="px-2 py-1 bg-green-900 text-green-300 text-xs font-bold uppercase rounded-full">Thought</span>
+                            <img src="https://placehold.co/24x24/667eea/ffffff?text=MR" alt="Maya Rodriguez" class="w-6 h-6 rounded-full">
+                            <span class="text-primary hover:underline font-medium">Maya Rodriguez</span><span class="text-gray-400 text-sm">· 6 hours ago</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-200 mb-3">Shower thought: What if procrastination is actually our brain's way of giving our subconscious more time to work on problems?</h3>
+                    </a>
+                    <div class="border-t border-gray-600 px-5 py-3 flex gap-4 flex-wrap reaction-buttons">
+                        <button class="reaction-btn flex items-center gap-2 px-3 py-1 bg-dark-tertiary border border-gray-600 text-gray-300 rounded-full text-xs hover:bg-primary hover:text-white hover:border-primary transition-colors">🤔 Intriguing <span class="font-bold">42</span></button>
+                        <button class="reaction-btn flex items-center gap-2 px-3 py-1 bg-dark-tertiary border border-gray-600 text-gray-300 rounded-full text-xs hover:bg-primary hover:text-white hover:border-primary transition-colors">✅ Agree <span class="font-bold">28</span></button>
+                        <a href="./post-detail.html" class="reaction-btn flex items-center gap-2 px-3 py-1 bg-dark-tertiary border border-gray-600 text-gray-300 rounded-full text-xs hover:bg-primary hover:text-white hover:border-primary transition-colors">💬 Reply <span class="font-bold">31</span></a>
+                    </div>
+                </div>
+
+                <!-- ADDED SAMPLE DATA -->
+                <div class="feed-item bg-dark-secondary border border-gray-600 hover:border-primary transition-colors group rounded-lg">
+                    <a href="./post-detail.html" class="block p-5">
+                        <div class="flex items-center gap-3 mb-3 flex-wrap">
+                            <span class="px-2 py-1 bg-purple-900 text-purple-300 text-xs font-bold uppercase rounded-full">Link</span>
+                            <img src="https://placehold.co/24x24/5a67d8/ffffff?text=CE" alt="Chris Evans" class="w-6 h-6 rounded-full">
+                            <span class="text-primary hover:underline font-medium">Chris Evans</span><span class="text-gray-400 text-sm">· 1 day ago</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-200 mb-3">Urban farming is becoming more viable with vertical farming tech. This could reshape our cities.</h3>
+                        <p class="text-gray-300 text-sm bg-dark-tertiary p-3 rounded-md border border-gray-600">🔗 www.example.com/urban-farming-revolution</p>
+                    </a>
+                    <div class="border-t border-gray-600 px-5 py-3 flex gap-4 flex-wrap reaction-buttons">
+                        <button class="reaction-btn flex items-center gap-2 px-3 py-1 bg-dark-tertiary border border-gray-600 text-gray-300 rounded-full text-xs hover:bg-primary hover:text-white hover:border-primary transition-colors">🤔 Intriguing <span class="font-bold">19</span></button>
+                        <a href="./post-detail.html" class="reaction-btn flex items-center gap-2 px-3 py-1 bg-dark-tertiary border border-gray-600 text-gray-300 rounded-full text-xs hover:bg-primary hover:text-white hover:border-primary transition-colors">💬 Reply <span class="font-bold">5</span></a>
+                    </div>
+                </div>
+
+                <div class="feed-item bg-dark-secondary border border-gray-600 hover:border-primary transition-colors group rounded-lg">
+                    <a href="./post-detail.html" class="block p-5">
+                        <div class="flex items-center gap-3 mb-3 flex-wrap">
+                            <span class="px-2 py-1 bg-orange-900 text-orange-300 text-xs font-bold uppercase rounded-full">Question</span>
+                            <img src="https://placehold.co/24x24/667eea/ffffff?text=DP" alt="Diana Prince" class="w-6 h-6 rounded-full">
+                            <span class="text-primary hover:underline font-medium">Diana Prince</span><span class="text-gray-400 text-sm">· 2 days ago</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-200 mb-3">What's the most underrated productivity hack you know? Not looking for the usual "pomodoro" answers.</h3>
+                    </a>
+                    <div class="border-t border-gray-600 px-5 py-3 flex gap-4 flex-wrap reaction-buttons">
+                        <button class="reaction-btn flex items-center gap-2 px-3 py-1 bg-dark-tertiary border border-gray-600 text-gray-300 rounded-full text-xs hover:bg-primary hover:text-white hover:border-primary transition-colors">🏗️ Build on this <span class="font-bold">33</span></button>
+                        <a href="./post-detail.html" class="reaction-btn flex items-center gap-2 px-3 py-1 bg-dark-tertiary border border-gray-600 text-gray-300 rounded-full text-xs hover:bg-primary hover:text-white hover:border-primary transition-colors">💬 Reply <span class="font-bold">48</span></a>
+                    </div>
+                </div>
+
+                <div class="feed-item bg-dark-secondary border border-gray-600 hover:border-primary transition-colors group rounded-lg">
+                    <a href="./post-detail.html" class="block p-5">
+                        <div class="flex items-center gap-3 mb-3 flex-wrap">
+                            <span class="px-2 py-1 bg-blue-900 text-blue-300 text-xs font-bold uppercase rounded-full">Idea</span>
+                            <img src="https://placehold.co/24x24/5a67d8/ffffff?text=BC" alt="Ben Carter" class="w-6 h-6 rounded-full">
+                            <span class="text-primary hover:underline font-medium">Ben Carter</span><span class="text-gray-400 text-sm">· 2 days ago</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-200 mb-3">An app that uses AI to create personalized bedtime stories for kids based on their day's activities and interests.</h3>
+                    </a>
+                    <div class="border-t border-gray-600 px-5 py-3 flex gap-4 flex-wrap reaction-buttons">
+                        <button class="reaction-btn flex items-center gap-2 px-3 py-1 bg-dark-tertiary border border-gray-600 text-gray-300 rounded-full text-xs hover:bg-primary hover:text-white hover:border-primary transition-colors">🤔 Intriguing <span class="font-bold">71</span></button>
+                        <button class="reaction-btn flex items-center gap-2 px-3 py-1 bg-dark-tertiary border border-gray-600 text-gray-300 rounded-full text-xs hover:bg-primary hover:text-white hover:border-primary transition-colors">🏗️ Build on this <span class="font-bold">22</span></button>
+                        <a href="./post-detail.html" class="reaction-btn flex items-center gap-2 px-3 py-1 bg-dark-tertiary border border-gray-600 text-gray-300 rounded-full text-xs hover:bg-primary hover:text-white hover:border-primary transition-colors">💬 Reply <span class="font-bold">15</span></a>
+                    </div>
+                </div>
+                
+                <div class="feed-item bg-dark-secondary border border-gray-600 hover:border-primary transition-colors group rounded-lg">
+                    <a href="./post-detail.html" class="block p-5">
+                        <div class="flex items-center gap-3 mb-3 flex-wrap">
+                            <span class="px-2 py-1 bg-green-900 text-green-300 text-xs font-bold uppercase rounded-full">Thought</span>
+                            <img src="https://placehold.co/24x24/667eea/ffffff?text=EC" alt="Emily Clark" class="w-6 h-6 rounded-full">
+                            <span class="text-primary hover:underline font-medium">Emily Clark</span><span class="text-gray-400 text-sm">· 3 days ago</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-200 mb-3">It's strange how we collect thousands of digital 'memories' as photos but rarely look back at them with the same fondness as a physical photo album.</h3>
+                    </a>
+                    <div class="border-t border-gray-600 px-5 py-3 flex gap-4 flex-wrap reaction-buttons">
+                        <button class="reaction-btn flex items-center gap-2 px-3 py-1 bg-dark-tertiary border border-gray-600 text-gray-300 rounded-full text-xs hover:bg-primary hover:text-white hover:border-primary transition-colors">✅ Agree <span class="font-bold">95</span></button>
+                        <a href="./post-detail.html" class="reaction-btn flex items-center gap-2 px-3 py-1 bg-dark-tertiary border border-gray-600 text-gray-300 rounded-full text-xs hover:bg-primary hover:text-white hover:border-primary transition-colors">💬 Reply <span class="font-bold">24</span></a>
+                    </div>
+                </div>
+
+                 <div class="feed-item bg-dark-secondary border border-gray-600 hover:border-primary transition-colors group rounded-lg">
+                    <a href="./post-detail.html" class="block p-5">
+                        <div class="flex items-center gap-3 mb-3 flex-wrap">
+                            <span class="px-2 py-1 bg-orange-900 text-orange-300 text-xs font-bold uppercase rounded-full">Question</span>
+                            <img src="https://placehold.co/24x24/5a67d8/ffffff?text=FG" alt="Frank Green" class="w-6 h-6 rounded-full">
+                            <span class="text-primary hover:underline font-medium">Frank Green</span><span class="text-gray-400 text-sm">· 4 days ago</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-200 mb-3">If you could learn one skill instantly, right now, what would it be and why?</h3>
+                    </a>
+                    <div class="border-t border-gray-600 px-5 py-3 flex gap-4 flex-wrap reaction-buttons">
+                        <button class="reaction-btn flex items-center gap-2 px-3 py-1 bg-dark-tertiary border border-gray-600 text-gray-300 rounded-full text-xs hover:bg-primary hover:text-white hover:border-primary transition-colors">🤔 Intriguing <span class="font-bold">150</span></button>
+                        <a href="./post-detail.html" class="reaction-btn flex items-center gap-2 px-3 py-1 bg-dark-tertiary border border-gray-600 text-gray-300 rounded-full text-xs hover:bg-primary hover:text-white hover:border-primary transition-colors">💬 Reply <span class="font-bold">112</span></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex justify-center items-center gap-3 mt-8 p-5 bg-dark-secondary rounded-lg border border-gray-600">
+                <button id="prev-page" class="px-3 py-2 bg-dark-tertiary border border-gray-600 text-gray-400 rounded-md text-sm">Previous</button>
+                <div id="pagination-numbers" class="flex items-center gap-3">
+                    <!-- Page numbers will be inserted here by JS -->
+                </div>
+                <button id="next-page" class="px-3 py-2 bg-dark-tertiary border border-gray-600 text-gray-200 rounded-md text-sm">Next</button>
+            </div>
+        </div>
+
+        <!-- Right Sidebar -->
+        <aside class="lg:col-span-3 hidden lg:block">
+            <div class="space-y-4 sticky top-24">
+                <div class="bg-dark-secondary p-4 rounded-lg border border-gray-600">
+                    <h3 class="font-bold text-gray-200 mb-4 text-base flex items-center gap-2"><i class="fas fa-fire text-red-500"></i> Trending Tags</h3>
+                    <div class="space-y-3">
+                        <a href="#" class="block hover:bg-dark-tertiary p-2 rounded -m-2 transition-colors">
+                            <div class="font-bold text-primary text-sm">#AIethics</div>
+                            <div class="text-gray-400 text-xs">1,247 thoughts</div>
+                        </a>
+                        <a href="#" class="block hover:bg-dark-tertiary p-2 rounded -m-2 transition-colors">
+                            <div class="font-bold text-primary text-sm">#productivity</div>
+                            <div class="text-gray-400 text-xs">981 thoughts</div>
+                        </a>
+                        <a href="#" class="block hover:bg-dark-tertiary p-2 rounded -m-2 transition-colors">
+                            <div class="font-bold text-primary text-sm">#remotework</div>
+                            <div class="text-gray-400 text-xs">743 thoughts</div>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="bg-dark-secondary p-4 rounded-lg border border-gray-600">
+                    <h3 class="font-bold text-gray-200 mb-4 text-base flex items-center gap-2"><i class="fas fa-star text-yellow-400"></i> Serendipity Engine</h3>
+                     <div class="bg-gradient-to-r from-primary to-purple-600 text-white p-4 rounded-lg mb-4">
+                        <div class="flex items-center gap-2 mb-2"><i class="fas fa-robot"></i><span class="text-sm font-bold">AI INSIGHT</span></div>
+                        <p class="text-sm leading-relaxed">Your interest in #psychology connects with new thoughts on #gamification. Explore the link?</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- PAGINATION SCRIPT ---
+            const feedContainer = document.getElementById('feed-container');
+            const feedItems = Array.from(feedContainer.getElementsByClassName('feed-item'));
+            const paginationNumbers = document.getElementById('pagination-numbers');
+            const prevButton = document.getElementById('prev-page');
+            const nextButton = document.getElementById('next-page');
+
+            const itemsPerPage = 4;
+            let currentPage = 1;
+            const pageCount = Math.ceil(feedItems.length / itemsPerPage);
+
+            function showPage(page) {
+                currentPage = page;
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+
+                feedItems.forEach((item, index) => {
+                    item.classList.add('hidden');
+                    if (index >= startIndex && index < endIndex) {
+                        item.classList.remove('hidden');
+                    }
+                });
+                updatePaginationButtons();
+            }
+
+            function setupPagination() {
+                paginationNumbers.innerHTML = '';
+                for (let i = 1; i <= pageCount; i++) {
+                    const button = document.createElement('button');
+                    button.textContent = i;
+                    button.className = 'w-8 h-8 bg-dark-tertiary border border-gray-600 text-gray-200 rounded-md text-sm hover:bg-gray-600 hover:border-primary hover:text-primary transition-colors';
+                    button.addEventListener('click', () => showPage(i));
+                    paginationNumbers.appendChild(button);
+                }
+            }
+
+            function updatePaginationButtons() {
+                // Update page number styles
+                Array.from(paginationNumbers.children).forEach((button, index) => {
+                    if (index + 1 === currentPage) {
+                        button.classList.add('bg-primary', 'text-white');
+                        button.classList.remove('bg-dark-tertiary', 'text-gray-200');
+                    } else {
+                        button.classList.remove('bg-primary', 'text-white');
+                        button.classList.add('bg-dark-tertiary', 'text-gray-200');
+                    }
+                });
+                // Update prev/next button states
+                prevButton.disabled = currentPage === 1;
+                nextButton.disabled = currentPage === pageCount;
+                prevButton.classList.toggle('opacity-50', currentPage === 1);
+                nextButton.classList.toggle('opacity-50', currentPage === pageCount);
+            }
+
+            prevButton.addEventListener('click', () => {
+                if (currentPage > 1) showPage(currentPage - 1);
+            });
+
+            nextButton.addEventListener('click', () => {
+                if (currentPage < pageCount) showPage(currentPage + 1);
+            });
+
+            // Initial setup
+            setupPagination();
+            showPage(1);
+
+
+            // --- OTHER INTERACTIVITY SCRIPTS ---
+            const postTypeSelector = document.getElementById('post-type-selector');
+            if(postTypeSelector) {
+                postTypeSelector.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'BUTTON') {
+                        postTypeSelector.querySelectorAll('button').forEach(btn => btn.classList.remove('bg-primary', 'text-white'));
+                        e.target.classList.add('bg-primary', 'text-white');
+                    }
+                });
+            }
+
+            document.querySelectorAll('.reaction-buttons').forEach(container => {
+                container.addEventListener('click', (e) => {
+                    const button = e.target.closest('button.reaction-btn');
+                    if (button) {
+                        button.classList.toggle('bg-primary');
+                        button.classList.toggle('text-white');
+                    }
+                });
+            });
+            
+            const showSensitiveBtn = document.getElementById('show-sensitive-content');
+            const sensitivePost = document.getElementById('sensitive-post');
+            const sensitivePostContent = document.getElementById('sensitive-post-content');
+            if(showSensitiveBtn) {
+                showSensitiveBtn.addEventListener('click', () => {
+                    sensitivePost.classList.add('hidden');
+                    sensitivePostContent.classList.remove('hidden');
+                });
+            }
+        });
+    </script>
+    <style>
+        /* Remove @apply. Use Tailwind classes directly in HTML elements. */
+    </style>
+</body>
+</html>
