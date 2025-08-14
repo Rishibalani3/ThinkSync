@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { FaBrain, FaEye, FaEyeSlash, FaGoogle, FaGithub } from "react-icons/fa";
+import {
+  FaBrain,
+  FaEye,
+  FaEyeSlash,
+  FaGoogle,
+  FaGithub,
+  FaFacebook,
+} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 const Login = ({ setIsAuthenticated }) => {
@@ -83,8 +90,8 @@ const Login = ({ setIsAuthenticated }) => {
               whileTap={{ scale: 0.98 }}
               className="w-full flex items-center justify-center gap-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 px-4 py-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
             >
-              <FaGithub />
-              Continue with GitHub
+              <FaFacebook />
+              Continue with Facebook
             </motion.button>
           </div>
 

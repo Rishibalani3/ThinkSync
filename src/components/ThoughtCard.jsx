@@ -12,7 +12,7 @@ import {
   FaComment as FaThought,
 } from "react-icons/fa";
 
-const ThoughtCard = ({ post, onLike, onBookmark }) => {
+const ThoughtCard = ({ post, onLike, onBookmark, extraClass }) => {
   const [showOptions, setShowOptions] = useState(false);
 
   const getTypeIcon = (type) => {
@@ -47,7 +47,7 @@ const ThoughtCard = ({ post, onLike, onBookmark }) => {
       className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-200"
     >
       {/* Header */}
-      <div className="flex items-start justify-between mb-4">
+      <div className="flex items-start justify-between mb-4 ">
         <div className="flex items-center gap-3">
           <img
             src={post.author.avatar}

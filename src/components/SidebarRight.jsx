@@ -1,71 +1,71 @@
-import { motion } from 'framer-motion';
-import { BiTrendingUp } from 'react-icons/bi';
-import { 
+import { motion } from "framer-motion";
+import { BiTrendingUp } from "react-icons/bi";
+import {
   FaUsers,
   FaLightbulb,
   FaQuestion,
   FaComment,
   FaStar,
   FaPlus,
-  FaBell
-} from 'react-icons/fa';
+  FaBell,
+} from "react-icons/fa";
 
 const SidebarRight = () => {
   const trendingPosts = [
     {
       id: 1,
-      title: 'The future of remote work',
-      author: 'Alex Chen',
+      title: "The future of remote work",
+      author: "Alex Chen",
       likes: 234,
-      type: 'idea'
+      type: "idea",
     },
     {
       id: 2,
-      title: 'How to stay productive?',
-      author: 'Maria Garcia',
+      title: "How to stay productive?",
+      author: "Maria Garcia",
       likes: 189,
-      type: 'question'
+      type: "question",
     },
     {
       id: 3,
-      title: 'AI in education thoughts',
-      author: 'David Kim',
+      title: "AI in education thoughts",
+      author: "David Kim",
       likes: 156,
-      type: 'thought'
-    }
+      type: "thought",
+    },
   ];
 
   const suggestedConnections = [
     {
       id: 1,
-      name: 'Sarah Wilson',
-      avatar: 'https://placehold.co/40x40/667eea/ffffff?text=SW',
-      bio: 'AI Researcher',
-      mutualConnections: 3
+      name: "Sarah Wilson",
+      avatar: "https://placehold.co/40x40/667eea/ffffff?text=SW",
+      bio: "AI Researcher",
+      mutualConnections: 3,
     },
     {
       id: 2,
-      name: 'Mike Johnson',
-      avatar: 'https://placehold.co/40x40/667eea/ffffff?text=MJ',
-      bio: 'Product Designer',
-      mutualConnections: 5
+      name: "Mike Johnson",
+      avatar: "https://placehold.co/40x40/667eea/ffffff?text=MJ",
+      bio: "Product Designer",
+      mutualConnections: 5,
     },
     {
       id: 3,
-      name: 'Lisa Park',
-      avatar: 'https://placehold.co/40x40/667eea/ffffff?text=LP',
-      bio: 'Data Scientist',
-      mutualConnections: 2
-    }
+      name: "Lisa Park",
+      avatar: "https://placehold.co/40x40/667eea/ffffff?text=LP",
+      bio: "Data Scientist",
+      mutualConnections: 2,
+    },
   ];
 
   const getTypeIcon = (type) => {
     switch (type) {
-      case 'idea':
+      case "idea":
         return <FaLightbulb className="text-yellow-500" />;
-      case 'question':
+      case "question":
         return <FaQuestion className="text-blue-500" />;
-      case 'thought':
+      case "thought":
         return <FaComment className="text-green-500" />;
       default:
         return <FaLightbulb className="text-yellow-500" />;
@@ -74,7 +74,6 @@ const SidebarRight = () => {
 
   return (
     <div className="space-y-6">
-      {/* Trending Posts */}
       <motion.div
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -118,7 +117,6 @@ const SidebarRight = () => {
         </div>
       </motion.div>
 
-      {/* Suggested Connections */}
       <motion.div
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -167,57 +165,8 @@ const SidebarRight = () => {
           ))}
         </div>
       </motion.div>
-
-      {/* Activity Summary */}
-      <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.2, duration: 0.5 }}
-        className="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700"
-      >
-        <div className="flex items-center gap-2 mb-4">
-          <FaBell className="text-green-500" />
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            Your Activity
-          </h3>
-        </div>
-        <div className="space-y-3">
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600 dark:text-gray-300">Posts this week</span>
-            <span className="text-lg font-bold text-blue-600 dark:text-blue-400">12</span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600 dark:text-gray-300">Connections made</span>
-            <span className="text-lg font-bold text-green-600 dark:text-green-400">8</span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600 dark:text-gray-300">Ideas shared</span>
-            <span className="text-lg font-bold text-purple-600 dark:text-purple-400">5</span>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Quick Stats */}
-      <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.3, duration: 0.5 }}
-        className="bg-gradient-to-br from-blue-500 to-purple-600 p-5 rounded-lg text-white"
-      >
-        <h3 className="text-lg font-semibold mb-3">This Week</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold">156</div>
-            <div className="text-sm opacity-90">Views</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold">23</div>
-            <div className="text-sm opacity-90">Likes</div>
-          </div>
-        </div>
-      </motion.div>
     </div>
   );
 };
 
-export default SidebarRight; 
+export default SidebarRight;
