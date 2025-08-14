@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { 
+import { useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import {
   FaArrowLeft,
   FaHeart,
   FaComment,
@@ -13,12 +13,12 @@ import {
   FaQuestion,
   FaComment as FaThought,
   FaUser,
-  FaClock
-} from 'react-icons/fa';
+  FaClock,
+} from "react-icons/fa";
 
 const PostDetail = () => {
   const { id } = useParams();
-  const [comment, setComment] = useState('');
+  const [comment, setComment] = useState("");
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
 
@@ -26,67 +26,57 @@ const PostDetail = () => {
   const post = {
     id: id,
     author: {
-      name: 'Sarah Chen',
-      avatar: 'https://placehold.co/40x40/667eea/ffffff?text=SC',
-      username: '@sarahchen'
+      name: "Sarah Chen",
+      avatar: "https://placehold.co/40x40/667eea/ffffff?text=SC",
+      username: "@sarahchen",
     },
-    content: 'Just had a breakthrough idea about combining AI with sustainable energy systems. What if we could use machine learning to optimize solar panel efficiency in real-time based on weather patterns? This could revolutionize how we approach renewable energy and make solar power much more efficient and cost-effective. 🌱⚡',
-    type: 'idea',
-    timestamp: '2 hours ago',
+    content:
+      "Just had a breakthrough idea about combining AI with sustainable energy systems. What if we could use machine learning to optimize solar panel efficiency in real-time based on weather patterns? This could revolutionize how we approach renewable energy and make solar power much more efficient and cost-effective. 🌱⚡",
+    type: "idea",
+    timestamp: "2 hours ago",
     likes: 24,
     comments: 8,
     shares: 3,
-    tags: ['AI', 'Sustainability', 'Energy', 'Innovation']
+    tags: ["AI", "Sustainability", "Energy", "Innovation"],
   };
 
   const comments = [
     {
       id: 1,
       author: {
-        name: 'Marcus Rodriguez',
-        avatar: 'https://placehold.co/40x40/667eea/ffffff?text=MR',
-        username: '@marcusrod'
+        name: "Marcus Rodriguez",
+        avatar: "https://placehold.co/40x40/667eea/ffffff?text=MR",
+        username: "@marcusrod",
       },
-      content: 'This is fascinating! Have you considered the computational requirements for real-time optimization?',
-      timestamp: '1 hour ago',
-      likes: 5
+      content:
+        "This is fascinating! Have you considered the computational requirements for real-time optimization?",
+      timestamp: "1 hour ago",
+      likes: 5,
     },
     {
       id: 2,
       author: {
-        name: 'Emma Thompson',
-        avatar: 'https://placehold.co/40x40/667eea/ffffff?text=ET',
-        username: '@emmathompson'
+        name: "Emma Thompson",
+        avatar: "https://placehold.co/40x40/667eea/ffffff?text=ET",
+        username: "@emmathompson",
       },
-      content: 'Great idea! This could also help with energy storage optimization. What about integrating with battery systems?',
-      timestamp: '45 minutes ago',
-      likes: 3
-    }
+      content:
+        "Great idea! This could also help with energy storage optimization. What about integrating with battery systems?",
+      timestamp: "45 minutes ago",
+      likes: 3,
+    },
   ];
-
-  const getTypeIcon = (type) => {
-    switch (type) {
-      case 'idea':
-        return <FaLightbulb className="text-yellow-500" />;
-      case 'question':
-        return <FaQuestion className="text-blue-500" />;
-      case 'thought':
-        return <FaThought className="text-green-500" />;
-      default:
-        return <FaLightbulb className="text-yellow-500" />;
-    }
-  };
 
   const getTypeColor = (type) => {
     switch (type) {
-      case 'idea':
-        return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200';
-      case 'question':
-        return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200';
-      case 'thought':
-        return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200';
+      case "idea":
+        return "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200";
+      case "question":
+        return "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200";
+      case "thought":
+        return "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200";
       default:
-        return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200';
+        return "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200";
     }
   };
 
@@ -94,8 +84,8 @@ const PostDetail = () => {
     e.preventDefault();
     if (comment.trim()) {
       // Handle comment submission
-      console.log('Comment submitted:', comment);
-      setComment('');
+      console.log("Comment submitted:", comment);
+      setComment("");
     }
   };
 
@@ -140,8 +130,12 @@ const PostDetail = () => {
                     <span className="text-sm text-gray-500 dark:text-gray-400">
                       {post.timestamp}
                     </span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(post.type)}`}>
-                      {getTypeIcon(post.type)} {post.type}
+                    <span
+                      className={`px-6 py-0.1 flex rounded-xl text-xs font-medium ${getTypeColor(
+                        post.type
+                      )}`}
+                    >
+                      {post.type}
                     </span>
                   </div>
                 </div>
@@ -186,11 +180,11 @@ const PostDetail = () => {
                   onClick={() => setIsLiked(!isLiked)}
                   className={`flex items-center gap-2 text-sm transition-colors ${
                     isLiked
-                      ? 'text-red-500'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400'
+                      ? "text-red-500"
+                      : "text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400"
                   }`}
                 >
-                  <FaHeart className={isLiked ? 'fill-current' : ''} />
+                  <FaHeart className={isLiked ? "fill-current" : ""} />
                   {isLiked ? post.likes + 1 : post.likes}
                 </motion.button>
 
@@ -215,11 +209,11 @@ const PostDetail = () => {
                 onClick={() => setIsBookmarked(!isBookmarked)}
                 className={`p-2 rounded-full transition-colors ${
                   isBookmarked
-                    ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/30'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    ? "text-blue-500 bg-blue-50 dark:bg-blue-900/30"
+                    : "text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700"
                 }`}
               >
-                <FaBookmark className={isBookmarked ? 'fill-current' : ''} />
+                <FaBookmark className={isBookmarked ? "fill-current" : ""} />
               </motion.button>
             </div>
           </div>

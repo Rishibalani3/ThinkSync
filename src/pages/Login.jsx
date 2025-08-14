@@ -1,28 +1,31 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { FaBrain, FaEye, FaEyeSlash, FaGoogle, FaGithub } from 'react-icons/fa';
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { FaBrain, FaEye, FaEyeSlash, FaGoogle, FaGithub } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const Login = ({ setIsAuthenticated }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: ''
+    name: "",
+    email: "",
+    password: "",
   });
 
-  const handleSubmit = (e) => {
+  const navigate = useNavigate();
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulate authentication
     setTimeout(() => {
       setIsAuthenticated(true);
     }, 1000);
+    console.log("Form submitted:", formData);
+    navigate("/");
   };
 
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -62,7 +65,7 @@ const Login = ({ setIsAuthenticated }) => {
           className="bg-white dark:bg-gray-800 p-8 rounded-lg border border-gray-200 dark:border-gray-700 shadow-lg"
         >
           <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-gray-200 mb-6">
-            {isLogin ? 'Welcome Back' : 'Create Account'}
+            {isLogin ? "Welcome Back" : "Create Account"}
           </h2>
 
           {/* Social Login Buttons */}
@@ -139,7 +142,7 @@ const Login = ({ setIsAuthenticated }) => {
               </label>
               <div className="relative">
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
@@ -159,7 +162,10 @@ const Login = ({ setIsAuthenticated }) => {
 
             {isLogin && (
               <div className="flex items-center justify-end">
-                <a href="#" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                <a
+                  href="#"
+                  className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                >
                   Forgot Password?
                 </a>
               </div>
@@ -171,7 +177,7 @@ const Login = ({ setIsAuthenticated }) => {
               type="submit"
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-md transition-colors"
             >
-              {isLogin ? 'Log In' : 'Sign Up'}
+              {isLogin ? "Log In" : "Sign Up"}
             </motion.button>
           </form>
 
@@ -186,7 +192,7 @@ const Login = ({ setIsAuthenticated }) => {
               onClick={() => setIsLogin(!isLogin)}
               className="font-medium text-blue-600 dark:text-blue-400 hover:underline"
             >
-              {isLogin ? 'Sign up' : 'Log in'}
+              {isLogin ? "Sign up" : "Log in"}
             </button>
           </motion.p>
         </motion.div>

@@ -1,96 +1,99 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { 
+import { useState } from "react";
+import { motion } from "framer-motion";
+import {
   FaSearch,
   FaFilter,
   FaFire,
   FaClock,
   FaStar,
   FaUsers,
-  FaHashtag
-} from 'react-icons/fa';
-import { BiTrendingUp } from 'react-icons/bi';
-import ThoughtCard from '../components/ThoughtCard';
+  FaHashtag,
+} from "react-icons/fa";
+import { BiTrendingUp } from "react-icons/bi";
+import ThoughtCard from "../components/ThoughtCard";
 
 const Explore = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState('trending');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState("trending");
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
   const filters = [
-    { id: 'trending', label: 'Trending', icon: FaFire },
-    { id: 'latest', label: 'Latest', icon: FaClock },
-    { id: 'top', label: 'Top', icon: FaStar }
+    { id: "trending", label: "Trending", icon: FaFire },
+    { id: "latest", label: "Latest", icon: FaClock },
+    { id: "top", label: "Top", icon: FaStar },
   ];
 
   const categories = [
-    { id: 'all', label: 'All', count: 1250 },
-    { id: 'ai', label: 'AI', count: 234 },
-    { id: 'sustainability', label: 'Sustainability', count: 156 },
-    { id: 'innovation', label: 'Innovation', count: 189 },
-    { id: 'technology', label: 'Technology', count: 445 },
-    { id: 'future', label: 'Future', count: 123 }
+    { id: "all", label: "All", count: 1250 },
+    { id: "ai", label: "AI", count: 234 },
+    { id: "sustainability", label: "Sustainability", count: 156 },
+    { id: "innovation", label: "Innovation", count: 189 },
+    { id: "technology", label: "Technology", count: 445 },
+    { id: "future", label: "Future", count: 123 },
   ];
 
   const trendingPosts = [
     {
       id: 1,
       author: {
-        name: 'Alex Chen',
-        avatar: 'https://placehold.co/40x40/667eea/ffffff?text=AC',
-        username: '@alexchen'
+        name: "Alex Chen",
+        avatar: "https://placehold.co/40x40/667eea/ffffff?text=AC",
+        username: "@alexchen",
       },
-      content: 'The future of remote work isn\'t just about working from home—it\'s about creating a new paradigm of productivity that combines flexibility, technology, and human connection. What if we could design workspaces that adapt to our needs in real-time? 🏠💻',
-      type: 'idea',
-      timestamp: '1 hour ago',
+      content:
+        "The future of remote work isn't just about working from home—it's about creating a new paradigm of productivity that combines flexibility, technology, and human connection. What if we could design workspaces that adapt to our needs in real-time? 🏠💻",
+      type: "idea",
+      timestamp: "1 hour ago",
       likes: 156,
       comments: 23,
       shares: 12,
       isLiked: false,
-      isBookmarked: false
+      isBookmarked: false,
     },
     {
       id: 2,
       author: {
-        name: 'Maria Garcia',
-        avatar: 'https://placehold.co/40x40/667eea/ffffff?text=MG',
-        username: '@mariagarcia'
+        name: "Maria Garcia",
+        avatar: "https://placehold.co/40x40/667eea/ffffff?text=MG",
+        username: "@mariagarcia",
       },
-      content: 'How do we stay productive in an increasingly distracted world? Are traditional productivity methods still relevant, or do we need to completely rethink our approach to getting things done? 🤔',
-      type: 'question',
-      timestamp: '3 hours ago',
+      content:
+        "How do we stay productive in an increasingly distracted world? Are traditional productivity methods still relevant, or do we need to completely rethink our approach to getting things done? 🤔",
+      type: "question",
+      timestamp: "3 hours ago",
       likes: 89,
       comments: 34,
       shares: 8,
       isLiked: true,
-      isBookmarked: false
+      isBookmarked: false,
     },
     {
       id: 3,
       author: {
-        name: 'David Kim',
-        avatar: 'https://placehold.co/40x40/667eea/ffffff?text=DK',
-        username: '@davidkim'
+        name: "David Kim",
+        avatar: "https://placehold.co/40x40/667eea/ffffff?text=DK",
+        username: "@davidkim",
       },
-      content: 'Random thought: The best ideas often come when you\'re not actively trying to think of them. Maybe we need more "thinking breaks" in our daily routines. The shower, the walk, the quiet moments—these are where creativity thrives. 💭',
-      type: 'thought',
-      timestamp: '5 hours ago',
+      content:
+        'Random thought: The best ideas often come when you\'re not actively trying to think of them. Maybe we need more "thinking breaks" in our daily routines. The shower, the walk, the quiet moments—these are where creativity thrives. 💭',
+      type: "thought",
+      timestamp: "5 hours ago",
       likes: 234,
       comments: 15,
       shares: 45,
       isLiked: false,
-      isBookmarked: true
-    }
+      isBookmarked: true,
+    },
   ];
 
   const handleLike = (postId) => {
     // Handle like functionality
-    console.log('Liked post:', postId);
+    console.log("Liked post:", postId);
   };
 
   const handleBookmark = (postId) => {
     // Handle bookmark functionality
-    console.log('Bookmarked post:', postId);
+    console.log("Bookmarked post:", postId);
   };
 
   return (
@@ -107,7 +110,8 @@ const Explore = () => {
               Explore
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Discover new ideas, questions, and thoughts from the ThinkSync community
+              Discover new ideas, questions, and thoughts from the ThinkSync
+              community
             </p>
           </div>
 
@@ -137,8 +141,8 @@ const Explore = () => {
                     onClick={() => setActiveFilter(filter.id)}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
                       activeFilter === filter.id
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600'
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600"
                     }`}
                   >
                     <Icon />
@@ -158,8 +162,8 @@ const Explore = () => {
                   onClick={() => setSelectedCategory(category.id)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                     selectedCategory === category.id
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600'
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600"
                   }`}
                 >
                   {category.label}
@@ -217,11 +221,11 @@ const Explore = () => {
                 </div>
                 <div className="space-y-3">
                   {[
-                    { tag: 'AI', count: 156, trend: 'up' },
-                    { tag: 'Sustainability', count: 89, trend: 'up' },
-                    { tag: 'Innovation', count: 234, trend: 'up' },
-                    { tag: 'Technology', count: 445, trend: 'down' },
-                    { tag: 'Future', count: 123, trend: 'up' }
+                    { tag: "AI", count: 156, trend: "up" },
+                    { tag: "Sustainability", count: 89, trend: "up" },
+                    { tag: "Innovation", count: 234, trend: "up" },
+                    { tag: "Technology", count: 445, trend: "down" },
+                    { tag: "Future", count: 123, trend: "up" },
                   ].map((topic, index) => (
                     <motion.div
                       key={topic.tag}
@@ -240,7 +244,13 @@ const Explore = () => {
                         <span className="text-sm text-gray-500 dark:text-gray-400">
                           {topic.count}
                         </span>
-                        <FaTrendingUp className={`text-xs ${topic.trend === 'up' ? 'text-green-500' : 'text-red-500'}`} />
+                        <BiTrendingUp
+                          className={`text-xs ${
+                            topic.trend === "up"
+                              ? "text-green-500"
+                              : "text-red-500"
+                          }`}
+                        />
                       </div>
                     </motion.div>
                   ))}
@@ -262,9 +272,24 @@ const Explore = () => {
                 </div>
                 <div className="space-y-3">
                   {[
-                    { name: 'Sarah Chen', avatar: 'SC', followers: 1234, bio: 'AI Researcher' },
-                    { name: 'Marcus Rodriguez', avatar: 'MR', followers: 987, bio: 'Product Designer' },
-                    { name: 'Emma Thompson', avatar: 'ET', followers: 756, bio: 'Data Scientist' }
+                    {
+                      name: "Sarah Chen",
+                      avatar: "SC",
+                      followers: 1234,
+                      bio: "AI Researcher",
+                    },
+                    {
+                      name: "Marcus Rodriguez",
+                      avatar: "MR",
+                      followers: 987,
+                      bio: "Product Designer",
+                    },
+                    {
+                      name: "Emma Thompson",
+                      avatar: "ET",
+                      followers: 756,
+                      bio: "Data Scientist",
+                    },
                   ].map((thinker, index) => (
                     <motion.div
                       key={thinker.name}

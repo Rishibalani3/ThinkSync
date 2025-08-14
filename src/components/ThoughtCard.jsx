@@ -1,27 +1,27 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { 
-  FaHeart, 
-  FaComment, 
-  FaShare, 
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import {
+  FaHeart,
+  FaComment,
+  FaShare,
   FaBookmark,
   FaEllipsisH,
   FaLightbulb,
   FaQuestion,
-  FaComment as FaThought
-} from 'react-icons/fa';
+  FaComment as FaThought,
+} from "react-icons/fa";
 
 const ThoughtCard = ({ post, onLike, onBookmark }) => {
   const [showOptions, setShowOptions] = useState(false);
 
   const getTypeIcon = (type) => {
     switch (type) {
-      case 'idea':
+      case "idea":
         return <FaLightbulb className="text-yellow-500" />;
-      case 'question':
+      case "question":
         return <FaQuestion className="text-blue-500" />;
-      case 'thought':
+      case "thought":
         return <FaThought className="text-green-500" />;
       default:
         return <FaLightbulb className="text-yellow-500" />;
@@ -30,14 +30,14 @@ const ThoughtCard = ({ post, onLike, onBookmark }) => {
 
   const getTypeColor = (type) => {
     switch (type) {
-      case 'idea':
-        return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200';
-      case 'question':
-        return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200';
-      case 'thought':
-        return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200';
+      case "idea":
+        return "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200";
+      case "question":
+        return "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200";
+      case "thought":
+        return "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200";
       default:
-        return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200';
+        return "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200";
     }
   };
 
@@ -67,8 +67,12 @@ const ThoughtCard = ({ post, onLike, onBookmark }) => {
               <span className="text-sm text-gray-500 dark:text-gray-400">
                 {post.timestamp}
               </span>
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(post.type)}`}>
-                {getTypeIcon(post.type)} {post.type}
+              <span
+                className={`px-2 py-1 rounded text-xs font-medium ${getTypeColor(
+                  post.type
+                )}`}
+              >
+                {post.type}
               </span>
             </div>
           </div>
@@ -118,11 +122,11 @@ const ThoughtCard = ({ post, onLike, onBookmark }) => {
             onClick={() => onLike(post.id)}
             className={`flex items-center gap-2 text-sm transition-colors ${
               post.isLiked
-                ? 'text-red-500'
-                : 'text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400'
+                ? "text-red-500"
+                : "text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400"
             }`}
           >
-            <FaHeart className={post.isLiked ? 'fill-current' : ''} />
+            <FaHeart className={post.isLiked ? "fill-current" : ""} />
             {post.likes}
           </motion.button>
 
@@ -150,15 +154,15 @@ const ThoughtCard = ({ post, onLike, onBookmark }) => {
           onClick={() => onBookmark(post.id)}
           className={`p-2 rounded-full transition-colors ${
             post.isBookmarked
-              ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/30'
-              : 'text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+              ? "text-blue-500 bg-blue-50 dark:bg-blue-900/30"
+              : "text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700"
           }`}
         >
-          <FaBookmark className={post.isBookmarked ? 'fill-current' : ''} />
+          <FaBookmark className={post.isBookmarked ? "fill-current" : ""} />
         </motion.button>
       </div>
     </motion.div>
   );
 };
 
-export default ThoughtCard; 
+export default ThoughtCard;

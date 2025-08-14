@@ -1,59 +1,63 @@
-import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { 
-  FaBrain, 
-  FaSearch, 
-  FaSignOutAlt, 
-  FaBell, 
-  FaSun, 
+import { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { MdDarkMode, MdLightMode } from "react-icons/md";
+
+import {
+  FaBrain,
+  FaSearch,
+  FaSignOutAlt,
+  FaBell,
+  FaSun,
   FaMoon,
   FaHome,
   FaCompass,
   FaLightbulb,
   FaLink,
   FaCog,
-  FaUser,
   FaBars,
-  FaTimes
-} from 'react-icons/fa';
-import { useDarkMode } from '../contexts/DarkModeContext';
+  FaTimes,
+} from "react-icons/fa";
+import { useDarkMode } from "../contexts/DarkModeContext";
 
 const Navbar = ({ setIsAuthenticated }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
   const { isDarkMode, toggleDarkMode } = useDarkMode();
 
   const handleLogout = () => {
     setIsAuthenticated(false);
-    navigate('/login');
+    navigate("/login");
   };
 
   const handleSearch = (e) => {
     e.preventDefault();
     // Handle search functionality
-    console.log('Searching for:', searchQuery);
+    console.log("Searching for:", searchQuery);
   };
 
   const navItems = [
-    { path: '/', label: 'Home', icon: FaHome },
-    { path: '/explore', label: 'Explore', icon: FaCompass },
-    { path: '/profile', label: 'My Ideas', icon: FaLightbulb },
-    { path: '/connections', label: 'Connections', icon: FaLink },
-    { path: '/settings', label: 'Settings', icon: FaCog },
+    { path: "/", label: "Home", icon: FaHome },
+    { path: "/explore", label: "Explore", icon: FaCompass },
+    { path: "/profile", label: "My Ideas", icon: FaLightbulb },
+    { path: "/connections", label: "Connections", icon: FaLink },
+    { path: "/settings", label: "Settings", icon: FaCog },
   ];
 
   return (
     <>
       <nav className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-5 h-16 flex items-center justify-between fixed w-full top-0 z-50 shadow-sm">
         <div className="flex items-center gap-8">
-          <Link to="/" className="flex items-center gap-2 text-2xl font-bold text-blue-600 dark:text-blue-400">
+          <Link
+            to="/"
+            className="flex items-center gap-2 text-2xl font-bold text-blue-600 dark:text-blue-400"
+          >
             <FaBrain className="text-3xl" />
             <span>ThinkSync</span>
           </Link>
-          
+
           {/* Desktop Navigation */}
           <div className="hidden md:flex gap-6">
             {navItems.map((item) => {
@@ -65,8 +69,8 @@ const Navbar = ({ setIsAuthenticated }) => {
                   to={item.path}
                   className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
                     isActive
-                      ? 'bg-blue-600 text-white'
-                      : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      ? "bg-blue-600 text-white"
+                      : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                   }`}
                 >
                   <Icon className="text-sm" />
@@ -76,29 +80,20 @@ const Navbar = ({ setIsAuthenticated }) => {
             })}
           </div>
         </div>
-        
-        <div className="flex items-center gap-4">
-          {/* Search Bar */}
-          <form onSubmit={handleSearch} className="relative hidden sm:block">
-            <input
-              type="text"
-              placeholder="Search thoughts, ideas, questions..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-md text-gray-700 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 w-48 md:w-80 pr-10 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-300"
-            />
-            <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          </form>
 
-          {/* Dark Mode Toggle */}
+        <div className="flex items-center gap-4">
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={toggleDarkMode}
             className="p-2 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
           >
-            {isDarkMode ? <FaSun className="text-xl" /> : <FaMoon className="text-xl" />}
+            {isDarkMode ? (
+              <MdDarkMode className="text-xl" />
+            ) : (
+              <MdLightMode className="text-xl" />
+            )}
           </motion.button>
 
           {/* Notifications */}
@@ -114,7 +109,6 @@ const Navbar = ({ setIsAuthenticated }) => {
             </span>
           </motion.button>
 
-          {/* User Profile */}
           <Link
             to="/profile"
             className="flex items-center gap-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 px-3 py-2 rounded-md transition-colors"
@@ -124,7 +118,9 @@ const Navbar = ({ setIsAuthenticated }) => {
               alt="User Avatar"
               className="w-8 h-8 rounded-full"
             />
-            <span className="text-gray-700 dark:text-gray-200 hidden lg:block">John Doe</span>
+            <span className="text-gray-700 dark:text-gray-200 hidden lg:block">
+              John Doe
+            </span>
           </Link>
 
           {/* Logout */}
@@ -143,7 +139,11 @@ const Navbar = ({ setIsAuthenticated }) => {
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="md:hidden p-2 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
-            {isMobileMenuOpen ? <FaTimes className="text-xl" /> : <FaBars className="text-xl" />}
+            {isMobileMenuOpen ? (
+              <FaTimes className="text-xl" />
+            ) : (
+              <FaBars className="text-xl" />
+            )}
           </button>
         </div>
       </nav>
@@ -151,9 +151,9 @@ const Navbar = ({ setIsAuthenticated }) => {
       {/* Mobile Menu */}
       <motion.div
         initial={{ opacity: 0, height: 0 }}
-        animate={{ 
+        animate={{
           opacity: isMobileMenuOpen ? 1 : 0,
-          height: isMobileMenuOpen ? 'auto' : 0
+          height: isMobileMenuOpen ? "auto" : 0,
         }}
         transition={{ duration: 0.3 }}
         className="md:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 fixed top-16 w-full z-40 overflow-hidden"
@@ -182,8 +182,8 @@ const Navbar = ({ setIsAuthenticated }) => {
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
                   isActive
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    ? "bg-blue-600 text-white"
+                    : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                 }`}
               >
                 <Icon className="text-lg" />
@@ -197,4 +197,4 @@ const Navbar = ({ setIsAuthenticated }) => {
   );
 };
 
-export default Navbar; 
+export default Navbar;
