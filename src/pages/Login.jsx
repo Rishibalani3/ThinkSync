@@ -55,6 +55,7 @@ const Login = ({ setIsAuthenticated }) => {
 
   const handleGoogleLogin = async () => {
     window.location.href = "http://localhost:3000/auth/google";
+    setIsAuthenticated(true);
   };
 
   return (

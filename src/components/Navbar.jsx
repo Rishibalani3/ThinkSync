@@ -18,23 +18,30 @@ import {
   FaBars,
   FaTimes,
 } from "react-icons/fa";
+import axios from "axios";
 import { useDarkMode } from "../contexts/DarkModeContext";
+import { useAuth } from "../contexts/AuthContext";
 
 const Navbar = ({ setIsAuthenticated }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { logout } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
   const { isDarkMode, toggleDarkMode } = useDarkMode();
 
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setIsAuthenticated(false);
+      navigate("/login");
+    } catch (err) {
+      console.log("Logout failed:", err.response?.data || err.message);
+    }
   };
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // Handle search functionality
     console.log("Searching for:", searchQuery);
   };
 
@@ -125,9 +132,9 @@ const Navbar = ({ setIsAuthenticated }) => {
 
           {/* Logout */}
           <motion.button
+            onClick={handleLogout}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            onClick={handleLogout}
             className="text-gray-400 hover:text-red-500 transition-colors p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
             title="Logout"
           >
@@ -159,18 +166,6 @@ const Navbar = ({ setIsAuthenticated }) => {
         className="md:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 fixed top-16 w-full z-40 overflow-hidden"
       >
         <div className="p-4 space-y-2">
-          {/* Mobile Search */}
-          <form onSubmit={handleSearch} className="relative">
-            <input
-              type="text"
-              placeholder="Search thoughts, ideas, questions..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-md text-gray-700 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 pr-10 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
-            />
-            <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          </form>
-
           {/* Mobile Navigation */}
           {navItems.map((item) => {
             const Icon = item.icon;
