@@ -114,18 +114,15 @@ const Home = () => {
           </div>
         </aside>
 
-        {/* Main Feed (scrollable) */}
-        <div className="lg:col-span-5 h-[calc(100vh-4rem)] overflow-y-auto">
+        <div className="lg:col-span-5 h-[calc(100vh-4rem)] overflow-y-auto hide-scrollbar">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            {/* Post Creator */}
             <PostCreator onNewPost={handleNewPost} />
 
-            {/* Feed */}
-            <div className="space-y-4 mt-6 hide-scrollbar">
+            <div className="space-y-4 mt-6 ">
               {posts.map((post, index) => (
                 <motion.div
                   key={post.id}

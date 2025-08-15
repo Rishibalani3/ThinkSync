@@ -9,6 +9,7 @@ import {
   FaFacebook,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Login = ({ setIsAuthenticated }) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -20,14 +21,6 @@ const Login = ({ setIsAuthenticated }) => {
   });
 
   const navigate = useNavigate();
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setTimeout(() => {
-      setIsAuthenticated(true);
-    }, 1000);
-    console.log("Form submitted:", formData);
-    navigate("/");
-  };
 
   const handleInputChange = (e) => {
     setFormData({
@@ -38,6 +31,30 @@ const Login = ({ setIsAuthenticated }) => {
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post("http://localhost:3000/login", {
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (res.status === 200) {
+        console.log(res.data);
+        setIsAuthenticated(true);
+        // navigate("/");
+      }
+    } catch (err) {
+      if (err.status === 400) {
+        console.error(err.data);
+      }
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    window.location.href = "http://localhost:3000/auth/google";
   };
 
   return (
@@ -78,6 +95,7 @@ const Login = ({ setIsAuthenticated }) => {
           {/* Social Login Buttons */}
           <div className="space-y-3 mb-6">
             <motion.button
+              onClick={handleGoogleLogin}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="w-full flex items-center justify-center gap-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 px-4 py-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
@@ -106,7 +124,7 @@ const Login = ({ setIsAuthenticated }) => {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form className="space-y-4" onSubmit={handleSubmit}>
             {!isLogin && (
               <motion.div
                 initial={{ opacity: 0, x: -20 }}

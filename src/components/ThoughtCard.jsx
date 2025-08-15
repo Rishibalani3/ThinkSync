@@ -46,7 +46,6 @@ const ThoughtCard = ({ post, onLike, onBookmark, extraClass }) => {
       whileHover={{ y: -2 }}
       className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-200"
     >
-      {/* Header */}
       <div className="flex items-start justify-between mb-4 ">
         <div className="flex items-center gap-3">
           <img
