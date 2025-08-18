@@ -24,12 +24,11 @@ setupPassport();
 app.use("/auth", authRoutes);
 app.use("/", userRoutes);
 
-// Debug route to check if server is running
 app.get("/health", (req, res) => {
-  res.json({ 
-    message: "Server is running", 
+  res.json({
+    message: "Server is running",
     sessionSecret: process.env.SESSION_SECRET ? "Set" : "Not set",
-    databaseUrl: process.env.DATABASE_URL ? "Set" : "Not set"
+    databaseUrl: process.env.DATABASE_URL ? "Set" : "Not set",
   });
 });
 

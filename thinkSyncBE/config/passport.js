@@ -3,7 +3,6 @@ import bcrypt from "bcrypt";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-import { Strategy as FacebookStrategy } from "passport-facebook";
 const prisma = new PrismaClient();
 
 export default function setupPassport() {
@@ -53,41 +52,6 @@ export default function setupPassport() {
                 googleAccessToken: accessToken,
                 googleRefreshToken: refreshToken,
                 facebookId: null,
-              },
-            });
-          }
-          done(null, user);
-        } catch (err) {
-          done(err);
-        }
-      }
-    )
-  );
-
-  // Facebook Strategy
-  passport.use(
-    new FacebookStrategy(
-      {
-        clientID: process.env.FB_APP_ID,
-        clientSecret: process.env.FB_APP_SECRET,
-        callbackURL: "/auth/facebook/callback",
-        profileFields: ["id", "displayName", "emails"],
-      },
-      async (accessToken, refreshToken, profile, done) => {
-        try {
-          let user = await prisma.user.findUnique({
-            where: { facebookId: profile.id },
-          });
-          if (!user) {
-            user = await prisma.user.create({
-              data: {
-                facebookId: profile.id,
-                username: profile.displayName,
-                email: profile.emails?.[0]?.value,
-                image: profile.photos?.[0]?.value,
-                facebookAccessToken: accessToken,
-                facebookRefreshToken: refreshToken,
-                googleId: null,
               },
             });
           }

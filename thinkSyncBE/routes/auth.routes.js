@@ -20,15 +20,4 @@ router.get(
   (req, res) => res.redirect("http://localhost:5173/")
 );
 
-// facebook
-router.get(
-  "/facebook",
-  passport.authenticate("facebook", { scope: ["email"] })
-);
-router.get(
-  "/facebook/callback",
-  passport.authenticate("facebook", { failureRedirect: "/" }),
-  (req, res) => res.redirect("http://localhost:5173/dashboard")
-);
-
 export default router;

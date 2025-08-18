@@ -1,26 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import {
-  FaBrain,
-  FaEye,
-  FaEyeSlash,
-  FaGoogle,
-  FaGithub,
-  FaFacebook,
-} from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { FaBrain, FaEye, FaEyeSlash, FaGoogle } from "react-icons/fa";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
 const Login = ({ setIsAuthenticated }) => {
-  const [isLogin, setIsLogin] = useState();
+  const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
   });
+  const [successMessage, setSuccessMessage] = useState(""); // ✅ for registration success
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // ✅ Check query param on mount
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get("success") === "true") {
+      setSuccessMessage("Registration successful! Please log in.");
+      setIsLogin(true); // force login form
+    }
+  }, [location.search]);
 
   const handleInputChange = (e) => {
     setFormData({
@@ -35,27 +39,44 @@ const Login = ({ setIsAuthenticated }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const res = await axios.post("http://localhost:3000/auth/login", {
-        email: formData.email,
-        password: formData.password,
-      });
-
-      if (res.status === 200) {
-        console.log(res.data);
-        setIsAuthenticated(true);
-        // navigate("/");
+    if (isLogin) {
+      try {
+        const res = await axios.post(
+          "http://localhost:3000/auth/login",
+          formData,
+          {
+            withCredentials: true,
+          }
+        );
+        if (res.status === 200 && res.data) {
+          setIsAuthenticated(true);
+          navigate("/");
+        }
+      } catch (err) {
+        console.log("Login failed:", err.response?.data || err.message);
       }
-    } catch (err) {
-      if (err.status === 400) {
-        console.error(err.data);
+    } else {
+      try {
+        const res = await axios.post(
+          "http://localhost:3000/auth/signup",
+          {
+            username: formData.name,
+            email: formData.email,
+            password: formData.password,
+          },
+          { withCredentials: true }
+        );
+        if (res.status === 201) {
+          window.location.href = "http://localhost:5173/login?success=true";
+        }
+      } catch (err) {
+        console.log("Registration failed:", err.response?.data || err.message);
       }
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleLogin = () => {
     window.location.href = "http://localhost:3000/auth/google";
-    setIsAuthenticated(true);
   };
 
   return (
@@ -93,7 +114,14 @@ const Login = ({ setIsAuthenticated }) => {
             {isLogin ? "Welcome Back" : "Create Account"}
           </h2>
 
-          {/* Social Login Buttons */}
+          {/* ✅ Success message */}
+          {successMessage && (
+            <div className="mb-4 p-3 text-green-700 bg-green-100 border border-green-300 rounded-md text-sm text-center">
+              {successMessage}
+            </div>
+          )}
+
+          {/* Social Login */}
           <div className="space-y-3 mb-6">
             <motion.button
               onClick={handleGoogleLogin}
@@ -103,14 +131,6 @@ const Login = ({ setIsAuthenticated }) => {
             >
               <FaGoogle className="text-red-500" />
               Continue with Google
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full flex items-center justify-center gap-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 px-4 py-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-            >
-              <FaFacebook />
-              Continue with Facebook
             </motion.button>
           </div>
 
