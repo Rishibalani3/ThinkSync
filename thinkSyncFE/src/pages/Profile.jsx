@@ -17,6 +17,7 @@ import {
 } from "react-icons/fa";
 import { FiMessageCircle, FiZap } from "react-icons/fi";
 import { GiSparkles } from "react-icons/gi";
+import { useAuth } from "../contexts/AuthContext";
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("posts");
@@ -57,6 +58,8 @@ const Profile = () => {
     },
   ]);
 
+  const { user } = useAuth();
+
   const handleLike = (postId) => {
     setUserPosts(
       userPosts.map((post) =>
@@ -96,7 +99,7 @@ const Profile = () => {
   const ThoughtCard = ({ post, onLike, onBookmark }) => (
     <div className="group bg-white dark:bg-gray-800 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-xl hover:shadow-blue-500/10 dark:hover:shadow-blue-400/10 transition-all duration-500 hover:-translate-y-1 relative overflow-hidden">
       {/* Animated background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-purple-600/5 to-pink-600/5 dark:from-blue-400/5 dark:via-purple-400/5 dark:to-pink-400/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-purple-600/5 to-pink-600/5 dark:from-blue-400/5 dark:via-purple-400/5 dark:to-pink-400/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
       <div className="relative z-10">
         <div className="flex items-center gap-3 mb-4">
@@ -188,6 +191,11 @@ const Profile = () => {
     </div>
   );
 
+  const proxiedUrl = user.image.replace(
+    "https://lh3.googleusercontent.com",
+    "/gimg"
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 pt-16 relative overflow-hidden">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -197,24 +205,12 @@ const Profile = () => {
 
       <div className="max-w-4xl mx-auto p-3 sm:p-5 relative z-10">
         <div className="bg-white/80 dark:bg-gray-800/90 backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden mb-6 sm:mb-8 shadow-xl sm:shadow-2xl shadow-blue-500/5 dark:shadow-blue-400/5">
-          <div className="relative h-32 sm:h-48 md:h-56 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/90 via-purple-600/90 to-pink-600/90 animate-pulse" />
-
-            <div className="absolute inset-0 hidden sm:block">
-              {[...Array(6)].map((_, i) => (
-                <div
-                  key={i}
-                  className="absolute w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white/30 rounded-full animate-bounce"
-                  style={{
-                    left: `${Math.random() * 100}%`,
-                    top: `${Math.random() * 100}%`,
-                    animationDelay: `${i * 0.5}s`,
-                    animationDuration: `${2 + Math.random() * 2}s`,
-                  }}
-                />
-              ))}
-            </div>
-
+          <div className="relative h-32 sm:h-48 md:h-56  overflow-hidden">
+            <img
+              src="https://media.licdn.com/dms/image/sync/v2/D4E27AQEo5TeLjgO3lQ/articleshare-shrink_800/articleshare-shrink_800/0/1711517383801?e=2147483647&v=beta&t=UYTn5T4fXCc9XqzYDmz2M3CCTWMzoYwdtFS9h2rm9WE"
+              alt="Profile"
+              className="w-full h-full object-cover object-center"
+            />
             <button className="absolute top-3 right-3 sm:top-6 sm:right-6 p-2 sm:p-3 bg-white/20 backdrop-blur-sm rounded-xl sm:rounded-2xl text-white hover:bg-white/30 transition-all duration-300 hover:scale-110 hover:rotate-12 group">
               <FaCamera
                 size={16}
@@ -242,7 +238,7 @@ const Profile = () => {
               <div className="relative -mt-12 sm:-mt-20 self-center sm:self-auto">
                 <div className="relative group">
                   <img
-                    src="https://placehold.co/140x140/667eea/ffffff?text=JD"
+                    src={proxiedUrl}
                     alt="Profile"
                     className="w-24 h-24 sm:w-32 md:w-36 sm:h-32 md:h-36 rounded-2xl sm:rounded-3xl border-3 sm:border-4 border-white dark:border-gray-800 shadow-xl sm:shadow-2xl transition-transform duration-500 group-hover:scale-105"
                   />
@@ -260,7 +256,7 @@ const Profile = () => {
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 mb-3">
                   <div className="flex items-center justify-center sm:justify-start gap-2 sm:gap-3">
                     <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent">
-                      John Doe
+                      {user.username}
                     </h1>
                   </div>
                   <button className="px-4 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl sm:rounded-2xl font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-2 group mx-auto sm:mx-0">
@@ -273,31 +269,42 @@ const Profile = () => {
                 </div>
 
                 <p className="text-gray-600 dark:text-gray-400 mb-2 font-medium text-sm sm:text-base">
-                  @johndoe
+                  @{user.username}
                 </p>
 
                 <p className="text-gray-700 dark:text-gray-300 mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base">
-                  Product Designer & Creative Thinker. Passionate about
-                  innovation, sustainability, and human-centered design. ✨
+                  {user.aboutBio}
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-8 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-4 sm:mb-6">
-                  <div className="flex items-center gap-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer">
-                    <FaMapPin size={14} className="sm:w-4 sm:h-4" />
-                    San Francisco, CA
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FaLink size={14} className="sm:w-4 sm:h-4" />
-                    <a
-                      href="#"
-                      className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors font-medium"
-                    >
-                      johndoe.com
-                    </a>
-                  </div>
+                  {user.location ? (
+                    <div className="flex items-center gap-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer">
+                      <FaMapPin size={14} className="sm:w-4 sm:h-4" />
+                      {user.location}
+                    </div>
+                  ) : (
+                    ""
+                  )}
+                  {user.link ? (
+                    <div className="flex items-center gap-2">
+                      <FaLink size={14} className="sm:w-4 sm:h-4" />
+                      <a
+                        href="#"
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors font-medium"
+                      >
+                        {user.website || ""}
+                      </a>
+                    </div>
+                  ) : (
+                    ""
+                  )}
                   <div className="flex items-center gap-2">
                     <FaCalendar size={14} className="sm:w-4 sm:h-4" />
-                    Joined March 2023
+                    {user.createdAt
+                      .split("T")[0]
+                      .split("-")
+                      .reverse()
+                      .join("/") || ""}
                   </div>
                 </div>
 
@@ -308,19 +315,19 @@ const Profile = () => {
                       icon: FaTwitter,
                       color:
                         "hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20",
-                      href: "#",
+                      href: user.githubLink,
                     },
                     {
                       icon: FaLinkedin,
                       color:
                         "hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20",
-                      href: "#",
+                      href: user.linkedinLink,
                     },
                     {
                       icon: FaGithub,
                       color:
                         "hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700",
-                      href: "#",
+                      href: user.githubLink,
                     },
                   ].map((social, index) => {
                     const Icon = social.icon;
