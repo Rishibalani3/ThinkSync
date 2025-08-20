@@ -51,7 +51,6 @@ export default function setupPassport() {
                 image: profile.photos?.[0]?.value,
                 googleAccessToken: accessToken,
                 googleRefreshToken: refreshToken,
-                facebookId: null,
               },
             });
           }
