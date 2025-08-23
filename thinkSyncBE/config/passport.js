@@ -3,9 +3,11 @@ import bcrypt from "bcrypt";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+
 const prisma = new PrismaClient();
 
 export default function setupPassport() {
+  // Local login strategy
   passport.use(
     new LocalStrategy(
       { usernameField: "email" },
@@ -13,6 +15,10 @@ export default function setupPassport() {
         try {
           const user = await prisma.user.findUnique({ where: { email } });
           if (!user) return done(null, false, { message: "No user found" });
+
+          if (!user.password) {
+            return done(null, false, { message: "Account uses Google login" });
+          }
 
           const match = await bcrypt.compare(password, user.password);
           if (!match) return done(null, false, { message: "Wrong password" });
@@ -25,35 +31,62 @@ export default function setupPassport() {
     )
   );
 
-  // Google Strategy
+  // Google OAuth strategy
   passport.use(
     new GoogleStrategy(
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         callbackURL: "/auth/google/callback",
-        passReqToCallback: false,
-        scope: ["profile", "email"],
-        accessType: "offline",
-        prompt: "consent",
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
           let user = await prisma.user.findUnique({
             where: { googleId: profile.id },
           });
+
+          // Check if account exists by email
+          if (!user && profile.emails?.[0]?.value) {
+            user = await prisma.user.findUnique({
+              where: { email: profile.emails[0].value },
+            });
+          }
+
+          // Create user if not found
           if (!user) {
             user = await prisma.user.create({
               data: {
                 googleId: profile.id,
-                username: profile.displayName,
+                displayName: profile.displayName,
                 email: profile.emails?.[0]?.value,
-                image: profile.photos?.[0]?.value,
                 googleAccessToken: accessToken,
-                googleRefreshToken: refreshToken,
+                googleRefreshToken: refreshToken || null,
+                details: {
+                  create: {
+                    avatar: profile.photos?.[0]?.value,
+                  },
+                },
               },
+              include: { details: true },
+            });
+          } else {
+            // Update tokens and avatar if user exists
+            user = await prisma.user.update({
+              where: { id: user.id },
+              data: {
+                googleAccessToken: accessToken,
+                googleRefreshToken: refreshToken || user.googleRefreshToken,
+                details: {
+                  upsert: {
+                    create: { avatar: profile.photos?.[0]?.value },
+                    update: { avatar: profile.photos?.[0]?.value },
+                  },
+                },
+              },
+              include: { details: true },
             });
           }
+
           done(null, user);
         } catch (err) {
           done(err);
@@ -62,13 +95,16 @@ export default function setupPassport() {
     )
   );
 
-  // Serialize user to store in session
+  // Serialize user to session
   passport.serializeUser((user, done) => done(null, user.id));
 
-  // Deserialize user on each request
+  // Deserialize user
   passport.deserializeUser(async (id, done) => {
     try {
-      const user = await prisma.user.findUnique({ where: { id } });
+      const user = await prisma.user.findUnique({
+        where: { id },
+        include: { details: true },
+      });
       done(null, user);
     } catch (err) {
       done(err);

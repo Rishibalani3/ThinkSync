@@ -190,12 +190,6 @@ const Profile = () => {
       </div>
     </div>
   );
-
-  const proxiedUrl = user.image.replace(
-    "https://lh3.googleusercontent.com",
-    "/gimg"
-  );
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 pt-16 relative overflow-hidden">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -237,8 +231,9 @@ const Profile = () => {
             <div className="flex flex-col sm:flex-row sm:items-end gap-4 sm:gap-8">
               <div className="relative -mt-12 sm:-mt-20 self-center sm:self-auto">
                 <div className="relative group">
+                  {console.log(user.details.avatar)}
                   <img
-                    src={proxiedUrl}
+                    src={user.details.avatar}
                     alt="Profile"
                     className="w-24 h-24 sm:w-32 md:w-36 sm:h-32 md:h-36 rounded-2xl sm:rounded-3xl border-3 sm:border-4 border-white dark:border-gray-800 shadow-xl sm:shadow-2xl transition-transform duration-500 group-hover:scale-105"
                   />
@@ -256,7 +251,7 @@ const Profile = () => {
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 mb-3">
                   <div className="flex items-center justify-center sm:justify-start gap-2 sm:gap-3">
                     <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent">
-                      {user.username}
+                      {user.displayName}
                     </h1>
                   </div>
                   <button className="px-4 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl sm:rounded-2xl font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-2 group mx-auto sm:mx-0">
@@ -273,7 +268,7 @@ const Profile = () => {
                 </p>
 
                 <p className="text-gray-700 dark:text-gray-300 mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base">
-                  {user.aboutBio}
+                  {user.details.bio}
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-8 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-4 sm:mb-6">

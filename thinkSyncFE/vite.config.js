@@ -5,13 +5,4 @@ import tailwindcss from "@tailwindcss/vite";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  server: {
-    proxy: {
-      "/gimg": {
-        target: "https://lh3.googleusercontent.com",
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/gimg/, ""),
-      },
-    },
-  },
 });

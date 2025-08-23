@@ -15,15 +15,103 @@ datasource db {
 
 model User {
   id                 String   @id @default(uuid())
-  username           String?
+  username           String?  @unique
+  displayName        String?
   email              String?  @unique
-  image              String?
   password           String?
   googleId           String?  @unique
   googleAccessToken  String?
   googleRefreshToken String?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+
+  // Relations
+  details   UserDetails?
+  followers Follows[]    @relation("followers")
+  following Follows[]    @relation("following")
+  topics    UserTopic[]
+  likes     Like[]
+  posts     Post[] // user can create posts/projects
+}
+
+model UserDetails {
+  id       String  @id @default(uuid())
+  avatar   String?
+  bio      String?
+  github   String?
+  linkedin String?
+  twitter  String?
+  location String?
+  website  String?
+  role     String? // e.g., Developer, Designer
+  skills   String? // e.g., JavaScript, React
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model Follows {
+  id         String @id @default(uuid())
+  follower   User   @relation("following", fields: [followerId], references: [id])
+  followerId String
+
+  following   User   @relation("followers", fields: [followingId], references: [id])
+  followingId String
+
+  createdAt DateTime @default(now())
+
+  @@unique([followerId, followingId]) // prevent duplicate follows
+}
+
+model Topic {
+  id    String      @id @default(uuid())
+  name  String      @unique
+  users UserTopic[]
+  posts PostTopic[]
+}
+
+model UserTopic {
+  id      String @id @default(uuid())
+  user    User   @relation(fields: [userId], references: [id])
+  userId  String
+  topic   Topic  @relation(fields: [topicId], references: [id])
+  topicId String
+
+  @@unique([userId, topicId])
+}
+
+model Post {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  likes  Like[]
+  topics PostTopic[]
+}
+
+model PostTopic {
+  id      String @id @default(uuid())
+  post    Post   @relation(fields: [postId], references: [id])
+  postId  String
+  topic   Topic  @relation(fields: [topicId], references: [id])
+  topicId String
+
+  @@unique([postId, topicId])
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId]) // one like per user per post
 }
 
 model user_sessions {

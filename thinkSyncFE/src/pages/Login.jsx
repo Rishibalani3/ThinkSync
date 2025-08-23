@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { FaBrain, FaEye, FaEyeSlash, FaGoogle } from "react-icons/fa";
+import { FaBrain, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
@@ -129,7 +130,7 @@ const Login = ({ setIsAuthenticated }) => {
               whileTap={{ scale: 0.98 }}
               className="w-full flex items-center justify-center gap-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 px-4 py-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
             >
-              <FaGoogle className="text-red-500" />
+              <FcGoogle className="text-red-500" />
               Continue with Google
             </motion.button>
           </div>
