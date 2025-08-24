@@ -15,7 +15,7 @@ import {
   FaStar,
   FaTwitter,
 } from "react-icons/fa";
-import { FiMessageCircle, FiZap } from "react-icons/fi";
+import { FiMessageCircle } from "react-icons/fi";
 import { GiSparkles } from "react-icons/gi";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -212,9 +212,10 @@ const Profile = () => {
               />
             </button>
 
-            {/* Profile stats floating badges - responsive */}
+            {/* Profile stats floating badges */}
             <div className="absolute bottom-3 left-3 sm:bottom-6 sm:left-6 flex flex-col sm:flex-row gap-2 sm:gap-3">
-              <div className="px-2 py-1 sm:px-4 sm:py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2">
+              {/* FUTURE FEATURE */}
+              {/* <div className="px-2 py-1 sm:px-4 sm:py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2">
                 <BiTrendingUp size={12} className="sm:w-4 sm:h-4" />
                 <span className="hidden sm:inline">Top Creator</span>
                 <span className="sm:hidden">Top</span>
@@ -222,7 +223,7 @@ const Profile = () => {
               <div className="px-2 py-1 sm:px-4 sm:py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2">
                 <FaStar size={12} className="sm:w-4 sm:h-4" />
                 <span>4.8</span>
-              </div>
+              </div> */}
             </div>
           </div>
 
@@ -231,7 +232,6 @@ const Profile = () => {
             <div className="flex flex-col sm:flex-row sm:items-end gap-4 sm:gap-8">
               <div className="relative -mt-12 sm:-mt-20 self-center sm:self-auto">
                 <div className="relative group">
-                  {console.log(user.details.avatar)}
                   <img
                     src={user.details.avatar}
                     alt="Profile"
@@ -272,22 +272,22 @@ const Profile = () => {
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-8 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-4 sm:mb-6">
-                  {user.location ? (
+                  {user.details.location ? (
                     <div className="flex items-center gap-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer">
                       <FaMapPin size={14} className="sm:w-4 sm:h-4" />
-                      {user.location}
+                      {user.details.location}
                     </div>
                   ) : (
                     ""
                   )}
-                  {user.link ? (
+                  {user.details.website ? (
                     <div className="flex items-center gap-2">
                       <FaLink size={14} className="sm:w-4 sm:h-4" />
                       <a
                         href="#"
                         className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors font-medium"
                       >
-                        {user.website || ""}
+                        {user.details.website}
                       </a>
                     </div>
                   ) : (
@@ -310,30 +310,32 @@ const Profile = () => {
                       icon: FaTwitter,
                       color:
                         "hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20",
-                      href: user.githubLink,
+                      href: user.details.twitter,
                     },
                     {
                       icon: FaLinkedin,
                       color:
                         "hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20",
-                      href: user.linkedinLink,
+                      href: user.details.linkedin,
                     },
                     {
                       icon: FaGithub,
                       color:
                         "hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700",
-                      href: user.githubLink,
+                      href: user.details.github,
                     },
                   ].map((social, index) => {
                     const Icon = social.icon;
                     return (
-                      <a
-                        key={index}
-                        href={social.href}
-                        className={`p-2 sm:p-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-xl sm:rounded-2xl transition-all duration-300 hover:scale-110 hover:-translate-y-1 ${social.color}`}
-                      >
-                        <Icon size={16} className="sm:w-5 sm:h-5" />
-                      </a>
+                      social.href && (
+                        <a
+                          key={index}
+                          href={social.href}
+                          className={`p-2 sm:p-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-xl sm:rounded-2xl transition-all duration-300 hover:scale-110 hover:-translate-y-1 ${social.color}`}
+                        >
+                          <Icon size={16} className="sm:w-5 sm:h-5" />
+                        </a>
+                      )
                     );
                   })}
                 </div>
@@ -441,7 +443,7 @@ const Profile = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style jsx="true">{`
         @keyframes fadeInUp {
           from {
             opacity: 0;

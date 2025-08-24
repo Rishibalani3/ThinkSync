@@ -59,6 +59,23 @@ const Home = () => {
       isLiked: false,
       isBookmarked: true,
     },
+    {
+      id: 3,
+      author: {
+        name: "Emma Thompson",
+        avatar: "https://placehold.co/40x40/667eea/ffffff?text=ET",
+        username: "@emmathompson",
+      },
+      content:
+        'Random thought: The best ideas often come when you\'re not actively trying to think of them. Maybe we need more "thinking breaks" in our daily routines. 💭',
+      type: "thought",
+      timestamp: "6 hours ago",
+      likes: 31,
+      comments: 5,
+      shares: 7,
+      isLiked: false,
+      isBookmarked: true,
+    },
   ]);
 
   const handleLike = (postId) => {
@@ -105,11 +122,11 @@ const Home = () => {
     setPosts([post, ...posts]);
   };
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-24 pb-16">
       <main className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-10 gap-6 p-5">
         {/* Left Sidebar */}
         <aside className="lg:col-span-2 hidden lg:block">
-          <div className="sticky top-16">
+          <div className="sticky top-24">
             <SidebarLeft />
           </div>
         </aside>
@@ -122,7 +139,7 @@ const Home = () => {
           >
             <PostCreator onNewPost={handleNewPost} />
 
-            <div className="space-y-4 mt-6 ">
+            <div className="space-y-4 mt-6">
               {posts.map((post, index) => (
                 <motion.div
                   key={post.id}
@@ -144,7 +161,7 @@ const Home = () => {
 
         {/* Right Sidebar */}
         <aside className="lg:col-span-3 hidden lg:block">
-          <div className="sticky top-16">
+          <div className="sticky top-24">
             <SidebarRight />
           </div>
         </aside>

@@ -3,6 +3,25 @@ import bcrypt from "bcrypt";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import {
+  uniqueNamesGenerator,
+  names,
+  adjectives,
+  colors,
+  starWars,
+} from "unique-names-generator";
+
+//it should consist only 10 characters
+const uniqueName = {
+  generate: () => {
+    return uniqueNamesGenerator({
+      dictionaries: [colors, names, adjectives, starWars],
+      separator: "-",
+      style: "lowerCase",
+      length: 2,
+    });
+  },
+};
 
 const prisma = new PrismaClient();
 
@@ -58,6 +77,7 @@ export default function setupPassport() {
               data: {
                 googleId: profile.id,
                 displayName: profile.displayName,
+                username: uniqueName.generate(),
                 email: profile.emails?.[0]?.value,
                 googleAccessToken: accessToken,
                 googleRefreshToken: refreshToken || null,
@@ -96,9 +116,11 @@ export default function setupPassport() {
   );
 
   // Serialize user to session
+
   passport.serializeUser((user, done) => done(null, user.id));
 
   // Deserialize user
+  //returning the user from the session (req.user)
   passport.deserializeUser(async (id, done) => {
     try {
       const user = await prisma.user.findUnique({
