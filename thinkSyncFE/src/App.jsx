@@ -6,18 +6,19 @@ import {
 } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "./components/Navbar";
-import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Profile from "./pages/Profile";
-import Settings from "./pages/Settings";
-import PostDetail from "./pages/PostDetail";
-import Explore from "./pages/Explore";
-import Connections from "./pages/Connections";
-import Notifications from "./pages/Notifications";
+import Home from "./components/Home";
+import Login from "./components/Login";
+import Profile from "./components/Profile";
+import Settings from "./components/Settings";
+import PostDetail from "./components/PostDetail";
+import Explore from "./components/Explore";
+import Connections from "./components/Connections";
+import Notifications from "./components/Notifications";
 import { DarkModeProvider } from "./contexts/DarkModeContext";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import LoadingScreen from "./components/LoadingScreen";
 import ProtectedRoute from "./utils/ProtectedRoutes";
+import EditProfile from "./components/EditProfile";
 
 function App() {
   const { user, loading, setUser, isAuthenticated, setIsAuthenticated } =
@@ -32,6 +33,7 @@ function App() {
     { path: "/explore", element: <Explore /> },
     { path: "/connections", element: <Connections /> },
     { path: "/notifications", element: <Notifications /> },
+    { path: "/editprofile", element: <EditProfile /> },
   ];
 
   return (

@@ -10,7 +10,7 @@ import {
   FaHashtag,
 } from "react-icons/fa";
 import { BiTrendingUp } from "react-icons/bi";
-import ThoughtCard from "../components/ThoughtCard";
+import ThoughtCard from "./ThoughtCard";
 
 const Explore = () => {
   const [searchQuery, setSearchQuery] = useState("");

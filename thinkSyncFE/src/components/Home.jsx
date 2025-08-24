@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 
-import PostCreator from "../components/PostCreator";
-import ThoughtCard from "../components/ThoughtCard";
-import SidebarLeft from "../components/SidebarLeft";
-import SidebarRight from "../components/SidebarRight";
+import PostCreator from "./PostCreator";
+import ThoughtCard from "./ThoughtCard";
+import SidebarLeft from "./SidebarLeft";
+import SidebarRight from "./SidebarRight";
 
 const Home = () => {
   const [posts, setPosts] = useState([
