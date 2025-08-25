@@ -7,7 +7,7 @@ import sessionMiddleware from "./config/session.js";
 import setupPassport from "./config/passport.js";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
-
+import postRoutes from "./routes/post.routes.js";
 dotenv.config();
 
 const app = express();
@@ -23,6 +23,7 @@ setupPassport();
 
 app.use("/auth", authRoutes);
 app.use("/", userRoutes);
+app.use("/posts", postRoutes);
 
 app.get("/health", (req, res) => {
   res.json({

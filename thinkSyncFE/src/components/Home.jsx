@@ -59,23 +59,6 @@ const Home = () => {
       isLiked: false,
       isBookmarked: true,
     },
-    {
-      id: 3,
-      author: {
-        name: "Emma Thompson",
-        avatar: "https://placehold.co/40x40/667eea/ffffff?text=ET",
-        username: "@emmathompson",
-      },
-      content:
-        'Random thought: The best ideas often come when you\'re not actively trying to think of them. Maybe we need more "thinking breaks" in our daily routines. 💭',
-      type: "thought",
-      timestamp: "6 hours ago",
-      likes: 31,
-      comments: 5,
-      shares: 7,
-      isLiked: false,
-      isBookmarked: true,
-    },
   ]);
 
   const handleLike = (postId) => {
