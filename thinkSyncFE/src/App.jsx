@@ -5,7 +5,6 @@ import {
   Navigate,
 } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import Navbar from "./components/Navbar";
 import Home from "./components/Home";
 import Login from "./components/Login";
 import Profile from "./components/Profile";
@@ -14,11 +13,9 @@ import PostDetail from "./components/PostDetail";
 import Explore from "./components/Explore";
 import Connections from "./components/Connections";
 import Notifications from "./components/Notifications";
-import { DarkModeProvider } from "./contexts/DarkModeContext";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import LoadingScreen from "./components/LoadingScreen";
 import ProtectedRoute from "./utils/ProtectedRoutes";
-import EditProfile from "./components/EditProfile";
 
 function App() {
   const { user, loading, setUser, isAuthenticated, setIsAuthenticated } =
@@ -33,7 +30,6 @@ function App() {
     { path: "/explore", element: <Explore /> },
     { path: "/connections", element: <Connections /> },
     { path: "/notifications", element: <Notifications /> },
-    { path: "/editprofile", element: <EditProfile /> },
   ];
 
   return (

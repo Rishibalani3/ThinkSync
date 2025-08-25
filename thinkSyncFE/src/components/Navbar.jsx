@@ -7,8 +7,6 @@ import {
   FaBrain,
   FaSignOutAlt,
   FaBell,
-  FaSun,
-  FaMoon,
   FaHome,
   FaCompass,
   FaLightbulb,
@@ -24,21 +22,13 @@ import { useAuth } from "../contexts/AuthContext";
 const Navbar = ({ setIsAuthenticated }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
   const { isDarkMode, toggleDarkMode } = useDarkMode();
-
-  // Handle scroll effect
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const handleLogout = async () => {
     try {
@@ -65,7 +55,6 @@ const Navbar = ({ setIsAuthenticated }) => {
 
   return (
     <>
-      {/* Main Floating Navbar */}
       <motion.nav
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -78,7 +67,6 @@ const Navbar = ({ setIsAuthenticated }) => {
           }`}
         >
           <div className="px-4 lg:px-6 h-16 flex items-center justify-between">
-            {/* Logo */}
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Link
                 to="/"
@@ -94,7 +82,6 @@ const Navbar = ({ setIsAuthenticated }) => {
               </Link>
             </motion.div>
 
-            {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center gap-1">
               {navItems.map((item, index) => {
                 const Icon = item.icon;
@@ -134,11 +121,7 @@ const Navbar = ({ setIsAuthenticated }) => {
               })}
             </div>
 
-            {/* Right side controls */}
             <div className="flex items-center gap-2">
-              {/* Search - Hidden on mobile */}
-
-              {/* Dark Mode Toggle */}
               <motion.button
                 whileHover={{ scale: 1.1, rotate: 15 }}
                 whileTap={{ scale: 0.9 }}
@@ -160,7 +143,6 @@ const Navbar = ({ setIsAuthenticated }) => {
                 </motion.div>
               </motion.button>
 
-              {/* Notifications */}
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
@@ -177,7 +159,6 @@ const Navbar = ({ setIsAuthenticated }) => {
                 </motion.span>
               </motion.button>
 
-              {/* Profile Dropdown */}
               <div className="relative">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
@@ -186,12 +167,15 @@ const Navbar = ({ setIsAuthenticated }) => {
                   className="flex items-center gap-2 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 px-3 py-2 rounded-xl transition-all duration-300"
                 >
                   <img
-                    src="https://placehold.co/32x32/667eea/ffffff?text=JD"
+                    src={
+                      user.details.avatar ||
+                      `https://placehold.co/32x32/667eea/ffffff?text=${user.displayName[0].toUpperCase()}`
+                    }
                     alt="User Avatar"
                     className="w-8 h-8 rounded-full ring-2 ring-blue-500/20"
                   />
                   <span className="text-gray-700 dark:text-gray-200 hidden xl:block font-medium">
-                    John Doe
+                    {user.displayName}
                   </span>
                 </motion.button>
 

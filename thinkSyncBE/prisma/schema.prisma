@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -31,7 +28,9 @@ model User {
   following Follows[]    @relation("following")
   topics    UserTopic[]
   likes     Like[]
-  posts     Post[] // user can create posts/projects
+  posts     Post[]
+  comments  Comment[]
+  mentions  Mention[] // when this user is mentioned
 }
 
 model UserDetails {
@@ -43,8 +42,8 @@ model UserDetails {
   twitter  String?
   location String?
   website  String?
-  role     String? // e.g., Developer, Designer
-  skills   String? // e.g., JavaScript, React
+  role     String?
+  skills   String?
 
   userId String @unique
   user   User   @relation(fields: [userId], references: [id])
@@ -60,7 +59,7 @@ model Follows {
 
   createdAt DateTime @default(now())
 
-  @@unique([followerId, followingId]) // prevent duplicate follows
+  @@unique([followerId, followingId])
 }
 
 model Topic {
@@ -89,8 +88,11 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  likes  Like[]
-  topics PostTopic[]
+  likes    Like[]
+  topics   PostTopic[]
+  media    Media[]
+  comments Comment[]
+  mentions Mention[]
 }
 
 model PostTopic {
@@ -111,7 +113,33 @@ model Like {
   postId    String
   createdAt DateTime @default(now())
 
-  @@unique([userId, postId]) // one like per user per post
+  @@unique([userId, postId])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    String
+  createdAt DateTime @default(now())
+}
+
+model Media {
+  id     String @id @default(uuid())
+  url    String
+  type   String // "image", "video", "link"
+  post   Post   @relation(fields: [postId], references: [id])
+  postId String
+}
+
+model Mention {
+  id     String @id @default(uuid())
+  post   Post   @relation(fields: [postId], references: [id])
+  postId String
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
 }
 
 model user_sessions {
