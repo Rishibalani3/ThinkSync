@@ -9,7 +9,6 @@ import {
   FaBell,
   FaHome,
   FaCompass,
-  FaLightbulb,
   FaLink,
   FaCog,
   FaBars,
@@ -22,10 +21,10 @@ import { useAuth } from "../contexts/AuthContext";
 const Navbar = ({ setIsAuthenticated }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false); // 👈 NEW
 
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const { logout, user } = useAuth();
-  const [searchQuery, setSearchQuery] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
   const { isDarkMode, toggleDarkMode } = useDarkMode();
@@ -40,15 +39,9 @@ const Navbar = ({ setIsAuthenticated }) => {
     }
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    console.log("Searching for:", searchQuery);
-  };
-
   const navItems = [
     { path: "/", label: "Home", icon: FaHome },
     { path: "/explore", label: "Explore", icon: FaCompass },
-    { path: "/profile", label: "My Ideas", icon: FaLightbulb },
     { path: "/connections", label: "Connections", icon: FaLink },
     { path: "/settings", label: "Settings", icon: FaCog },
   ];
@@ -148,6 +141,7 @@ const Navbar = ({ setIsAuthenticated }) => {
                 whileTap={{ scale: 0.9 }}
                 className="relative p-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-all duration-300"
                 title="Notifications"
+                onClick={() => setShowNotifications(!showNotifications)}
               >
                 <FaBell className="text-lg" />
                 <motion.span
@@ -158,6 +152,44 @@ const Navbar = ({ setIsAuthenticated }) => {
                   3
                 </motion.span>
               </motion.button>
+
+              <AnimatePresence>
+                {showNotifications && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9, y: -10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9, y: -10 }}
+                    className="absolute right-0 top-full mt-2 w-80 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-xl py-3 z-50"
+                  >
+                    <div className="px-4 py-2 font-semibold text-gray-700 dark:text-gray-200 border-b dark:border-gray-700">
+                      Notifications
+                    </div>
+                    <div className="max-h-60 overflow-y-auto">
+                      {[
+                        "Someone liked your posts",
+                        "Your post got 5 likes",
+                        "System update available",
+                      ].map((msg, i) => (
+                        <div
+                          key={i}
+                          className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-colors"
+                        >
+                          {msg}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="px-4 py-2 border-t dark:border-gray-700 text-center">
+                      <Link
+                        to="/notifications"
+                        className="text-blue-600 dark:text-blue-400 text-sm font-medium hover:underline"
+                        onClick={() => setShowNotifications(false)}
+                      >
+                        View all
+                      </Link>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <div className="relative">
                 <motion.button
@@ -245,21 +277,6 @@ const Navbar = ({ setIsAuthenticated }) => {
             className="lg:hidden fixed top-24 left-1/2 transform -translate-x-1/2 w-[95%] max-w-md z-40"
           >
             <div className="backdrop-blur-xl bg-white/90 dark:bg-gray-900/90 border border-gray-200/50 dark:border-gray-700/50 rounded-2xl shadow-2xl p-4">
-              {/* Mobile Search */}
-              <div className="mb-4">
-                <motion.form onSubmit={handleSearch} className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-8 pr-3 py-2.5 bg-gray-100/80 dark:bg-gray-800/80 border border-gray-200/50 dark:border-gray-700/50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
-                  />
-                  <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm" />
-                </motion.form>
-              </div>
-
-              {/* Mobile Navigation */}
               <div className="space-y-1">
                 {navItems.map((item, index) => {
                   const Icon = item.icon;

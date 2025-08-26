@@ -1,98 +1,94 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { 
+import { useState } from "react";
+import { motion } from "framer-motion";
+import {
   FaSearch,
   FaUserPlus,
   FaUserCheck,
   FaUserTimes,
-
   FaMapMarkerAlt,
   FaBriefcase,
-
   FaEllipsisH,
-  
   FaStar,
   FaUsers,
-  FaUserFriends
-} from 'react-icons/fa';
-import { BiMessage } from 'react-icons/bi';
+  FaUserFriends,
+} from "react-icons/fa";
+import { BiMessage } from "react-icons/bi";
 const Connections = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('all');
-  const [sortBy, setSortBy] = useState('recent');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("all");
+  const [sortBy, setSortBy] = useState("recent");
 
   const tabs = [
-    { id: 'all', label: 'All Connections', count: 156 },
-    { id: 'mutual', label: 'Mutual', count: 89 },
-    { id: 'pending', label: 'Pending', count: 12 },
-    { id: 'suggestions', label: 'Suggestions', count: 45 }
+    { id: "all", label: "All Connections", count: 156 },
+    { id: "mutual", label: "Mutual", count: 89 },
+    { id: "suggestions", label: "Suggestions", count: 45 },
   ];
 
   const connections = [
     {
       id: 1,
-      name: 'Sarah Chen',
-      avatar: 'https://placehold.co/60x60/667eea/ffffff?text=SC',
-      username: '@sarahchen',
-      bio: 'AI Researcher at Stanford',
-      location: 'San Francisco, CA',
-      company: 'Stanford University',
+      name: "Sarah Chen",
+      avatar: "https://placehold.co/60x60/667eea/ffffff?text=SC",
+      username: "@sarahchen",
+      bio: "AI Researcher at Stanford",
+      location: "San Francisco, CA",
+      company: "Stanford University",
       mutualConnections: 12,
       isConnected: true,
       isPending: false,
-      lastActive: '2 hours ago'
+      lastActive: "2 hours ago",
     },
     {
       id: 2,
-      name: 'Marcus Rodriguez',
-      avatar: 'https://placehold.co/60x60/667eea/ffffff?text=MR',
-      username: '@marcusrod',
-      bio: 'Product Designer at Figma',
-      location: 'New York, NY',
-      company: 'Figma',
+      name: "Marcus Rodriguez",
+      avatar: "https://placehold.co/60x60/667eea/ffffff?text=MR",
+      username: "@marcusrod",
+      bio: "Product Designer at Figma",
+      location: "New York, NY",
+      company: "Figma",
       mutualConnections: 8,
       isConnected: true,
       isPending: false,
-      lastActive: '1 day ago'
+      lastActive: "1 day ago",
     },
     {
       id: 3,
-      name: 'Emma Thompson',
-      avatar: 'https://placehold.co/60x60/667eea/ffffff?text=ET',
-      username: '@emmathompson',
-      bio: 'Data Scientist at Google',
-      location: 'Mountain View, CA',
-      company: 'Google',
+      name: "Emma Thompson",
+      avatar: "https://placehold.co/60x60/667eea/ffffff?text=ET",
+      username: "@emmathompson",
+      bio: "Data Scientist at Google",
+      location: "Mountain View, CA",
+      company: "Google",
       mutualConnections: 15,
       isConnected: false,
       isPending: true,
-      lastActive: '3 hours ago'
+      lastActive: "3 hours ago",
     },
     {
       id: 4,
-      name: 'David Kim',
-      avatar: 'https://placehold.co/60x60/667eea/ffffff?text=DK',
-      username: '@davidkim',
-      bio: 'Startup Founder',
-      location: 'Austin, TX',
-      company: 'TechStart Inc.',
+      name: "David Kim",
+      avatar: "https://placehold.co/60x60/667eea/ffffff?text=DK",
+      username: "@davidkim",
+      bio: "Startup Founder",
+      location: "Austin, TX",
+      company: "TechStart Inc.",
       mutualConnections: 5,
       isConnected: false,
       isPending: false,
-      lastActive: '5 hours ago'
-    }
+      lastActive: "5 hours ago",
+    },
   ];
 
   const handleConnect = (userId) => {
-    console.log('Connect with user:', userId);
+    console.log("Connect with user:", userId);
   };
 
   const handleMessage = (userId) => {
-    console.log('Message user:', userId);
+    console.log("Message user:", userId);
   };
 
   const handleRemove = (userId) => {
-    console.log('Remove connection:', userId);
+    console.log("Remove connection:", userId);
   };
 
   return (
@@ -151,8 +147,8 @@ const Connections = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
                     activeTab === tab.id
-                      ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                      ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
+                      : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                   }`}
                 >
                   {tab.label}
@@ -216,14 +212,6 @@ const Connections = () => {
                       <FaMapMarkerAlt className="text-green-500" />
                       {connection.location}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <FaUsers className="text-purple-500" />
-                      {connection.mutualConnections} mutual connections
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <FaStar className="text-yellow-500" />
-                      Last active {connection.lastActive}
-                    </div>
                   </div>
                 </div>
 
@@ -284,35 +272,6 @@ const Connections = () => {
           </div>
 
           {/* Stats Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.5 }}
-            className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4"
-          >
-            {[
-              { label: 'Total Connections', value: 156, icon: FaUserFriends, color: 'text-blue-500' },
-              { label: 'Mutual Connections', value: 89, icon: FaUsers, color: 'text-green-500' },
-              { label: 'Pending Requests', value: 12, icon: FaUserPlus, color: 'text-yellow-500' },
-              { label: 'Suggestions', value: 45, icon: FaStar, color: 'text-purple-500' }
-            ].map((stat, index) => {
-              const Icon = stat.icon;
-              return (
-                <div
-                  key={stat.label}
-                  className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 text-center"
-                >
-                  <Icon className={`text-2xl mx-auto mb-2 ${stat.color}`} />
-                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    {stat.value}
-                  </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
-                    {stat.label}
-                  </div>
-                </div>
-              );
-            })}
-          </motion.div>
         </motion.div>
       </div>
     </div>

@@ -1,18 +1,16 @@
 import { useState } from "react";
-import { BiBookmark, BiHelpCircle, BiTrendingUp } from "react-icons/bi";
+import { BiBookmark, BiHelpCircle } from "react-icons/bi";
 import {
   FaCalendar,
   FaCamera,
   FaEdit,
   FaGithub,
   FaHeart,
-  FaIcons,
   FaLightbulb,
   FaLink,
   FaLinkedin,
   FaMapPin,
   FaShare,
-  FaStar,
   FaTwitter,
 } from "react-icons/fa";
 import { FiMessageCircle } from "react-icons/fi";

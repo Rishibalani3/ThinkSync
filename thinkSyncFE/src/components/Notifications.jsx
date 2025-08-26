@@ -1,111 +1,120 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { 
+import { useState } from "react";
+import { motion } from "framer-motion";
+import {
   FaBell,
   FaHeart,
   FaComment,
   FaUserPlus,
   FaUserCheck,
-  FaLightbulb,
-  FaQuestion,
   FaComment as FaThought,
   FaCheck,
-  FaTimes,
-  FaEllipsisH,
-  FaFilter,
   FaTrash,
   FaEnvelope,
-  FaStar
-} from 'react-icons/fa';
+  FaStar,
+} from "react-icons/fa";
 
 const Notifications = () => {
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [activeFilter, setActiveFilter] = useState("all");
   const [notifications, setNotifications] = useState([
     {
       id: 1,
-      type: 'like',
+      type: "like",
       user: {
-        name: 'Sarah Chen',
-        avatar: 'https://placehold.co/40x40/667eea/ffffff?text=SC',
-        username: '@sarahchen'
+        name: "Sarah Chen",
+        avatar: "https://placehold.co/40x40/667eea/ffffff?text=SC",
+        username: "@sarahchen",
       },
-      content: 'liked your idea about AI and sustainable energy',
-      timestamp: '2 minutes ago',
+      content: "liked your idea about AI and sustainable energy",
+      timestamp: "2 minutes ago",
       isRead: false,
-      postId: 123
+      postId: 123,
     },
     {
       id: 2,
-      type: 'comment',
+      type: "comment",
       user: {
-        name: 'Marcus Rodriguez',
-        avatar: 'https://placehold.co/40x40/667eea/ffffff?text=MR',
-        username: '@marcusrod'
+        name: "Marcus Rodriguez",
+        avatar: "https://placehold.co/40x40/667eea/ffffff?text=MR",
+        username: "@marcusrod",
       },
-      content: 'commented on your question about productivity',
-      timestamp: '15 minutes ago',
+      content: "commented on your question about productivity",
+      timestamp: "15 minutes ago",
       isRead: false,
-      postId: 124
+      postId: 124,
     },
     {
       id: 3,
-      type: 'connection',
+      type: "connection",
       user: {
-        name: 'Emma Thompson',
-        avatar: 'https://placehold.co/40x40/667eea/ffffff?text=ET',
-        username: '@emmathompson'
+        name: "Emma Thompson",
+        avatar: "https://placehold.co/40x40/667eea/ffffff?text=ET",
+        username: "@emmathompson",
       },
-      content: 'wants to connect with you',
-      timestamp: '1 hour ago',
+      content: "wants to connect with you",
+      timestamp: "1 hour ago",
       isRead: true,
-      postId: null
+      postId: null,
     },
     {
       id: 4,
-      type: 'mention',
+      type: "mention",
       user: {
-        name: 'David Kim',
-        avatar: 'https://placehold.co/40x40/667eea/ffffff?text=DK',
-        username: '@davidkim'
+        name: "David Kim",
+        avatar: "https://placehold.co/40x40/667eea/ffffff?text=DK",
+        username: "@davidkim",
       },
-      content: 'mentioned you in a thought about innovation',
-      timestamp: '2 hours ago',
+      content: "mentioned you in a thought about innovation",
+      timestamp: "2 hours ago",
       isRead: true,
-      postId: 125
+      postId: 125,
     },
     {
       id: 5,
-      type: 'follow',
+      type: "follow",
       user: {
-        name: 'Lisa Park',
-        avatar: 'https://placehold.co/40x40/667eea/ffffff?text=LP',
-        username: '@lisapark'
+        name: "Lisa Park",
+        avatar: "https://placehold.co/40x40/667eea/ffffff?text=LP",
+        username: "@lisapark",
       },
-      content: 'started following you',
-      timestamp: '3 hours ago',
+      content: "started following you",
+      timestamp: "3 hours ago",
       isRead: true,
-      postId: null
-    }
+      postId: null,
+    },
   ]);
 
   const filters = [
-    { id: 'all', label: 'All', count: notifications.length },
-    { id: 'unread', label: 'Unread', count: notifications.filter(n => !n.isRead).length },
-    { id: 'mentions', label: 'Mentions', count: notifications.filter(n => n.type === 'mention').length },
-    { id: 'connections', label: 'Connections', count: notifications.filter(n => n.type === 'connection' || n.type === 'follow').length }
+    { id: "all", label: "All", count: notifications.length },
+    {
+      id: "unread",
+      label: "Unread",
+      count: notifications.filter((n) => !n.isRead).length,
+    },
+    {
+      id: "mentions",
+      label: "Mentions",
+      count: notifications.filter((n) => n.type === "mention").length,
+    },
+    {
+      id: "connections",
+      label: "Connections",
+      count: notifications.filter(
+        (n) => n.type === "connection" || n.type === "follow"
+      ).length,
+    },
   ];
 
   const getNotificationIcon = (type) => {
     switch (type) {
-      case 'like':
+      case "like":
         return <FaHeart className="text-red-500" />;
-      case 'comment':
+      case "comment":
         return <FaComment className="text-blue-500" />;
-      case 'connection':
+      case "connection":
         return <FaUserPlus className="text-green-500" />;
-      case 'mention':
+      case "mention":
         return <FaEnvelope className="text-purple-500" />;
-      case 'follow':
+      case "follow":
         return <FaUserCheck className="text-blue-500" />;
       default:
         return <FaBell className="text-gray-500" />;
@@ -114,44 +123,53 @@ const Notifications = () => {
 
   const getNotificationColor = (type) => {
     switch (type) {
-      case 'like':
-        return 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800';
-      case 'comment':
-        return 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800';
-      case 'connection':
-        return 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800';
-      case 'mention':
-        return 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800';
-      case 'follow':
-        return 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800';
+      case "like":
+        return "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800";
+      case "comment":
+        return "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800";
+      case "connection":
+        return "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800";
+      case "mention":
+        return "bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800";
+      case "follow":
+        return "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800";
       default:
-        return 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700';
+        return "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700";
     }
   };
 
   const handleMarkAsRead = (notificationId) => {
-    setNotifications(notifications.map(notification =>
-      notification.id === notificationId
-        ? { ...notification, isRead: true }
-        : notification
-    ));
+    setNotifications(
+      notifications.map((notification) =>
+        notification.id === notificationId
+          ? { ...notification, isRead: true }
+          : notification
+      )
+    );
   };
 
   const handleMarkAllAsRead = () => {
-    setNotifications(notifications.map(notification => ({
-      ...notification,
-      isRead: true
-    })));
+    setNotifications(
+      notifications.map((notification) => ({
+        ...notification,
+        isRead: true,
+      }))
+    );
   };
 
   const handleDeleteNotification = (notificationId) => {
-    setNotifications(notifications.filter(notification => notification.id !== notificationId));
+    setNotifications(
+      notifications.filter((notification) => notification.id !== notificationId)
+    );
   };
 
-  const filteredNotifications = notifications.filter(notification => {
-    if (activeFilter === 'unread') return !notification.isRead;
-    if (activeFilter === 'mentions') return notification.type === 'mention';
-    if (activeFilter === 'connections') return notification.type === 'connection' || notification.type === 'follow';
+  const filteredNotifications = notifications.filter((notification) => {
+    if (activeFilter === "unread") return !notification.isRead;
+    if (activeFilter === "mentions") return notification.type === "mention";
+    if (activeFilter === "connections")
+      return (
+        notification.type === "connection" || notification.type === "follow"
+      );
     return true;
   });
 
@@ -197,8 +215,8 @@ const Notifications = () => {
                   onClick={() => setActiveFilter(filter.id)}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                     activeFilter === filter.id
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600'
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600"
                   }`}
                 >
                   {filter.label}
@@ -235,8 +253,10 @@ const Notifications = () => {
                   transition={{ delay: index * 0.1, duration: 0.5 }}
                   className={`bg-white dark:bg-gray-800 rounded-lg border p-4 transition-all duration-200 ${
                     notification.isRead
-                      ? 'border-gray-200 dark:border-gray-700'
-                      : `${getNotificationColor(notification.type)} border-l-4 border-l-blue-500`
+                      ? "border-gray-200 dark:border-gray-700"
+                      : `${getNotificationColor(
+                          notification.type
+                        )} border-l-4 border-l-blue-500`
                   }`}
                 >
                   <div className="flex items-start gap-4">
@@ -293,7 +313,9 @@ const Notifications = () => {
                       <motion.button
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
-                        onClick={() => handleDeleteNotification(notification.id)}
+                        onClick={() =>
+                          handleDeleteNotification(notification.id)
+                        }
                         className="p-2 text-gray-400 hover:text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
                         title="Delete notification"
                       >
@@ -314,10 +336,32 @@ const Notifications = () => {
             className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4"
           >
             {[
-              { label: 'Total Notifications', value: notifications.length, icon: FaBell, color: 'text-blue-500' },
-              { label: 'Unread', value: notifications.filter(n => !n.isRead).length, icon: FaEnvelope, color: 'text-red-500' },
-              { label: 'Mentions', value: notifications.filter(n => n.type === 'mention').length, icon: FaStar, color: 'text-purple-500' },
-              { label: 'Connections', value: notifications.filter(n => n.type === 'connection' || n.type === 'follow').length, icon: FaUserPlus, color: 'text-green-500' }
+              {
+                label: "Total Notifications",
+                value: notifications.length,
+                icon: FaBell,
+                color: "text-blue-500",
+              },
+              {
+                label: "Unread",
+                value: notifications.filter((n) => !n.isRead).length,
+                icon: FaEnvelope,
+                color: "text-red-500",
+              },
+              {
+                label: "Mentions",
+                value: notifications.filter((n) => n.type === "mention").length,
+                icon: FaStar,
+                color: "text-purple-500",
+              },
+              {
+                label: "Connections",
+                value: notifications.filter(
+                  (n) => n.type === "connection" || n.type === "follow"
+                ).length,
+                icon: FaUserPlus,
+                color: "text-green-500",
+              },
             ].map((stat, index) => {
               const Icon = stat.icon;
               return (
