@@ -1,5 +1,9 @@
 thinkSyncFE/.env
+thinkSyncFE/.env.local
+
 thinkSyncBE/.env
+thinkSyncBE/.env.local
+
 
 thinkSyncBE/node_modules
 thinkSyncFE/node_modules
