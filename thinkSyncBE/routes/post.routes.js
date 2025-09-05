@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   createPost,
+  deletePost,
   // getPosts,
   // getPost,
   // updatePost,
@@ -22,7 +23,7 @@ router.post(
   createPost
 );
 // router.post("/update/:id", ensureAuth, updatePost);
-// router.post("/delete/:id", ensureAuth, deletePost);
+router.post("/delete/:postId", ensureAuth, deletePost);
 // router.post("/like/:id", ensureAuth, likePost);
 // router.post("/bookmark/:id", ensureAuth, bookmarkPost);
 

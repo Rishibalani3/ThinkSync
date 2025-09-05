@@ -80,9 +80,11 @@ model UserTopic {
 }
 
 model Post {
-  id        String   @id @default(uuid())
-  title     String
-  content   String
+  id String @id @default(uuid())
+
+  content String
+  type    String
+
   author    User     @relation(fields: [authorId], references: [id])
   authorId  String
   createdAt DateTime @default(now())
@@ -93,6 +95,14 @@ model Post {
   media    Media[]
   comments Comment[]
   mentions Mention[]
+  links    Link[]
+}
+
+model Link {
+  id     String @id @default(uuid())
+  url    String
+  post   Post   @relation(fields: [postId], references: [id])
+  postId String
 }
 
 model PostTopic {

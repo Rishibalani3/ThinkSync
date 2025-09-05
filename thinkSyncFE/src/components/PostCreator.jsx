@@ -12,6 +12,7 @@ import {
   FaHashtag,
 } from "react-icons/fa";
 import { useAuth } from "../contexts/AuthContext";
+import axios from "axios";
 
 const PostCreator = ({ onNewPost }) => {
   const [state, setState] = useState({
@@ -91,7 +92,6 @@ const PostCreator = ({ onNewPost }) => {
         mentions: [
           ...state.mentions,
           {
-            id: Date.now() + Math.random(),
             username: state.mentionInput.trim(),
           },
         ],
@@ -104,10 +104,7 @@ const PostCreator = ({ onNewPost }) => {
   const handleAddHashtag = () => {
     if (state.hashtagInput.trim()) {
       updateState({
-        hashtags: [
-          ...state.hashtags,
-          { id: Date.now() + Math.random(), tag: state.hashtagInput.trim() },
-        ],
+        hashtags: [...state.hashtags, { tag: state.hashtagInput.trim() }],
         hashtagInput: "",
         showHashtagInput: false,
       });
@@ -129,27 +126,47 @@ const PostCreator = ({ onNewPost }) => {
       links: state.links.filter((l) => l.id !== id),
     });
 
-  const handleSubmit = () => {
-    if (onNewPost) {
-      onNewPost({
-        content: state.content,
-        type: state.selectedType,
-        images: state.uploadedImages,
-        links: state.links,
-        mentions: state.mentions,
-        hashtags: state.hashtags,
-        timestamp: new Date().toISOString(),
+  const handleSubmit = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("content", state.content);
+      formData.append("type", state.selectedType);
+
+      // Append images
+      state.uploadedImages.forEach((img, index) => {
+        formData.append("image", img.file);
       });
+
+      // Append links, mentions, hashtags as JSON
+      formData.append("links", JSON.stringify(state.links));
+      formData.append("mentions", JSON.stringify(state.mentions));
+      formData.append("hashtags", JSON.stringify(state.hashtags));
+
+      const res = await axios.post(
+        "http://localhost:3000/posts/create",
+        formData,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      console.log("Post created:", res.data);
+
+      // Reset state
+      updateState({
+        content: "",
+        uploadedImages: [],
+        links: [],
+        mentions: [],
+        hashtags: [],
+        isExpanded: false,
+      });
+    } catch (err) {
+      console.error(err.response?.data || err.message);
     }
-    // Reset form
-    updateState({
-      content: "",
-      uploadedImages: [],
-      links: [],
-      mentions: [],
-      hashtags: [],
-      isExpanded: false,
-    });
   };
 
   return (
