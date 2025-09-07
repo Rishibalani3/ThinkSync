@@ -5,9 +5,14 @@ import cookieParser from "cookie-parser";
 import passport from "passport";
 import sessionMiddleware from "./config/session.js";
 import setupPassport from "./config/passport.js";
+
+import likeRoutes from "./routes/like.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import postRoutes from "./routes/post.routes.js";
+import bookmarkRoutes from "./routes/bookmark.routes.js";
+import commentRoutes from "./routes/comment.routes.js";
+
 dotenv.config();
 
 const app = express();
@@ -24,6 +29,9 @@ setupPassport();
 app.use("/auth", authRoutes);
 app.use("/", userRoutes);
 app.use("/posts", postRoutes);
+app.use("/likes", likeRoutes);
+app.use("/bookmark", bookmarkRoutes);
+app.use("/comment", commentRoutes);
 
 app.get("/health", (req, res) => {
   res.json({

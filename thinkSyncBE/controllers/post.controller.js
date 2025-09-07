@@ -108,22 +108,23 @@ const deletePost = async (req, res) => {
     const { postId } = req.params;
 
     const deletedPost = await prisma.$transaction(async (tx) => {
+      //find the exising post
       const existingPost = await tx.post.findFirst({
         where: { id: postId, authorId: req.user.id },
       });
 
-      console.log("User : ", req.user.id);
+      //if post not found or not owned by you
       if (!existingPost) {
         throw new ApiError(404, "Post not found or not owned by you");
       }
 
-      // 2. Delete children
+      // 2. Delete childrens records (FK)
       await tx.media.deleteMany({ where: { postId } });
       await tx.link.deleteMany({ where: { postId } });
       await tx.postTopic.deleteMany({ where: { postId } });
       await tx.mention.deleteMany({ where: { postId } });
 
-      // 3. Delete post
+      // 3. Delete post and return it for confirmation
       return tx.post.delete({
         where: { id: postId },
       });
@@ -143,5 +144,7 @@ const deletePost = async (req, res) => {
       );
   }
 };
+
+  
 
 export { createPost, deletePost };

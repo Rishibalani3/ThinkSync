@@ -31,6 +31,7 @@ model User {
   posts     Post[]
   comments  Comment[]
   mentions  Mention[] // when this user is mentioned
+  Bookmark  Bookmark[]
 }
 
 model UserDetails {
@@ -96,11 +97,20 @@ model Post {
   comments Comment[]
   mentions Mention[]
   links    Link[]
+  Bookmark Bookmark[]
 }
 
 model Link {
   id     String @id @default(uuid())
   url    String
+  post   Post   @relation(fields: [postId], references: [id])
+  postId String
+}
+
+model Bookmark {
+  id     String @id @default(uuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
   post   Post   @relation(fields: [postId], references: [id])
   postId String
 }
