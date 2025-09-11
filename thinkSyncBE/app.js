@@ -12,6 +12,7 @@ import userRoutes from "./routes/user.routes.js";
 import postRoutes from "./routes/post.routes.js";
 import bookmarkRoutes from "./routes/bookmark.routes.js";
 import commentRoutes from "./routes/comment.routes.js";
+import followRoutes from "./routes/follower.routes.js";
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ app.use("/posts", postRoutes);
 app.use("/likes", likeRoutes);
 app.use("/bookmark", bookmarkRoutes);
 app.use("/comment", commentRoutes);
+app.use("/follower", followRoutes);
 
 app.get("/health", (req, res) => {
   res.json({
