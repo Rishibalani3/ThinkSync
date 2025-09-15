@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -24,13 +21,13 @@ model User {
 
   // Relations
   details   UserDetails?
-  followers Follows[]    @relation("followers")
-  following Follows[]    @relation("following")
+  followers Follows[] @relation("followers")
+  following Follows[] @relation("following")
   topics    UserTopic[]
   likes     Like[]
   posts     Post[]
   comments  Comment[]
-  mentions  Mention[] // when this user is mentioned
+  mentions  Mention[]
   Bookmark  Bookmark[]
 }
 
@@ -47,15 +44,15 @@ model UserDetails {
   skills   String?
 
   userId String @unique
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Follows {
-  id         String @id @default(uuid())
-  follower   User   @relation("following", fields: [followerId], references: [id])
-  followerId String
+  id          String @id @default(uuid())
+  follower    User   @relation("following", fields: [followerId], references: [id], onDelete: Cascade)
+  followerId  String
 
-  following   User   @relation("followers", fields: [followingId], references: [id])
+  following   User   @relation("followers", fields: [followingId], references: [id], onDelete: Cascade)
   followingId String
 
   createdAt DateTime @default(now())
@@ -72,54 +69,52 @@ model Topic {
 
 model UserTopic {
   id      String @id @default(uuid())
-  user    User   @relation(fields: [userId], references: [id])
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId  String
-  topic   Topic  @relation(fields: [topicId], references: [id])
+  topic   Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
   topicId String
 
   @@unique([userId, topicId])
 }
 
 model Post {
-  id String @id @default(uuid())
-
-  content String
-  type    String
-
-  author    User     @relation(fields: [authorId], references: [id])
+  id        String   @id @default(uuid())
+  content   String
+  type      String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  likes    Like[]
-  topics   PostTopic[]
-  media    Media[]
-  comments Comment[]
-  mentions Mention[]
-  links    Link[]
-  Bookmark Bookmark[]
+  likes     Like[]
+  topics    PostTopic[]
+  media     Media[]
+  comments  Comment[]
+  mentions  Mention[]
+  links     Link[]
+  Bookmark  Bookmark[]
 }
 
 model Link {
   id     String @id @default(uuid())
   url    String
-  post   Post   @relation(fields: [postId], references: [id])
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId String
 }
 
 model Bookmark {
   id     String @id @default(uuid())
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
-  post   Post   @relation(fields: [postId], references: [id])
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId String
 }
 
 model PostTopic {
   id      String @id @default(uuid())
-  post    Post   @relation(fields: [postId], references: [id])
+  post    Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId  String
-  topic   Topic  @relation(fields: [topicId], references: [id])
+  topic   Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
   topicId String
 
   @@unique([postId, topicId])
@@ -127,9 +122,9 @@ model PostTopic {
 
 model Like {
   id        String   @id @default(uuid())
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
-  post      Post     @relation(fields: [postId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId    String
   createdAt DateTime @default(now())
 
@@ -139,9 +134,9 @@ model Like {
 model Comment {
   id        String   @id @default(uuid())
   content   String
-  author    User     @relation(fields: [authorId], references: [id])
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId  String
-  post      Post     @relation(fields: [postId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId    String
   createdAt DateTime @default(now())
 }
@@ -150,15 +145,15 @@ model Media {
   id     String @id @default(uuid())
   url    String
   type   String // "image", "video", "link"
-  post   Post   @relation(fields: [postId], references: [id])
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId String
 }
 
 model Mention {
   id     String @id @default(uuid())
-  post   Post   @relation(fields: [postId], references: [id])
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId String
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
 }
 
