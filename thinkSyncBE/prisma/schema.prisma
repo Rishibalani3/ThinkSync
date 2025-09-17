@@ -32,6 +32,9 @@ model User {
   comments  Comment[]
   mentions  Mention[] // when this user is mentioned
   Bookmark  Bookmark[]
+
+  sentMessages     Message[] @relation("sentMessages")
+  receivedMessages Message[] @relation("receivedMessages")
 }
 
 model UserDetails {
@@ -48,6 +51,17 @@ model UserDetails {
 
   userId String @unique
   user   User   @relation(fields: [userId], references: [id])
+}
+
+model Message {
+  id         String @id @default(uuid())
+  sender     User   @relation("sentMessages", fields: [senderId], references: [id])
+  senderId   String
+  receiver   User   @relation("receivedMessages", fields: [receiverId], references: [id])
+  receiverId String
+
+  content   String
+  createdAt DateTime @default(now())
 }
 
 model Follows {
