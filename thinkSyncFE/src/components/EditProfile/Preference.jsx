@@ -3,24 +3,8 @@ import { FaBell, FaCheck, FaPalette } from "react-icons/fa";
 import { HiOutlineColorSwatch } from "react-icons/hi";
 import { useDarkMode } from "../../contexts/DarkModeContext";
 import ToggleSwitch from "./ToggleSwitch";
-
-const PreferencesSection = ({ profileData, onInputChange }) => {
+const PreferencesSection = ({ userData, setUserData }) => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
-  const themeOptions = [
-    {
-      key: "light",
-      label: "Light",
-      bg: "bg-white",
-      border: "border-gray-200",
-    },
-    {
-      key: "dark",
-      label: "Dark",
-      bg: "bg-gray-800",
-      border: "border-gray-600",
-    },
-  ];
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -41,45 +25,68 @@ const PreferencesSection = ({ profileData, onInputChange }) => {
         </div>
       </div>
 
-      {/* Theme Selection */}
-      {/* Theme Selection */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
           <HiOutlineColorSwatch className="text-purple-500" />
           Theme Preference
         </h3>
         <div className="grid grid-cols-2 gap-4">
-          {themeOptions.map((theme) => (
-            <motion.button
-              key={theme.key}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => {
-                // update profileData
-                onInputChange("theme", theme.key, "preferences");
-
-                // sync with DarkModeContext
-                if (theme.key === "dark" && !isDarkMode) toggleDarkMode();
-                if (theme.key === "light" && isDarkMode) toggleDarkMode();
-              }}
-              className={`p-5 rounded-2xl border-2 transition-all duration-300 ${
-                profileData.preferences.theme === theme.key
-                  ? "border-blue-500 ring-4 ring-blue-100 dark:ring-blue-900 shadow-lg"
-                  : `${theme.border} hover:border-gray-300 dark:hover:border-gray-500`
-              } ${theme.bg}`}
-            >
-              <div className="text-center space-y-2">
-                <div className="font-medium text-gray-800 dark:text-gray-200">
-                  {theme.label}
-                </div>
-                {profileData.preferences.theme === theme.key && (
-                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
-                    <FaCheck className="mx-auto text-blue-500" size={16} />
-                  </motion.div>
-                )}
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={(value) => {
+              toggleDarkMode();
+              setUserData({
+                ...userData,
+                themePreference: "dark",
+              });
+            }}
+            className={`p-5 rounded-2xl border-2 transition-all duration-300 ${
+              userData.themePreference === "dark"
+                ? "border-blue-500 ring-4 ring-blue-100 dark:ring-blue-900 shadow-lg"
+                : "border-gray-300 dark:border-gray-500 hover:border-gray-300 dark:hover:border-gray-500"
+            } bg-gray-100 dark:bg-gray-800`}
+          >
+            <div className="text-center space-y-2">
+              <div className="font-medium text-gray-800 dark:text-gray-200">
+                Dark Mode
               </div>
-            </motion.button>
-          ))}
+              {isDarkMode && (
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
+                  <FaCheck className="mx-auto text-blue-500" size={16} />
+                </motion.div>
+              )}
+            </div>
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => {
+              toggleDarkMode();
+              setUserData({
+                ...userData,
+                themePreference: "light",
+              });
+            }}
+            className={`p-5 rounded-2xl border-2 transition-all duration-300 ${
+              userData.themePreference === "light"
+                ? "border-blue-500 ring-4 ring-blue-100 dark:ring-blue-900 shadow-lg"
+                : "border-gray-300 dark:border-gray-500 hover:border-gray-300 dark:hover:border-gray-500"
+            } bg-gray-100 dark:bg-gray-800`}
+          >
+            <div className="text-center space-y-2">
+              <div className="font-medium text-gray-800 dark:text-gray-200">
+                Light Mode
+              </div>
+
+              {!isDarkMode && (
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
+                  <FaCheck className="mx-auto text-blue-500" size={16} />
+                </motion.div>
+              )}
+            </div>
+          </motion.button>
         </div>
       </div>
 
@@ -91,28 +98,26 @@ const PreferencesSection = ({ profileData, onInputChange }) => {
         </h3>
         <div className="space-y-3">
           <ToggleSwitch
-            enabled={profileData.preferences.notifications.email}
-            onChange={(value) =>
-              onInputChange("email", value, "preferences.notifications")
+            enabled={userData.Mailnotification}
+            onChange={(e) =>
+              setUserData({
+                ...userData,
+                Mailnotification: e,
+              })
             }
             label="Email Notifications"
             description="Receive updates and alerts via email"
           />
           <ToggleSwitch
-            enabled={profileData.preferences.notifications.push}
-            onChange={(value) =>
-              onInputChange("push", value, "preferences.notifications")
+            enabled={userData.MessageNotification}
+            onChange={(e) =>
+              setUserData({
+                ...userData,
+                MessageNotification: e,
+              })
             }
             label="Push Notifications"
             description="Get real-time browser notifications"
-          />
-          <ToggleSwitch
-            enabled={profileData.preferences.notifications.marketing}
-            onChange={(value) =>
-              onInputChange("marketing", value, "preferences.notifications")
-            }
-            label="Marketing Communications"
-            description="Receive promotional content and updates"
           />
         </div>
       </div>

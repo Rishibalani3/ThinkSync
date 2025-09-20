@@ -21,8 +21,8 @@ model User {
 
   // Relations
   details   UserDetails?
-  followers Follows[] @relation("followers")
-  following Follows[] @relation("following")
+  followers Follows[]    @relation("followers")
+  following Follows[]    @relation("following")
   topics    UserTopic[]
   likes     Like[]
   posts     Post[]
@@ -35,36 +35,38 @@ model User {
 }
 
 model UserDetails {
-  id       String  @id @default(uuid())
-  avatar   String?
-  bio      String?
-  github   String?
-  linkedin String?
-  twitter  String?
-  location String?
-  website  String?
-  role     String?
-  skills   String?
-
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                  String    @id @default(uuid())
+  avatar              String?
+  bio                 String?
+  github              String?
+  occupation          String?
+  linkedin            String?
+  twitter             String?
+  location            String?
+  website             String?
+  role                String?
+  dateOfBirth         DateTime?
+  themePreference     String?   @default("dark")
+  MessageNotification Boolean?  @default(true)
+  Mailnotification    Boolean?  @default(true)
+  userId              String    @unique
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Message {
-  id         String @id @default(uuid())
-  sender     User   @relation("sentMessages", fields: [senderId], references: [id])
+  id         String   @id @default(uuid())
+  sender     User     @relation("sentMessages", fields: [senderId], references: [id])
   senderId   String
-  receiver   User   @relation("receivedMessages", fields: [receiverId], references: [id])
+  receiver   User     @relation("receivedMessages", fields: [receiverId], references: [id])
   receiverId String
-
-  content   String
-  createdAt DateTime @default(now())
+  content    String
+  createdAt  DateTime @default(now())
 }
 
 model Follows {
-  id          String @id @default(uuid())
-  follower    User   @relation("following", fields: [followerId], references: [id], onDelete: Cascade)
-  followerId  String
+  id         String @id @default(uuid())
+  follower   User   @relation("following", fields: [followerId], references: [id], onDelete: Cascade)
+  followerId String
 
   following   User   @relation("followers", fields: [followingId], references: [id], onDelete: Cascade)
   followingId String
@@ -100,13 +102,13 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  likes     Like[]
-  topics    PostTopic[]
-  media     Media[]
-  comments  Comment[]
-  mentions  Mention[]
-  links     Link[]
-  Bookmark  Bookmark[]
+  likes    Like[]
+  topics   PostTopic[]
+  media    Media[]
+  comments Comment[]
+  mentions Mention[]
+  links    Link[]
+  Bookmark Bookmark[]
 }
 
 model Link {

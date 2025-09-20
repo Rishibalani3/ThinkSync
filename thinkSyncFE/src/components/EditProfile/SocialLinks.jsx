@@ -8,7 +8,7 @@ import {
 } from "react-icons/fa";
 import InputField from "./InputField";
 
-const SocialLinksSection = ({ profileData, onInputChange }) => {
+const SocialLinksSection = ({ userData, setUserData }) => {
   const socialPlatforms = [
     {
       key: "twitter",
@@ -72,8 +72,13 @@ const SocialLinksSection = ({ profileData, onInputChange }) => {
               label={social.label}
               icon={social.icon}
               type="url"
-              value={profileData.social[social.key] || ""}
-              onChange={(value) => onInputChange(social.key, value, "social")}
+              value={userData[social.key] ?? ""}
+              onChange={(value) =>
+                setUserData((prev) => ({
+                  ...prev,
+                  [social.key]: value,
+                }))
+              }
               placeholder={social.placeholder}
             />
           </motion.div>

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { me } from "../controllers/user.controller.js";
+import { me, updateDetails } from "../controllers/user.controller.js";
 import { ensureAuth } from "../middleware/ensureAuth.middleware.js";
 const router = Router();
 
@@ -7,6 +7,8 @@ const router = Router();
 router.get("/test", ensureAuth, (req, res) => {
   res.json({ message: "Middleware is working!", user: req.user });
 });
+
+router.patch("/update", ensureAuth, updateDetails);
 
 router.get("/me", ensureAuth, me);
 

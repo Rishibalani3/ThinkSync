@@ -11,7 +11,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/me", {
+        const res = await axios.get("http://localhost:3000/user/me", {
           withCredentials: true,
         });
 

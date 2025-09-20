@@ -5,8 +5,6 @@ import cookieParser from "cookie-parser";
 import passport from "passport";
 import sessionMiddleware from "./config/session.js";
 import setupPassport from "./config/passport.js";
-import { Server } from "socket.io";
-import http from "http";
 
 import likeRoutes from "./routes/like.routes.js";
 import authRoutes from "./routes/auth.routes.js";
@@ -15,19 +13,10 @@ import postRoutes from "./routes/post.routes.js";
 import bookmarkRoutes from "./routes/bookmark.routes.js";
 import commentRoutes from "./routes/comment.routes.js";
 import followRoutes from "./routes/follower.routes.js";
-import messageRoutes from "./routes/message.routes.js";
 
 dotenv.config();
 
 const app = express();
-const server = http.createServer(app);
-
-const io = new Server(server, {
-  cors: {
-    origin: "http://localhost:5173",
-    credentials: true,
-  },
-});
 
 app.use(express.json());
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
@@ -39,13 +28,12 @@ app.use(passport.session());
 setupPassport();
 
 app.use("/auth", authRoutes);
-app.use("/", userRoutes);
+app.use("/user", userRoutes);
 app.use("/posts", postRoutes);
 app.use("/likes", likeRoutes);
 app.use("/bookmark", bookmarkRoutes);
 app.use("/comment", commentRoutes);
 app.use("/follower", followRoutes);
-app.use("/messages", messageRoutes);
 
 app.get("/health", (req, res) => {
   res.json({
@@ -55,4 +43,4 @@ app.get("/health", (req, res) => {
   });
 });
 
-export { app, server, io };
+export default app;
