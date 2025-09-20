@@ -210,7 +210,7 @@ const Login = ({ setIsAuthenticated }) => {
             {isLogin && (
               <div className="flex items-center justify-end">
                 <a
-                  href="#"
+                  href="/forgot-password"
                   className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
                 >
                   Forgot Password?

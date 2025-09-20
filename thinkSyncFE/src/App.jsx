@@ -16,6 +16,8 @@ import Notifications from "./components/Notifications";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import LoadingScreen from "./components/LoadingScreen";
 import ProtectedRoute from "./utils/ProtectedRoutes";
+import ForgotPassword from "./components/ForgotPassword";
+import ResetPassword from "./components/ResetPassword";
 
 function App() {
   const { user, loading, setUser, isAuthenticated, setIsAuthenticated } =
@@ -65,6 +67,8 @@ function App() {
                 }
               />
             ))}
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
           </Routes>
         </AnimatePresence>
       </div>

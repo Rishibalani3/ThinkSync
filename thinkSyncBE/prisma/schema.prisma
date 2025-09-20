@@ -30,8 +30,9 @@ model User {
   mentions  Mention[]
   Bookmark  Bookmark[]
 
-  sentMessages     Message[] @relation("sentMessages")
-  receivedMessages Message[] @relation("receivedMessages")
+  sentMessages       Message[]            @relation("sentMessages")
+  receivedMessages   Message[]            @relation("receivedMessages")
+  PasswordResetToken PasswordResetToken[] @relation("PasswordResetToken")
 }
 
 model UserDetails {
@@ -171,6 +172,15 @@ model Mention {
   postId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  expiresAt DateTime
+  userId    String
+  used      Boolean? @default(false)
+  User      User     @relation("PasswordResetToken", fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model user_sessions {

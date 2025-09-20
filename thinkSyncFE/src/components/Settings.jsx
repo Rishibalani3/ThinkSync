@@ -92,7 +92,6 @@ const Settings = () => {
       );
 
       if (res.status === 200) {
-        // console.log("done");
         setUser(res.data.data);
         initialData.current = { ...formData };
         toast.success("Profile updated successfully!");
@@ -100,7 +99,6 @@ const Settings = () => {
         toast.error(`Failed to update profile! Internal Server Error`);
       }
     } catch (err) {
-      // console.error(err.response.data.error);
       toast.error(`Failed to update profile! ${err.response.data.error}`);
     } finally {
       setLoading(false);

@@ -77,7 +77,7 @@ export default function setupPassport() {
               data: {
                 googleId: profile.id,
                 displayName: profile.displayName,
-                username: uniqueName.generate(),
+                username: uniqueName.generate(), // intially username will be random
                 email: profile.emails?.[0]?.value,
                 googleAccessToken: accessToken,
                 googleRefreshToken: refreshToken || null,
@@ -125,6 +125,13 @@ export default function setupPassport() {
     try {
       const user = await prisma.user.findUnique({
         where: { id },
+        //excluding sensitive data
+        omit: {
+          password: true,
+          googleAccessToken: true,
+          googleRefreshToken: true,
+          googleId: true,
+        },
         include: { details: true },
       });
       done(null, user);
