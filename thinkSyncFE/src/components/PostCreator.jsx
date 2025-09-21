@@ -13,6 +13,7 @@ import {
 } from "react-icons/fa";
 import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const PostCreator = ({ onNewPost }) => {
   const [state, setState] = useState({
@@ -32,7 +33,8 @@ const PostCreator = ({ onNewPost }) => {
   });
 
   const fileInputRef = useRef(null);
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   const updateState = (updates) =>
     setState((prev) => ({ ...prev, ...updates }));
@@ -44,6 +46,12 @@ const PostCreator = ({ onNewPost }) => {
   ];
 
   const handleImageUpload = (e) => {
+    if (!isAuthenticated) {
+      alert("Please log in to upload images.");
+      navigate("/login");
+      return;
+    }
+
     const files = Array.from(e.target.files);
     files.forEach((file) => {
       if (file.type.startsWith("image/")) {
@@ -127,6 +135,11 @@ const PostCreator = ({ onNewPost }) => {
     });
 
   const handleSubmit = async () => {
+    if (!isAuthenticated) {
+      alert("Please log in to create a post.");
+      navigate("/login");
+      return;
+    }
     try {
       const formData = new FormData();
       formData.append("content", state.content);
@@ -179,8 +192,10 @@ const PostCreator = ({ onNewPost }) => {
       <div className="flex gap-3">
         <img
           src={
-            user.details.avatar ||
-            `https://via.placeholder.com/150?text=${user.displayName[0]}`
+            user?.details?.avatar ||
+            `https://via.placeholder.com/150?text=${
+              user?.displayName?.[0] || "U"
+            }`
           }
           alt="avatar"
           className="w-10 h-10 rounded-full"
@@ -191,9 +206,14 @@ const PostCreator = ({ onNewPost }) => {
             value={state.content}
             onChange={(e) => updateState({ content: e.target.value })}
             onFocus={() => updateState({ isExpanded: true })}
-            placeholder="Share an idea, question, or thought..."
-            className="w-full  dark:text-white  border border-black dark:border-white rounded-lg p-3 resize-none  focus:outline-none"
+            placeholder={
+              isAuthenticated
+                ? "Share an idea, question, or thought..."
+                : "Log in to post..."
+            }
+            className="w-full dark:text-white border border-black dark:border-white rounded-lg p-3 resize-none focus:outline-none"
             rows={state.isExpanded ? 4 : 2}
+            disabled={!isAuthenticated}
           />
 
           {/* Mentions Display */}
@@ -239,7 +259,7 @@ const PostCreator = ({ onNewPost }) => {
           )}
 
           <AnimatePresence>
-            {state.isExpanded && (
+            {state.isExpanded && isAuthenticated && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}

@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 import PostCreator from "./PostCreator";
 import ThoughtCard from "./ThoughtCard";
 import SidebarLeft from "./SidebarLeft";
 import SidebarRight from "./SidebarRight";
+import { useAuth } from "../contexts/AuthContext";
 
 const Home = () => {
   const [posts, setPosts] = useState([
@@ -42,26 +44,18 @@ const Home = () => {
       isLiked: true,
       isBookmarked: false,
     },
-    {
-      id: 3,
-      author: {
-        name: "Emma Thompson",
-        avatar: "https://placehold.co/40x40/667eea/ffffff?text=ET",
-        username: "@emmathompson",
-      },
-      content:
-        'Random thought: The best ideas often come when you\'re not actively trying to think of them. Maybe we need more "thinking breaks" in our daily routines. 💭',
-      type: "thought",
-      timestamp: "6 hours ago",
-      likes: 31,
-      comments: 5,
-      shares: 7,
-      isLiked: false,
-      isBookmarked: true,
-    },
   ]);
 
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  // Guest-aware actions
   const handleLike = (postId) => {
+    if (!isAuthenticated) {
+      alert("Please log in first to like a post.");
+      navigate("/login");
+      return;
+    }
     setPosts(
       posts.map((post) =>
         post.id === postId
@@ -76,6 +70,11 @@ const Home = () => {
   };
 
   const handleBookmark = (postId) => {
+    if (!isAuthenticated) {
+      alert("Please log in first to bookmark a post.");
+      navigate("/login");
+      return;
+    }
     setPosts(
       posts.map((post) =>
         post.id === postId
@@ -86,6 +85,11 @@ const Home = () => {
   };
 
   const handleNewPost = (newPost) => {
+    if (!isAuthenticated) {
+      alert("Please log in first to create a post.");
+      navigate("/login");
+      return;
+    }
     const post = {
       id: Date.now(),
       author: {
@@ -104,6 +108,7 @@ const Home = () => {
     };
     setPosts([post, ...posts]);
   };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-24 pb-16">
       <main className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-10 gap-6 p-5">
@@ -114,6 +119,7 @@ const Home = () => {
           </div>
         </aside>
 
+        {/* Main Feed */}
         <div className="lg:col-span-5 h-[calc(100vh-4rem)] overflow-y-auto hide-scrollbar">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -132,9 +138,9 @@ const Home = () => {
                 >
                   <ThoughtCard
                     post={post}
-                    onLike={handleLike}
-                    onBookmark={handleBookmark}
-                    className="hide-scrollbar"
+                    onLike={() => handleLike(post.id)}
+                    onBookmark={() => handleBookmark(post.id)}
+                    onClick={() => !isAuthenticated && navigate("/login")}
                   />
                 </motion.div>
               ))}

@@ -1,9 +1,11 @@
 import { Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import Navbar from "../components/Navbar";
 
-function ProtectedRoute({ children, isAuthenticated, setIsAuthenticated }) {
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
+function ProtectedRoute({ children, isAuthenticated, redirectTo = "/login" }) {
+  if (!isAuthenticated) {
+    alert("You need to log in first"); // optional
+    return <Navigate to={redirectTo} replace />;
+  }
 
   return (
     <motion.div
@@ -12,7 +14,6 @@ function ProtectedRoute({ children, isAuthenticated, setIsAuthenticated }) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <Navbar setIsAuthenticated={setIsAuthenticated} />
       {children}
     </motion.div>
   );

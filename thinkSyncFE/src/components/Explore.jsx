@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import {
   FaSearch,
-  FaFilter,
   FaFire,
   FaClock,
   FaStar,
@@ -11,11 +11,15 @@ import {
 } from "react-icons/fa";
 import { BiTrendingUp } from "react-icons/bi";
 import ThoughtCard from "./ThoughtCard";
+import { useAuth } from "../contexts/AuthContext";
 
 const Explore = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("trending");
   const [selectedCategory, setSelectedCategory] = useState("all");
+
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   const filters = [
     { id: "trending", label: "Trending", icon: FaFire },
@@ -41,7 +45,7 @@ const Explore = () => {
         username: "@alexchen",
       },
       content:
-        "The future of remote work isn't just about working from home—it's about creating a new paradigm of productivity that combines flexibility, technology, and human connection. What if we could design workspaces that adapt to our needs in real-time? 🏠💻",
+        "The future of remote work isn't just about working from home—it's about creating a new paradigm of productivity...",
       type: "idea",
       timestamp: "1 hour ago",
       likes: 156,
@@ -58,7 +62,7 @@ const Explore = () => {
         username: "@mariagarcia",
       },
       content:
-        "How do we stay productive in an increasingly distracted world? Are traditional productivity methods still relevant, or do we need to completely rethink our approach to getting things done? 🤔",
+        "How do we stay productive in an increasingly distracted world? Are traditional productivity methods still relevant...",
       type: "question",
       timestamp: "3 hours ago",
       likes: 89,
@@ -67,33 +71,34 @@ const Explore = () => {
       isLiked: true,
       isBookmarked: false,
     },
-    {
-      id: 3,
-      author: {
-        name: "David Kim",
-        avatar: "https://placehold.co/40x40/667eea/ffffff?text=DK",
-        username: "@davidkim",
-      },
-      content:
-        'Random thought: The best ideas often come when you\'re not actively trying to think of them. Maybe we need more "thinking breaks" in our daily routines. The shower, the walk, the quiet moments—these are where creativity thrives. 💭',
-      type: "thought",
-      timestamp: "5 hours ago",
-      likes: 234,
-      comments: 15,
-      shares: 45,
-      isLiked: false,
-      isBookmarked: true,
-    },
   ];
 
+  // Guest-aware actions
   const handleLike = (postId) => {
-    // Handle like functionality
+    if (!isAuthenticated) {
+      alert("Please log in first to like a post.");
+      navigate("/login");
+      return;
+    }
     console.log("Liked post:", postId);
   };
 
   const handleBookmark = (postId) => {
-    // Handle bookmark functionality
+    if (!isAuthenticated) {
+      alert("Please log in first to bookmark a post.");
+      navigate("/login");
+      return;
+    }
     console.log("Bookmarked post:", postId);
+  };
+
+  const handlePostClick = (postId) => {
+    if (!isAuthenticated) {
+      alert("Please log in first to view post details.");
+      navigate("/login");
+      return;
+    }
+    navigate(`/post/${postId}`);
   };
 
   return (
@@ -117,7 +122,6 @@ const Explore = () => {
 
           {/* Search and Filters */}
           <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-6">
-            {/* Search Bar */}
             <div className="relative mb-6">
               <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
@@ -129,7 +133,6 @@ const Explore = () => {
               />
             </div>
 
-            {/* Filter Tabs */}
             <div className="flex gap-2 mb-6">
               {filters.map((filter) => {
                 const Icon = filter.icon;
@@ -145,14 +148,12 @@ const Explore = () => {
                         : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600"
                     }`}
                   >
-                    <Icon />
-                    {filter.label}
+                    <Icon /> {filter.label}
                   </motion.button>
                 );
               })}
             </div>
 
-            {/* Category Pills */}
             <div className="flex flex-wrap gap-2">
               {categories.map((category) => (
                 <motion.button
@@ -175,7 +176,7 @@ const Explore = () => {
             </div>
           </div>
 
-          {/* Trending Topics */}
+          {/* Trending Posts */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
             <div className="lg:col-span-3">
               <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
@@ -195,8 +196,9 @@ const Explore = () => {
                     >
                       <ThoughtCard
                         post={post}
-                        onLike={handleLike}
-                        onBookmark={handleBookmark}
+                        onLike={() => handleLike(post.id)}
+                        onBookmark={() => handleBookmark(post.id)}
+                        onClick={() => handlePostClick(post.id)}
                       />
                     </motion.div>
                   ))}
@@ -206,7 +208,7 @@ const Explore = () => {
 
             {/* Sidebar */}
             <div className="space-y-6">
-              {/* Trending Topics */}
+              {/* Hot Topics */}
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -221,38 +223,24 @@ const Explore = () => {
                 </div>
                 <div className="space-y-3">
                   {[
-                    { tag: "AI", count: 156, trend: "up" },
-                    { tag: "Sustainability", count: 89, trend: "up" },
-                    { tag: "Innovation", count: 234, trend: "up" },
-                    { tag: "Technology", count: 445, trend: "down" },
-                    { tag: "Future", count: 123, trend: "up" },
-                  ].map((topic, index) => (
-                    <motion.div
-                      key={topic.tag}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.3 + index * 0.1, duration: 0.3 }}
+                    "AI",
+                    "Sustainability",
+                    "Innovation",
+                    "Technology",
+                    "Future",
+                  ].map((tag, i) => (
+                    <div
+                      key={tag}
                       className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors cursor-pointer"
+                      onClick={() => !isAuthenticated && navigate("/login")}
                     >
                       <div className="flex items-center gap-2">
                         <FaHashtag className="text-blue-500" />
                         <span className="font-medium text-gray-900 dark:text-gray-100">
-                          {topic.tag}
+                          {tag}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          {topic.count}
-                        </span>
-                        <BiTrendingUp
-                          className={`text-xs ${
-                            topic.trend === "up"
-                              ? "text-green-500"
-                              : "text-red-500"
-                          }`}
-                        />
-                      </div>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
               </motion.div>
@@ -271,51 +259,27 @@ const Explore = () => {
                   </h3>
                 </div>
                 <div className="space-y-3">
-                  {[
-                    {
-                      name: "Sarah Chen",
-                      avatar: "SC",
-                      followers: 1234,
-                      bio: "AI Researcher",
-                    },
-                    {
-                      name: "Marcus Rodriguez",
-                      avatar: "MR",
-                      followers: 987,
-                      bio: "Product Designer",
-                    },
-                    {
-                      name: "Emma Thompson",
-                      avatar: "ET",
-                      followers: 756,
-                      bio: "Data Scientist",
-                    },
-                  ].map((thinker, index) => (
-                    <motion.div
-                      key={thinker.name}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.5 + index * 0.1, duration: 0.3 }}
-                      className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors cursor-pointer"
-                    >
-                      <img
-                        src={`https://placehold.co/40x40/667eea/ffffff?text=${thinker.avatar}`}
-                        alt={thinker.name}
-                        className="w-10 h-10 rounded-full"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-gray-900 dark:text-gray-100 truncate">
-                          {thinker.name}
-                        </h4>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {thinker.bio}
-                        </p>
-                        <p className="text-xs text-blue-600 dark:text-blue-400">
-                          {thinker.followers} followers
-                        </p>
+                  {["Sarah Chen", "Marcus Rodriguez", "Emma Thompson"].map(
+                    (thinker, i) => (
+                      <div
+                        key={thinker}
+                        className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors cursor-pointer"
+                        onClick={() => !isAuthenticated && navigate("/login")}
+                      >
+                        <div className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm font-bold">
+                          {thinker
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-gray-900 dark:text-gray-100 truncate">
+                            {thinker}
+                          </h4>
+                        </div>
                       </div>
-                    </motion.div>
-                  ))}
+                    )
+                  )}
                 </div>
               </motion.div>
             </div>

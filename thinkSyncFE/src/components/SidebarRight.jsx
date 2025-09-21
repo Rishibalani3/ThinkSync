@@ -7,10 +7,14 @@ import {
   FaComment,
   FaStar,
   FaPlus,
-  FaBell,
 } from "react-icons/fa";
+import { useAuth } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const SidebarRight = () => {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
   const trendingPosts = [
     {
       id: 1,
@@ -72,8 +76,16 @@ const SidebarRight = () => {
     }
   };
 
+  const handleGuestAction = () => {
+    if (!isAuthenticated) {
+      alert("Please log in to access this feature.");
+      navigate("/login");
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {/* Trending */}
       <motion.div
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -94,6 +106,7 @@ const SidebarRight = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1, duration: 0.3 }}
               className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors cursor-pointer"
+              onClick={handleGuestAction}
             >
               <div className="flex items-start gap-2">
                 {getTypeIcon(post.type)}
@@ -117,6 +130,7 @@ const SidebarRight = () => {
         </div>
       </motion.div>
 
+      {/* Suggested Connections */}
       <motion.div
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -136,7 +150,8 @@ const SidebarRight = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 + index * 0.1, duration: 0.3 }}
-              className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+              className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer"
+              onClick={handleGuestAction}
             >
               <img
                 src={connection.avatar}
