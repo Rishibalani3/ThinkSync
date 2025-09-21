@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaBrain } from "react-icons/fa";
 import axios from "axios";
+import LoadingScreen from "./LoadingScreen";
 
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();
@@ -83,11 +84,7 @@ const ResetPassword = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>Loading...</p>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   return (
@@ -108,7 +105,6 @@ const ResetPassword = () => {
           Reset Password
         </h2>
 
-        {/* Message */}
         {message && (
           <p
             className={`${
@@ -119,7 +115,6 @@ const ResetPassword = () => {
           </p>
         )}
 
-        {/* Show form only if token is valid */}
         {validToken && (
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div>

@@ -26,13 +26,14 @@ const ForgotPassword = () => {
           "If an account exists with this email, you will receive a password reset email."
         );
         setIsError(false);
-        setFormData({ email: "" });     
+        setFormData({ email: "" });
       }
     } catch (err) {
       console.error(err);
       setIsError(true);
       setMessage(
-        err.response?.data?.message ||
+        err.response?.data?.error ||
+          err.response?.data?.message ||
           "Something went wrong. Please try again later."
       );
     } finally {
@@ -62,9 +63,7 @@ const ForgotPassword = () => {
         {message && (
           <p
             className={`p-4 rounded-md text-m font-bold text-center capitalize ${
-              isError
-                ? "text-red-500 bg-red-200"
-                : "text-green-500 bg-gray-700"
+              isError ? "text-red-500 bg-red-200" : "text-green-500 bg-gray-700"
             } mb-4`}
           >
             {message}

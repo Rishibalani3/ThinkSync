@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import React from "react";
 
 function LoadingScreen() {
   return (
@@ -16,7 +15,7 @@ function LoadingScreen() {
           className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"
         />
         <h2 className="text-2xl font-bold text-white mb-2">ThinkSync</h2>
-        <p className="text-gray-400">Connecting thoughts...</p>
+        <p className="text-gray-400">Loading......</p>
       </motion.div>
     </div>
   );
