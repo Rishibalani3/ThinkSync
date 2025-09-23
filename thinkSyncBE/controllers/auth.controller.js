@@ -147,6 +147,7 @@ const resetPassword = async (req, res) => {
   }
 };
 
+//for forgotting password
 const validateResetToken = async (req, res) => {
   const { id, token } = req.query;
 

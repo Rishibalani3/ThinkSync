@@ -69,7 +69,12 @@ const Settings = () => {
     const changes = {};
     Object.keys(formData).forEach((key) => {
       if (formData[key] !== initialData.current[key]) {
-        changes[key] = formData[key];
+        // Convert dateOfBirth string to Date object for Prisma
+        if (key === "dateOfBirth" && formData[key]) {
+          changes[key] = new Date(formData[key]);
+        } else {
+          changes[key] = formData[key];
+        }
       }
     });
     return changes;
@@ -100,6 +105,7 @@ const Settings = () => {
       }
     } catch (err) {
       toast.error(`Failed to update profile! ${err.response.data.error}`);
+      console.log(err.response.data.error);
     } finally {
       setLoading(false);
     }

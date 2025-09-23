@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { FaUser, FaEnvelope, FaMapPin, FaLink } from "react-icons/fa";
+import { FaUser, FaMapPin, FaLink } from "react-icons/fa";
 import InputField from "./InputField";
 import {
   MdOutlineAlternateEmail,
@@ -10,8 +10,10 @@ import {
 import { BiEnvelope } from "react-icons/bi";
 
 const BasicInfoSection = ({ userData, setUserData }) => {
-  const dob = new Date(userData.dateOfBirth);
-  const formattedDob = dob.toISOString().split("T")[0];
+  const dob = new Date(userData.dateOfBirth ?? "");
+  const formattedDob = !isNaN(dob.getTime())
+    ? dob.toISOString().split("T")[0]
+    : "";
 
   return (
     <motion.div
@@ -103,7 +105,7 @@ const BasicInfoSection = ({ userData, setUserData }) => {
           label="Birthday"
           icon={MdOutlineCake}
           type="date"
-          value={formattedDob}
+          value={formattedDob} // use the formatted date here
           onChange={(value) =>
             setUserData((prev) => ({
               ...prev,
