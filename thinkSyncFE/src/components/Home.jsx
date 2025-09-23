@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 import PostCreator from "./PostCreator";
 import ThoughtCard from "./ThoughtCard";
@@ -9,47 +10,44 @@ import SidebarRight from "./SidebarRight";
 import { useAuth } from "../contexts/AuthContext";
 
 const Home = () => {
-  const [posts, setPosts] = useState([
-    {
-      id: 1,
-      author: {
-        name: "Sarah Chen",
-        avatar: "https://placehold.co/40x40/667eea/ffffff?text=SC",
-        username: "@sarahchen",
-      },
-      content:
-        "Just had a breakthrough idea about combining AI with sustainable energy systems. What if we could use machine learning to optimize solar panel efficiency in real-time based on weather patterns? 🌱⚡",
-      type: "idea",
-      timestamp: "2 hours ago",
-      likes: 24,
-      comments: 8,
-      shares: 3,
-      isLiked: false,
-      isBookmarked: false,
-    },
-    {
-      id: 2,
-      author: {
-        name: "Marcus Rodriguez",
-        avatar: "https://placehold.co/40x40/667eea/ffffff?text=MR",
-        username: "@marcusrod",
-      },
-      content:
-        "Question: How do we balance technological advancement with preserving human connection? Are we becoming more connected or more isolated? 🤔",
-      type: "question",
-      timestamp: "4 hours ago",
-      likes: 15,
-      comments: 12,
-      shares: 2,
-      isLiked: true,
-      isBookmarked: false,
-    },
-  ]);
-
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  // Guest-aware actions
+  const [posts, setPosts] = useState([]);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(20);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+  const fetchPosts = async (pageNum = 1) => {
+    setLoading(true);
+    try {
+      const res = await axios.get(
+        `http://localhost:3000/posts/?page=${pageNum}&limit=${limit}`
+      );
+
+      const newPosts = res.data.data?.feed || [];
+
+      setPosts((prevPosts) => {
+        const updatedPosts =
+          pageNum === 1 ? newPosts : [...prevPosts, ...newPosts];
+        setHasMore(newPosts.length === limit);
+        return updatedPosts;
+      });
+
+      setPage(pageNum);
+    } catch (err) {
+      console.error("Error fetching posts:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts(1);
+  }, []);
+
+  console.log(posts);
   const handleLike = (postId) => {
     if (!isAuthenticated) {
       alert("Please log in first to like a post.");
@@ -109,6 +107,12 @@ const Home = () => {
     setPosts([post, ...posts]);
   };
 
+  const handleLoadMore = () => {
+    if (!loading && hasMore) {
+      fetchPosts(page + 1);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-24 pb-16">
       <main className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-10 gap-6 p-5">
@@ -119,7 +123,6 @@ const Home = () => {
           </div>
         </aside>
 
-        {/* Main Feed */}
         <div className="lg:col-span-5 h-[calc(100vh-4rem)] overflow-y-auto hide-scrollbar">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -134,7 +137,7 @@ const Home = () => {
                   key={post.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1, duration: 0.5 }}
+                  transition={{ delay: index * 0.05, duration: 0.5 }}
                 >
                   <ThoughtCard
                     post={post}
@@ -145,10 +148,21 @@ const Home = () => {
                 </motion.div>
               ))}
             </div>
+
+            {hasMore && (
+              <div className="flex justify-center mt-6">
+                <button
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
+                  onClick={handleLoadMore}
+                  disabled={loading}
+                >
+                  {loading ? "Loading..." : "Load More"}
+                </button>
+              </div>
+            )}
           </motion.div>
         </div>
 
-        {/* Right Sidebar */}
         <aside className="lg:col-span-3 hidden lg:block">
           <div className="sticky top-24">
             <SidebarRight />

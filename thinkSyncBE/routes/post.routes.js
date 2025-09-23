@@ -2,7 +2,8 @@ import { Router } from "express";
 import {
   createPost,
   deletePost,
-  // getPosts,
+  getFeed,
+  getSinglePost,
   // getPost,
   // updatePost,
   // deletePost,
@@ -15,16 +16,13 @@ const router = Router();
 
 //functions should be implemented still in controller
 
-// router.get("/", ensureAuth, getPosts);
-// router.get("/:id", ensureAuth, getPost);
+router.get("/", getFeed);
+router.get("/:postId", ensureAuth, getSinglePost);
 router.post(
   "/create",
   upload.fields([{ name: "image", maxCount: 2 }]),
   createPost
 );
-// router.post("/update/:id", ensureAuth, updatePost);
 router.post("/delete/:postId", ensureAuth, deletePost);
-// router.post("/like/:id", ensureAuth, likePost);
-// router.post("/bookmark/:id", ensureAuth, bookmarkPost);
 
 export default router;

@@ -14,6 +14,7 @@ import {
 import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast, Toaster } from "react-hot-toast";
 
 const PostCreator = ({ onNewPost }) => {
   const [state, setState] = useState({
@@ -145,12 +146,10 @@ const PostCreator = ({ onNewPost }) => {
       formData.append("content", state.content);
       formData.append("type", state.selectedType);
 
-      // Append images
       state.uploadedImages.forEach((img, index) => {
         formData.append("image", img.file);
       });
 
-      // Append links, mentions, hashtags as JSON
       formData.append("links", JSON.stringify(state.links));
       formData.append("mentions", JSON.stringify(state.mentions));
       formData.append("hashtags", JSON.stringify(state.hashtags));
@@ -166,9 +165,12 @@ const PostCreator = ({ onNewPost }) => {
         }
       );
 
-      console.log("Post created:", res.data);
+      if (res.status === 201) {
+        toast.success("Post Created Successfully!");
+      } else {
+        toast.error(`Failed to create post! Internal Server Error`);
+      }
 
-      // Reset state
       updateState({
         content: "",
         uploadedImages: [],
@@ -189,6 +191,23 @@ const PostCreator = ({ onNewPost }) => {
       transition={{ duration: 0.4 }}
       className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-md"
     >
+      <Toaster
+        containerClassName="!text-green-300"
+        toastOptions={{
+          success: {
+            style: {
+              background: "green",
+              color: "white",
+            },
+          },
+          error: {
+            style: {
+              background: "red",
+              color: "white",
+            },
+          },
+        }}
+      />
       <div className="flex gap-3">
         <img
           src={

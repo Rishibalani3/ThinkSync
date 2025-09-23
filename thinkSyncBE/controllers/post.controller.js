@@ -29,7 +29,6 @@ const createPost = async (req, res) => {
       }
     }
 
-    //1.create post with media + links
     const post = await prisma.post.create({
       data: {
         content,
@@ -48,7 +47,6 @@ const createPost = async (req, res) => {
       },
     });
 
-    // 2: attach mentions (resolve usernames to userId)
     if (mentions.length > 0) {
       for (const mention of mentions) {
         const user = await prisma.user.findUnique({
@@ -103,6 +101,7 @@ const createPost = async (req, res) => {
       .json(new ApiError(500, "Something went wrong: " + err.message));
   }
 };
+
 const deletePost = async (req, res) => {
   try {
     const { postId } = req.params;
@@ -145,6 +144,106 @@ const deletePost = async (req, res) => {
   }
 };
 
-  
+const getFeed = async (req, res) => {
+  try {
+    const userId = req.user?.id || null; // current user ID (null for guests)
+    const limit = parseInt(req.query.limit) || 20;
+    const page = parseInt(req.query.page) || 1;
+    const skip = (page - 1) * limit;
 
-export { createPost, deletePost };
+    // Fetch posts with relations
+    const feed = await prisma.post.findMany({
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+            details: { select: { avatar: true } },
+          },
+        },
+        mentions: {
+          include: {
+            user: { select: { id: true, username: true, displayName: true } },
+          },
+        },
+        topics: { include: { topic: { select: { id: true, name: true } } } },
+        media: true,
+        links: true,
+        likes: userId ? { where: { userId } } : false,
+        Bookmark: userId ? { where: { userId } } : false,
+      },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      skip,
+    });
+
+    const totalPosts = await prisma.post.count();
+
+    const feedWithState = feed.map((post) => ({
+      ...post,
+      isLiked: userId ? post.likes?.length > 0 : false,
+      isBookmarked: userId ? post.Bookmark?.length > 0 : false,
+      likesCount: post.likes?.length || 0, // optional: total likes count
+      Bookmark: undefined, // remove raw bookmark array
+    }));
+
+    return res.status(200).json(
+      new ApiResponce(
+        200,
+        {
+          feed: feedWithState,
+          pagination: {
+            page,
+            limit,
+            totalPosts,
+            totalPages: Math.ceil(totalPosts / limit),
+          },
+        },
+        "Feed fetched successfully"
+      )
+    );
+  } catch (err) {
+    console.error("Feed fetch error:", err);
+    return res
+      .status(err.statusCode || 500)
+      .json(
+        err instanceof ApiError
+          ? err
+          : new ApiError(500, "Something went wrong: " + err.message)
+      );
+  }
+};
+
+const getSinglePost = async (req, res) => {
+  const { postId } = req.params;
+
+  try {
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      include: {
+        media: true,
+        links: true,
+        mentions: { include: { user: true } },
+        topics: { include: { topic: true } },
+      },
+    });
+
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    return res.status(200).json({ post });
+  } catch (err) {
+    console.error("Post fetch error:", err);
+    return res
+      .status(err.statusCode || 500)
+      .json(
+        err instanceof ApiError
+          ? err
+          : new ApiError(500, "Something went wrong: " + err.message)
+      );
+  }
+};
+
+export { createPost, deletePost, getFeed, getSinglePost };
