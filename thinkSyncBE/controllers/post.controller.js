@@ -226,6 +226,7 @@ const getSinglePost = async (req, res) => {
         links: true,
         mentions: { include: { user: true } },
         topics: { include: { topic: true } },
+        author: true, // assuming you have relation post.author
       },
     });
 
@@ -233,16 +234,44 @@ const getSinglePost = async (req, res) => {
       return res.status(404).json({ error: "Post not found" });
     }
 
-    return res.status(200).json({ post });
+    // Transform data to match frontend expectation
+    const transformedPost = {
+      id: post.id,
+      author: {
+        name: post.author?.displayName || post.author?.username,
+        username: post.author?.username,
+        avatar:
+          post.author?.avatar ||
+          `https://placehold.co/40x40/667eea/ffffff?text=${
+            post.author?.username?.[1] || "U"
+          }`,
+      },
+      content: post.content,
+      type: post.type || "idea",
+      timestamp: post.createdAt
+        ? `${Math.floor(
+            (Date.now() - post.createdAt.getTime()) / 3600000
+          )} hours ago`
+        : "just now",
+      likes: post.likesCount || 0,
+      comments: post.commentsCount || 0,
+      shares: post.sharesCount || 0,
+      tags: post.topics.map((t) => t.topic.name),
+      media: post.media,
+      links: post.links,
+      mentions: post.mentions.map((m) => ({
+        id: m.user.id,
+        name: m.user.displayName,
+        username: m.user.username,
+      })),
+    };
+
+    return res.status(200).json({ post: transformedPost });
   } catch (err) {
     console.error("Post fetch error:", err);
-    return res
-      .status(err.statusCode || 500)
-      .json(
-        err instanceof ApiError
-          ? err
-          : new ApiError(500, "Something went wrong: " + err.message)
-      );
+    return res.status(err.statusCode || 500).json({
+      error: err.message || "Something went wrong",
+    });
   }
 };
 

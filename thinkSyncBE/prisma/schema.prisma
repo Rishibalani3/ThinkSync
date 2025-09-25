@@ -33,6 +33,13 @@ model User {
   sentMessages       Message[]            @relation("sentMessages")
   receivedMessages   Message[]            @relation("receivedMessages")
   PasswordResetToken PasswordResetToken[] @relation("PasswordResetToken")
+
+  Contentreport Contentreport[]
+  UserActivity  UserActivity[]
+  AdminAuditLog AdminAuditLog[]
+
+  NotificationsSent     Notifications[] @relation("NotificationSender")
+  NotificationsReceived Notifications[] @relation("NotificationReceiver")
 }
 
 model UserDetails {
@@ -78,10 +85,11 @@ model Follows {
 }
 
 model Topic {
-  id    String      @id @default(uuid())
-  name  String      @unique
-  users UserTopic[]
-  posts PostTopic[]
+  id             String           @id @default(uuid())
+  name           String           @unique
+  users          UserTopic[]
+  posts          PostTopic[]
+  TrendingTopics TrendingTopics[]
 }
 
 model UserTopic {
@@ -103,13 +111,14 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  likes    Like[]
-  topics   PostTopic[]
-  media    Media[]
-  comments Comment[]
-  mentions Mention[]
-  links    Link[]
-  Bookmark Bookmark[]
+  likes         Like[]
+  topics        PostTopic[]
+  media         Media[]
+  comments      Comment[]
+  mentions      Mention[]
+  links         Link[]
+  Bookmark      Bookmark[]
+  notifications Notifications[] @relation("NotificationPost")
 }
 
 model Link {
@@ -149,13 +158,14 @@ model Like {
 }
 
 model Comment {
-  id        String   @id @default(uuid())
-  content   String
-  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  authorId  String
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId    String
-  createdAt DateTime @default(now())
+  id            String          @id @default(uuid())
+  content       String
+  author        User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId      String
+  post          Post            @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId        String
+  createdAt     DateTime        @default(now())
+  notifications Notifications[] @relation("NotificationComment")
 }
 
 model Media {
@@ -181,6 +191,74 @@ model PasswordResetToken {
   userId    String
   used      Boolean? @default(false)
   User      User     @relation("PasswordResetToken", fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Notifications {
+  id      String @id @default(uuid())
+  content String
+
+  sender     User   @relation("NotificationSender", fields: [senderId], references: [id])
+  senderId   String
+  receiver   User   @relation("NotificationReceiver", fields: [receiverId], references: [id])
+  receiverId String
+
+  post      Post?    @relation("NotificationPost", fields: [postId], references: [id])
+  postId    String?
+  comment   Comment? @relation("NotificationComment", fields: [commentId], references: [id])
+  commentId String?
+
+  seen      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Contentreport {
+  id             String   @id @default(uuid())
+  type           String // "post", "comment", "user"
+  reason         String
+  postId         String?
+  commentId      String?
+  reportedUserId String?
+  reporter       User     @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  reporterId     String
+  createdAt      DateTime @default(now())
+  status         String   @default("pending") // "pending", "accepted", "rejected"
+}
+
+model UserActivity {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  type      String // "view_post", "like", "bookmark", "follow", "comment"
+  postId    String?
+  topicId   String?
+  targetId  String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model TrendingTopics {
+  id        String   @id @default(uuid())
+  topic     Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  topicId   String
+  rank      Int
+  count     Int
+  updatedAt DateTime @updatedAt
+}
+
+model AdminAuditLog {
+  id         String   @id @default(uuid())
+  admin      User     @relation(fields: [adminId], references: [id])
+  adminId    String
+  action     String // "deleted_post", "banned_user", "updated_topic"
+  targetType String?
+  targetId   String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([adminId, createdAt])
+  @@index([targetType, targetId])
 }
 
 model user_sessions {
