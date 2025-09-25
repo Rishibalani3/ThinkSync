@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import axios from "axios";
 import { motion } from "framer-motion";
 import {
   FaArrowLeft,
@@ -9,63 +10,44 @@ import {
   FaBookmark,
   FaEllipsisH,
   FaReply,
-  FaLightbulb,
-  FaQuestion,
-  FaComment as FaThought,
-  FaUser,
   FaClock,
 } from "react-icons/fa";
 
 const PostDetail = () => {
   const { id } = useParams();
+  const [post, setPost] = useState(null);
   const [comment, setComment] = useState("");
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // Mock post data
-  const post = {
-    id: id,
-    author: {
-      name: "Sarah Chen",
-      avatar: "https://placehold.co/40x40/667eea/ffffff?text=SC",
-      username: "@sarahchen",
-    },
-    content:
-      "Just had a breakthrough idea about combining AI with sustainable energy systems. What if we could use machine learning to optimize solar panel efficiency in real-time based on weather patterns? This could revolutionize how we approach renewable energy and make solar power much more efficient and cost-effective. 🌱⚡",
-    type: "idea",
-    timestamp: "2 hours ago",
-    likes: 24,
-    comments: 8,
-    shares: 3,
-    tags: ["AI", "Sustainability", "Energy", "Innovation"],
+  // Fetch post from API
+  useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`/api/posts/${id}`);
+        setPost(response.data.post);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to fetch post");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPost();
+  }, [id]);
+
+  const handleSubmitComment = (e) => {
+    e.preventDefault();
+    if (comment.trim()) {
+      console.log("Comment submitted:", comment);
+      setComment("");
+      // Optionally, you can POST this comment to backend here
+    }
   };
-
-  const comments = [
-    {
-      id: 1,
-      author: {
-        name: "Marcus Rodriguez",
-        avatar: "https://placehold.co/40x40/667eea/ffffff?text=MR",
-        username: "@marcusrod",
-      },
-      content:
-        "This is fascinating! Have you considered the computational requirements for real-time optimization?",
-      timestamp: "1 hour ago",
-      likes: 5,
-    },
-    {
-      id: 2,
-      author: {
-        name: "Emma Thompson",
-        avatar: "https://placehold.co/40x40/667eea/ffffff?text=ET",
-        username: "@emmathompson",
-      },
-      content:
-        "Great idea! This could also help with energy storage optimization. What about integrating with battery systems?",
-      timestamp: "45 minutes ago",
-      likes: 3,
-    },
-  ];
 
   const getTypeColor = (type) => {
     switch (type) {
@@ -80,24 +62,26 @@ const PostDetail = () => {
     }
   };
 
-  const handleSubmitComment = (e) => {
-    e.preventDefault();
-    if (comment.trim()) {
-      // Handle comment submission
-      console.log("Comment submitted:", comment);
-      setComment("");
-    }
-  };
+  if (loading)
+    return (
+      <div className="text-center mt-20 text-gray-700 dark:text-gray-200">
+        Loading post...
+      </div>
+    );
+
+  if (error)
+    return <div className="text-center mt-20 text-red-500">{error}</div>;
+
+  if (!post) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-20">
       <div className="max-w-4xl mx-auto p-5">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          {/* Back Button */}
           <Link
             to="/"
             className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 mb-6 transition-colors"
@@ -108,7 +92,6 @@ const PostDetail = () => {
 
           {/* Main Post */}
           <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-6">
-            {/* Post Header */}
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
                 <img
@@ -158,7 +141,7 @@ const PostDetail = () => {
             </div>
 
             {/* Tags */}
-            {post.tags.length > 0 && (
+            {post.tags && post.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-6">
                 {post.tags.map((tag) => (
                   <span
@@ -221,7 +204,7 @@ const PostDetail = () => {
           {/* Comments Section */}
           <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-              Comments ({comments.length})
+              Comments ({post.comments})
             </h3>
 
             {/* Comment Form */}
@@ -257,56 +240,7 @@ const PostDetail = () => {
             </form>
 
             {/* Comments List */}
-            <div className="space-y-4">
-              {comments.map((comment, index) => (
-                <motion.div
-                  key={comment.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1, duration: 0.5 }}
-                  className="flex gap-3 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg"
-                >
-                  <img
-                    src={comment.author.avatar}
-                    alt={comment.author.name}
-                    className="w-10 h-10 rounded-full"
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-medium text-gray-900 dark:text-gray-100">
-                        {comment.author.name}
-                      </h4>
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
-                        {comment.author.username}
-                      </span>
-                      <span className="text-sm text-gray-400">
-                        {comment.timestamp}
-                      </span>
-                    </div>
-                    <p className="text-gray-700 dark:text-gray-300 mb-2">
-                      {comment.content}
-                    </p>
-                    <div className="flex items-center gap-4">
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
-                      >
-                        <FaHeart />
-                        {comment.likes}
-                      </motion.button>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
-                      >
-                        Reply
-                      </motion.button>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+            {/* Optionally, you can map real comments from API here if returned */}
           </div>
         </motion.div>
       </div>

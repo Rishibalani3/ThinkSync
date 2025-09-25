@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import PostCreator from "./PostCreator";
-import ThoughtCard from "./ThoughtCard";
+import PostCard from "./PostCard/PostCard";
 
 const posts = [
   {
@@ -80,7 +80,7 @@ export default function Feed() {
 
       <div className="space-y-1">
         {posts.map((p, idx) => (
-          <ThoughtCard key={idx} {...p} />
+          <PostCard key={idx} {...p} />
         ))}
       </div>
 

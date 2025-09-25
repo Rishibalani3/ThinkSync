@@ -43,6 +43,7 @@ export const AuthProvider = ({ children }) => {
       );
       setUser(null);
       setIsAuthenticated(false);
+      window.location.href = "/login";
     } catch (err) {
       console.log("Logout failed:", err.response?.data || err.message);
     }

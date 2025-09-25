@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import PostCreator from "./PostCreator";
-import ThoughtCard from "./ThoughtCard";
+import PostCard from "./PostCard/PostCard";
 import SidebarLeft from "./SidebarLeft";
 import SidebarRight from "./SidebarRight";
 import { useAuth } from "../contexts/AuthContext";
@@ -47,7 +47,6 @@ const Home = () => {
     fetchPosts(1);
   }, []);
 
-  console.log(posts);
   const handleLike = (postId) => {
     if (!isAuthenticated) {
       alert("Please log in first to like a post.");
@@ -139,7 +138,7 @@ const Home = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05, duration: 0.5 }}
                 >
-                  <ThoughtCard
+                  <PostCard
                     post={post}
                     onLike={() => handleLike(post.id)}
                     onBookmark={() => handleBookmark(post.id)}

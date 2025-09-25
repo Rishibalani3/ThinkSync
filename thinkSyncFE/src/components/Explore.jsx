@@ -10,7 +10,7 @@ import {
   FaHashtag,
 } from "react-icons/fa";
 import { BiTrendingUp } from "react-icons/bi";
-import ThoughtCard from "./ThoughtCard";
+import PostCard from "./PostCard/PostCard";
 import { useAuth } from "../contexts/AuthContext";
 
 const Explore = () => {
@@ -194,7 +194,7 @@ const Explore = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1, duration: 0.5 }}
                     >
-                      <ThoughtCard
+                      <PostCard
                         post={post}
                         onLike={() => handleLike(post.id)}
                         onBookmark={() => handleBookmark(post.id)}
