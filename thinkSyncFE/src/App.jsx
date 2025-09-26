@@ -7,7 +7,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import Home from "./components/Home";
 import Login from "./components/Login";
-import Profile from "./components/Profile";
+import Profile from "./components/Profile/Profile";
 import Settings from "./components/Settings";
 import PostDetail from "./components/PostDetail";
 import Explore from "./components/Explore";

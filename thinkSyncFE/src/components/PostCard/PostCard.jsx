@@ -24,6 +24,20 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  //for keyboard navigation for preview images
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (activeIndex === null) return;
+      if (e.key === "Escape") setActiveIndex(null);
+      if (e.key === "ArrowRight" && activeIndex < post.media.length - 1)
+        setActiveIndex((i) => i + 1);
+      if (e.key === "ArrowLeft" && activeIndex > 0)
+        setActiveIndex((i) => i - 1);
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [activeIndex, post.media]);
+
   const shouldTruncate = post.content.length > 280;
   const displayContent =
     shouldTruncate && !isExpanded
@@ -109,13 +123,12 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
             )}
 
             {/* Media */}
-
+            <MediaGrid post={post} setActiveIndex={setActiveIndex} />
             <BoxModel
               post={post}
               activeIndex={activeIndex}
               setActiveIndex={setActiveIndex}
             />
-            <MediaGrid post={post} setActiveIndex={setActiveIndex} />
           </div>
 
           <Actions post={post} onLike={onLike} onBookmark={onBookmark} />

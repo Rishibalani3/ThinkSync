@@ -16,7 +16,7 @@ const BoxModal = ({ post, activeIndex, setActiveIndex }) => {
       >
         <div
           className="relative max-w-4xl w-full px-4 flex items-center justify-center"
-          onClick={(e) => e.stopPropagation()} // prevent closing modal when clicking on image
+          onClick={(e) => e.stopPropagation()}
         >
           <motion.img
             layoutId={`post-media-${post.media[activeIndex].id}`}
