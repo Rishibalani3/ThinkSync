@@ -67,13 +67,11 @@ const Header = ({
             className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg py-2 z-20 min-w-[180px]"
           >
             <motion.button
-              whileHover={{ backgroundColor: "rgba(0,0,0,0.03)" }}
               className="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               Report post
             </motion.button>
             <motion.button
-              whileHover={{ backgroundColor: "rgba(0,0,0,0.03)" }}
               className="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               Copy link

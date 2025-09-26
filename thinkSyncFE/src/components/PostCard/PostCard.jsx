@@ -24,19 +24,6 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    const handleKey = (e) => {
-      if (activeIndex === null) return;
-      if (e.key === "Escape") setActiveIndex(null);
-      if (e.key === "ArrowRight" && activeIndex < post.media.length - 1)
-        setActiveIndex((i) => i + 1);
-      if (e.key === "ArrowLeft" && activeIndex > 0)
-        setActiveIndex((i) => i - 1);
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [activeIndex, post.media]);
-
   const shouldTruncate = post.content.length > 280;
   const displayContent =
     shouldTruncate && !isExpanded
@@ -45,7 +32,7 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
 
   return (
     <motion.article
-      whileHover={{ backgroundColor: "rgba(0,0,0,0.01)" }}
+      whileHover={{ scale: 1.01 }}
       className={`bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-800/70 transition-colors duration-200 cursor-pointer ${
         extraClass || ""
       }`}
@@ -63,7 +50,6 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
           </Link>
         </div>
 
-        {/* Main Content */}
         <div className="flex-1 min-w-0">
           <Header
             post={post}
@@ -123,12 +109,13 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
             )}
 
             {/* Media */}
-            <MediaGrid post={post} setActiveIndex={setActiveIndex} />
+
             <BoxModel
               post={post}
               activeIndex={activeIndex}
               setActiveIndex={setActiveIndex}
             />
+            <MediaGrid post={post} setActiveIndex={setActiveIndex} />
           </div>
 
           <Actions post={post} onLike={onLike} onBookmark={onBookmark} />
