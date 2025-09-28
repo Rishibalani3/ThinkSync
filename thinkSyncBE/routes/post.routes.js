@@ -4,17 +4,11 @@ import {
   deletePost,
   getFeed,
   getSinglePost,
-  // getPost,
-  // updatePost,
-  // deletePost,
-  // likePost,
-  // bookmarkPost,
 } from "../controllers/post.controller.js";
 import { ensureAuth } from "../middleware/ensureAuth.middleware.js";
 import { upload } from "../middleware/multer.middleware.js";
 const router = Router();
 
-//functions should be implemented still in controller
 
 router.get("/", getFeed);
 router.get("/:postId", ensureAuth, getSinglePost);

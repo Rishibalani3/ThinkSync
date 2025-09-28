@@ -7,7 +7,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import Home from "./components/Home";
 import Login from "./components/Login";
-import Profile from "./components/Profile";
+import Profile from "./components/Profile/Profile";
 import Settings from "./components/Settings";
 import PostDetail from "./components/PostDetail";
 import Explore from "./components/Explore";
@@ -19,6 +19,7 @@ import Navbar from "./components/Navbar"; // Your navbar component
 import LoadingScreen from "./components/LoadingScreen";
 import ProtectedRoute from "./utils/ProtectedRoutes";
 import { useAuth } from "./contexts/AuthContext";
+import NotFound from "./components/UtilComponents/NotFound";
 
 function App() {
   const { isAuthenticated, loading, setIsAuthenticated } = useAuth();
@@ -34,6 +35,7 @@ function App() {
   // Routes requiring login
   const protectedRoutes = [
     { path: "/profile", element: <Profile /> },
+    { path: "/profile/:username", element: <Profile /> },
     { path: "/settings", element: <Settings /> },
     { path: "/post/:id", element: <PostDetail /> },
     { path: "/connections", element: <Connections /> },
@@ -104,7 +106,7 @@ function App() {
             ))}
 
             {/* Fallback route */}
-            <Route path="*" element={<Navigate to="/" />} />
+            <Route path="/*" element={<NotFound />} />
           </Routes>
         </AnimatePresence>
       </div>

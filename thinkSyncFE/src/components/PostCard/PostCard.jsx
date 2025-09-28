@@ -24,6 +24,7 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  //for keyboard navigation for preview images
   useEffect(() => {
     const handleKey = (e) => {
       if (activeIndex === null) return;
@@ -45,7 +46,7 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
 
   return (
     <motion.article
-      whileHover={{ backgroundColor: "rgba(0,0,0,0.01)" }}
+      whileHover={{ scale: 1.01 }}
       className={`bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-800/70 transition-colors duration-200 cursor-pointer ${
         extraClass || ""
       }`}
@@ -63,7 +64,6 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
           </Link>
         </div>
 
-        {/* Main Content */}
         <div className="flex-1 min-w-0">
           <Header
             post={post}
