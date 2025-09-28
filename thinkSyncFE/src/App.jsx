@@ -19,6 +19,7 @@ import Navbar from "./components/Navbar"; // Your navbar component
 import LoadingScreen from "./components/LoadingScreen";
 import ProtectedRoute from "./utils/ProtectedRoutes";
 import { useAuth } from "./contexts/AuthContext";
+import NotFound from "./components/UtilComponents/NotFound";
 
 function App() {
   const { isAuthenticated, loading, setIsAuthenticated } = useAuth();
@@ -105,7 +106,7 @@ function App() {
             ))}
 
             {/* Fallback route */}
-            <Route path="*" element={<Navigate to="/" />} />
+            <Route path="/*" element={<NotFound />} />
           </Routes>
         </AnimatePresence>
       </div>

@@ -15,5 +15,6 @@ router.get("/test", ensureAuth, (req, res) => {
 router.patch("/update", ensureAuth, updateDetails);
 router.get("/me", ensureAuth, me);
 router.get("/:userId/posts", ensureAuth, getUserPosts);
-router.get("/profile/:username", ensureAuth, getProfile);
+router.get("/profile", ensureAuth, getProfile); // Current user's profile
+router.get("/profile/:username", ensureAuth, getProfile); // Other user's profile
 export default router;

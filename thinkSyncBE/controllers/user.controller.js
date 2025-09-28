@@ -104,12 +104,28 @@ const getProfile = async (req, res) => {
 
     let profileUser;
     if (!username) {
+      // If no username provided, return current user's profile
       profileUser = await prisma.user.findUnique({
         where: { id: loggedInUserId },
+        select: {
+          id: true,
+          username: true,
+          displayName: true,
+          details: { select: { avatar: true } },
+          createdAt: true,
+        },
       });
     } else {
+      // If username provided, find user by username
       profileUser = await prisma.user.findUnique({
-        where: { username },
+        where: { username: username },
+        select: {
+          id: true,
+          username: true,
+          displayName: true,
+          details: { select: { avatar: true } },
+          createdAt: true,
+        },
       });
       if (!profileUser)
         return res.status(404).json({ error: "User not found" });
@@ -117,6 +133,16 @@ const getProfile = async (req, res) => {
 
     const posts = await prisma.post.findMany({
       where: { authorId: profileUser.id },
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+            details: { select: { avatar: true } },
+          },
+        },
+      },
       orderBy: { createdAt: "desc" },
     });
 

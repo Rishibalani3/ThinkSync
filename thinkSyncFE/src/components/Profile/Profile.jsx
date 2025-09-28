@@ -9,6 +9,7 @@ import { FiMessageCircle } from "react-icons/fi";
 import { FaLightbulb } from "react-icons/fa";
 import { BiHelpCircle } from "react-icons/bi";
 import { GiSparkles } from "react-icons/gi";
+import NotFound from "../UtilComponents/NotFound";
 
 const Profile = () => {
   const { username } = useParams();
@@ -72,10 +73,27 @@ const Profile = () => {
   }, [username, currentUser]);
 
   if (loading) return <p className="text-center mt-20">Loading profile...</p>;
-  if (!profileData)
-    return <p className="text-center mt-20">Profile not found</p>;
+  if (!profileData) return <NotFound message="User not found 💀" />;
 
   const { profileUser, posts, isOwnProfile, isFollowing } = profileData;
+
+  const handleFollow = async () => {
+    try {
+      const response = await axios.post(
+        `http://localhost:3000/follower/follow/${profileUser.id}`,
+        {},
+        { withCredentials: true }
+      );
+
+      // Update the follow state
+      setProfileData((prev) => ({
+        ...prev,
+        isFollowing: !prev.isFollowing,
+      }));
+    } catch (error) {
+      console.error("Error toggling follow:", error);
+    }
+  };
 
   const tabs = [
     { id: "posts", label: "Posts", count: posts.length, icon: FiMessageCircle },
@@ -112,6 +130,7 @@ const Profile = () => {
           user={profileUser}
           isOwnProfile={isOwnProfile}
           isFollowing={isFollowing}
+          onFollow={handleFollow}
         />
 
         {/* Tabs */}
