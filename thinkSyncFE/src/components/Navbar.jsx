@@ -221,6 +221,44 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
                 </div>
               )}
 
+              <AnimatePresence>
+                {showNotifications && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9, y: -10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9, y: -10 }}
+                    className="absolute right-0 top-full mt-2 w-80 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-xl py-3 z-50"
+                  >
+                    <div className="px-4 py-2 font-semibold text-gray-700 dark:text-gray-200 border-b dark:border-gray-700">
+                      Notifications
+                    </div>
+                    <div className="max-h-60 overflow-y-auto">
+                      {[
+                        "Someone liked your posts",
+                        "Your post got 5 likes",
+                        "System update available",
+                      ].map((msg, i) => (
+                        <div
+                          key={i}
+                          className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-colors"
+                        >
+                          {msg}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="px-4 py-2 border-t dark:border-gray-700 text-center">
+                      <Link
+                        to="/notifications"
+                        className="text-blue-600 dark:text-blue-400 text-sm font-medium hover:underline"
+                        onClick={() => setShowNotifications(!showNotifications)}
+                      >
+                        View all
+                      </Link>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {/* Mobile Menu Button */}
               <motion.button
                 whileHover={{ scale: 1.1 }}

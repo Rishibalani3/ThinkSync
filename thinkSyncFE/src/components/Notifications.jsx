@@ -192,15 +192,17 @@ const Notifications = () => {
               </p>
             </div>
             <div className="flex gap-2">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handleMarkAllAsRead}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
-              >
-                <FaCheck />
-                Mark All Read
-              </motion.button>
+              {filteredNotifications.length > 0 && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleMarkAllAsRead}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+                >
+                  <FaCheck />
+                  Mark All Read
+                </motion.button>
+              )}
             </div>
           </div>
 
@@ -327,59 +329,6 @@ const Notifications = () => {
               ))
             )}
           </div>
-
-          {/* Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.5 }}
-            className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4"
-          >
-            {[
-              {
-                label: "Total Notifications",
-                value: notifications.length,
-                icon: FaBell,
-                color: "text-blue-500",
-              },
-              {
-                label: "Unread",
-                value: notifications.filter((n) => !n.isRead).length,
-                icon: FaEnvelope,
-                color: "text-red-500",
-              },
-              {
-                label: "Mentions",
-                value: notifications.filter((n) => n.type === "mention").length,
-                icon: FaStar,
-                color: "text-purple-500",
-              },
-              {
-                label: "Connections",
-                value: notifications.filter(
-                  (n) => n.type === "connection" || n.type === "follow"
-                ).length,
-                icon: FaUserPlus,
-                color: "text-green-500",
-              },
-            ].map((stat, index) => {
-              const Icon = stat.icon;
-              return (
-                <div
-                  key={stat.label}
-                  className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 text-center"
-                >
-                  <Icon className={`text-2xl mx-auto mb-2 ${stat.color}`} />
-                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    {stat.value}
-                  </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
-                    {stat.label}
-                  </div>
-                </div>
-              );
-            })}
-          </motion.div>
         </motion.div>
       </div>
     </div>

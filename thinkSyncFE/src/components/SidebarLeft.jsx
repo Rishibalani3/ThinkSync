@@ -10,7 +10,6 @@ const SidebarLeft = () => {
   const quickActions = [
     { label: "Bookmarks", icon: FaBookmark, count: 12 },
     { label: "Recent", icon: FaHistory, count: 8 },
-    { label: "Favorites", icon: FaStar, count: 5 },
   ];
 
   const trendingTopics = [

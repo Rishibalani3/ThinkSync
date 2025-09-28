@@ -34,6 +34,7 @@ function App() {
   // Routes requiring login
   const protectedRoutes = [
     { path: "/profile", element: <Profile /> },
+    { path: "/profile/:username", element: <Profile /> },
     { path: "/settings", element: <Settings /> },
     { path: "/post/:id", element: <PostDetail /> },
     { path: "/connections", element: <Connections /> },
