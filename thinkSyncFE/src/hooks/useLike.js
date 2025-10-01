@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import axios from "axios";
+import api from "../utils/axios";
 
 export default function useLike() {
   const navigate = useNavigate();
@@ -14,11 +14,7 @@ export default function useLike() {
     }
 
     try {
-      const res = await axios.post(
-        `http://localhost:3000/likes/like/${postId}`,
-        {},
-        { withCredentials: true }
-      );
+      const res = await api.post(`/likes/like/${postId}`);
 
       const message = res?.data?.message || "";
       const action = message.toLowerCase().includes("unliked")
@@ -26,12 +22,13 @@ export default function useLike() {
         : "like";
       return { action };
     } catch (err) {
-      console.error("Failed to toggle like:", err.response?.data || err.message);
+      console.error(
+        "Failed to toggle like:",
+        err.response?.data || err.message
+      );
       return { error: err };
     }
   };
 
   return { toggleLike };
 }
-
-

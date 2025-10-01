@@ -9,6 +9,7 @@ import BasicInfoSection from "./EditProfile/BasicInfoSection";
 import SocialLinksSection from "./EditProfile/SocialLinks";
 import PreferencesSection from "./EditProfile/Preference";
 import { useAuth } from "../contexts/AuthContext";
+import TopSpacer from "./UtilComponents/TopSpacer";
 
 const Settings = () => {
   const location = useLocation();
@@ -133,70 +134,72 @@ const Settings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 dark:from-gray-900 dark:via-slate-900 dark:to-gray-800 pt-20">
-      <Toaster
-        containerClassName="!text-green-300"
-        toastOptions={{
-          success: {
-            style: {
-              background: "green",
-              color: "white",
+    <TopSpacer>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 dark:from-gray-900 dark:via-slate-900 dark:to-gray-800 ">
+        <Toaster
+          containerClassName="!text-green-300"
+          toastOptions={{
+            success: {
+              style: {
+                background: "green",
+                color: "white",
+              },
             },
-          },
-          error: {
-            style: {
-              background: "red",
-              color: "white",
+            error: {
+              style: {
+                background: "red",
+                color: "white",
+              },
             },
-          },
-        }}
-      />
-      <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-            Settings
-          </h1>
-          <button
-            disabled={loading}
-            onClick={handleSave}
-            className="bg-indigo-600 cursor-pointer text-white py-2 px-4 rounded hover:shadow-md transition-all duration-300"
-          >
-            {loading ? "Saving..." : "Save"}
-          </button>
-        </div>
-
-        <div className="flex flex-col md:flex-row">
-          <div className="md:w-1/3 md:mr-8">
-            <ProfileImages
-              profileData={formData}
-              onImageUpload={handleImageUpload}
-              isUploading={isUploading}
-            />
+          }}
+        />
+        <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
+              Settings
+            </h1>
+            <button
+              disabled={loading}
+              onClick={handleSave}
+              className="bg-indigo-600 cursor-pointer text-white py-2 px-4 rounded hover:shadow-md transition-all duration-300"
+            >
+              {loading ? "Saving..." : "Save"}
+            </button>
           </div>
 
-          <div className="md:w-2/3">
-            <div className="flex flex-col md:flex-row gap-12 mb-4">
-              {sections.map((section) => (
-                <button
-                  key={section.id}
-                  onClick={() => setActiveSection(section.id)}
-                  className={`flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-gray-300 dark:text-white dark:hover:bg-black transition-all duration-300 ${
-                    activeSection === section.id
-                      ? "bg-gray-100 dark:bg-gray-700"
-                      : ""
-                  }`}
-                >
-                  <section.icon size={20} />
-                  <span className="font-medium">{section.label}</span>
-                </button>
-              ))}
+          <div className="flex flex-col md:flex-row">
+            <div className="md:w-1/3 md:mr-8">
+              <ProfileImages
+                profileData={formData}
+                onImageUpload={handleImageUpload}
+                isUploading={isUploading}
+              />
             </div>
 
-            {renderActiveSection()}
+            <div className="md:w-2/3">
+              <div className="flex flex-col md:flex-row gap-12 mb-4">
+                {sections.map((section) => (
+                  <button
+                    key={section.id}
+                    onClick={() => setActiveSection(section.id)}
+                    className={`flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-gray-300 dark:text-white dark:hover:bg-black transition-all duration-300 ${
+                      activeSection === section.id
+                        ? "bg-gray-100 dark:bg-gray-700"
+                        : ""
+                    }`}
+                  >
+                    <section.icon size={20} />
+                    <span className="font-medium">{section.label}</span>
+                  </button>
+                ))}
+              </div>
+
+              {renderActiveSection()}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </TopSpacer>
   );
 };
 

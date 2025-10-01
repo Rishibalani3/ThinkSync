@@ -28,13 +28,11 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // sync local like state when post changes
   useEffect(() => {
     setLocalLiked(post.isLiked);
     setLocalLikesCount(post.likesCount || 0);
   }, [post.id, post.isLiked, post.likesCount]);
-
-  //for keyboard navigation for preview images
+  
   useEffect(() => {
     const handleKey = (e) => {
       if (activeIndex === null) return;
