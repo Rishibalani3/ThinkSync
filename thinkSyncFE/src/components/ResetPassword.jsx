@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaBrain } from "react-icons/fa";
-import axios from "axios";
+import api from "../utils/axios";
 import LoadingScreen from "./LoadingScreen";
 
 const ResetPassword = () => {
@@ -14,7 +14,7 @@ const ResetPassword = () => {
 
   const params = new URLSearchParams({ token, id });
 
-  const [loading, setLoading] = useState(true); // page loading while checking token
+  const [loading, setLoading] = useState(true);
   const [validToken, setValidToken] = useState(false);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
@@ -27,9 +27,7 @@ const ResetPassword = () => {
   useEffect(() => {
     const validateToken = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:3000/auth/validate-reset-token?${params.toString()}`
-        );
+        const res = await api.get(`/auth/validate-reset-token?${params.toString()}`);
         if (res.status === 200) {
           setValidToken(true);
         }
@@ -60,14 +58,11 @@ const ResetPassword = () => {
 
     try {
       setSubmitting(true);
-      const res = await axios.post(
-        "http://localhost:3000/auth/reset-password",
-        {
-          token,
-          id,
-          password: formData.password,
-        }
-      );
+      const res = await api.post("/auth/reset-password", {
+        token,
+        id,
+        password: formData.password,
+      });
       if (res.status === 200) {
         setIsError(false);
         setMessage("Password reset successful! Redirecting to login...");
@@ -75,9 +70,7 @@ const ResetPassword = () => {
       }
     } catch (err) {
       setIsError(true);
-      setMessage(
-        err.response?.data?.message || "Failed to reset password. Try again."
-      );
+      setMessage(err.response?.data?.message || "Failed to reset password. Try again.");
     } finally {
       setSubmitting(false);
     }
@@ -106,11 +99,7 @@ const ResetPassword = () => {
         </h2>
 
         {message && (
-          <p
-            className={`${
-              isError ? "text-red-500" : "text-green-500"
-            } mb-4 text-center`}
-          >
+          <p className={`${isError ? "text-red-500" : "text-green-500"} mb-4 text-center`}>
             {message}
           </p>
         )}
@@ -125,9 +114,7 @@ const ResetPassword = () => {
                 type="password"
                 name="password"
                 value={formData.password}
-                onChange={(e) =>
-                  setFormData({ ...formData, password: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 placeholder="Enter new password"
                 className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-3 text-gray-700 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 transition-colors"
                 required
@@ -142,9 +129,7 @@ const ResetPassword = () => {
                 type="password"
                 name="confirmPassword"
                 value={formData.confirmPassword}
-                onChange={(e) =>
-                  setFormData({ ...formData, confirmPassword: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                 placeholder="Confirm new password"
                 className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-3 text-gray-700 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 transition-colors"
                 required

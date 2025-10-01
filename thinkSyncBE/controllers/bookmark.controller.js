@@ -1,3 +1,4 @@
+// controllers/bookmarkController.js
 import { prisma } from "../config/db.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponce } from "../utils/ApiResponse.js";
@@ -34,6 +35,50 @@ const bookmarkPost = async (req, res) => {
   }
 };
 
+const getBookmarks = async (req, res) => {
+  try {
+    const bookmarks = await prisma.bookmark.findMany({
+      where: { userId: req.user.id },
+      include: {
+        post: {
+          include: {
+            author: {
+              include: { details: true },
+            },
+            media: true,
+            mentions: {
+              include: {
+                user: true,
+              },
+            },
+            topics: {
+              include: {
+                topic: true,
+              },
+            },
+            likes: true, // raw likes
+          },
+        },
+      },
+    });
 
+    const posts = bookmarks.map((b) => {
+      const p = b.post;
 
-export { bookmarkPost };
+      return {
+        ...p,
+        likesCount: p.likes.length,
+        isLiked: p.likes.some((l) => l.userId === req.user.id),
+        isBookmarked: true,
+      };
+    });
+
+    return res
+      .status(200)
+      .json(new ApiResponce(200, posts, "Bookmarks fetched successfully"));
+  } catch (error) {
+    return res.status(500).json(new ApiError(500, error.message));
+  }
+};
+
+export { bookmarkPost, getBookmarks };

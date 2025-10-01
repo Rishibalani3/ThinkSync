@@ -37,7 +37,7 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
     }
   };
 
-  // Nav items: mark which are auth-required
+
   const navItems = [
     { path: "/", label: "Home", icon: FaHome, auth: false },
     { path: "/explore", label: "Explore", icon: FaCompass, auth: false },
@@ -265,7 +265,7 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="lg:hidden p-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-all duration-300"
-              >
+              > 
                 <motion.div
                   animate={{ rotate: isMobileMenuOpen ? 180 : 0 }}
                   transition={{ duration: 0.3 }}

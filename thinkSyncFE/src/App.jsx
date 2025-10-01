@@ -20,6 +20,7 @@ import LoadingScreen from "./components/LoadingScreen";
 import ProtectedRoute from "./utils/ProtectedRoutes";
 import { useAuth } from "./contexts/AuthContext";
 import NotFound from "./components/UtilComponents/NotFound";
+import Bookmarks from "./components/Bookmarks";
 
 function App() {
   const { isAuthenticated, loading, setIsAuthenticated } = useAuth();
@@ -40,6 +41,7 @@ function App() {
     { path: "/post/:id", element: <PostDetail /> },
     { path: "/connections", element: <Connections /> },
     { path: "/notifications", element: <Notifications /> },
+    { path: "/bookmarks", element: <Bookmarks /> },
   ];
 
   return (

@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { FaBrain, FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/axios";
 
 const Login = ({ setIsAuthenticated }) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -13,17 +13,16 @@ const Login = ({ setIsAuthenticated }) => {
     email: "",
     password: "",
   });
-  const [successMessage, setSuccessMessage] = useState(""); // ✅ for registration success
+  const [successMessage, setSuccessMessage] = useState("");
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ✅ Check query param on mount
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get("success") === "true") {
       setSuccessMessage("Registration successful! Please log in.");
-      setIsLogin(true); // force login form
+      setIsLogin(true);
     }
   }, [location.search]);
 
@@ -42,13 +41,7 @@ const Login = ({ setIsAuthenticated }) => {
     e.preventDefault();
     if (isLogin) {
       try {
-        const res = await axios.post(
-          "http://localhost:3000/auth/login",
-          formData,
-          {
-            withCredentials: true,
-          }
-        );
+        const res = await api.post("/auth/login", formData);
         if (res.status === 200 && res.data) {
           setIsAuthenticated(true);
           navigate("/");
@@ -58,15 +51,11 @@ const Login = ({ setIsAuthenticated }) => {
       }
     } else {
       try {
-        const res = await axios.post(
-          "http://localhost:3000/auth/signup",
-          {
-            username: formData.name,
-            email: formData.email,
-            password: formData.password,
-          },
-          { withCredentials: true }
-        );
+        const res = await api.post("/auth/signup", {
+          username: formData.name,
+          email: formData.email,
+          password: formData.password,
+        });
         if (res.status === 201) {
           window.location.href = "http://localhost:5173/login?success=true";
         }
@@ -115,7 +104,7 @@ const Login = ({ setIsAuthenticated }) => {
             {isLogin ? "Welcome Back" : "Create Account"}
           </h2>
 
-          {/* ✅ Success message */}
+          {/* Success message */}
           {successMessage && (
             <div className="mb-4 p-3 text-green-700 bg-green-100 border border-green-300 rounded-md text-sm text-center">
               {successMessage}

@@ -8,8 +8,13 @@ const SidebarLeft = () => {
   const navigate = useNavigate();
 
   const quickActions = [
-    { label: "Bookmarks", icon: FaBookmark, count: 12 },
-    { label: "Recent", icon: FaHistory, count: 8 },
+    {
+      label: "Bookmarks",
+      icon: FaBookmark,
+
+      redirection: "/bookmarks",
+    },
+    { label: "Recent", icon: FaHistory },
   ];
 
   const trendingTopics = [
@@ -47,16 +52,13 @@ const SidebarLeft = () => {
                 key={action.label}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={handleGuestAction}
+                onClick={() => navigate(action.redirection)}
                 className="flex items-center justify-between w-full px-3 py-2 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               >
                 <div className="flex items-center gap-3">
                   <Icon className="text-lg" />
                   {action.label}
                 </div>
-                <span className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
-                  {action.count}
-                </span>
               </motion.button>
             );
           })}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/axios";
 
 import PostCreator from "./PostCreator";
 import PostCard from "./PostCard/PostCard";
@@ -9,11 +9,13 @@ import SidebarLeft from "./SidebarLeft";
 import SidebarRight from "./SidebarRight";
 import { useAuth } from "../contexts/AuthContext";
 import useLike from "../hooks/useLike";
-
+import TopSpacer from "./UtilComponents/TopSpacer";
+import useBookmark from "../hooks/useBookmark";
 const Home = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { toggleLike } = useLike();
+  const { toggleBookmark } = useBookmark();
 
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
@@ -24,10 +26,7 @@ const Home = () => {
   const fetchPosts = async (pageNum = 1) => {
     setLoading(true);
     try {
-      const res = await axios.get(
-        `http://localhost:3000/posts/?page=${pageNum}&limit=${limit}`,
-        { withCredentials: true }
-      );
+      const res = await api.get(`/posts/?page=${pageNum}&limit=${limit}`);
 
       const newPosts = res.data.data?.feed || [];
 
@@ -79,12 +78,7 @@ const Home = () => {
     }
   };
 
-  const handleBookmark = (postId) => {
-    if (!isAuthenticated) {
-      alert("Please log in first to bookmark a post.");
-      navigate("/login");
-      return;
-    }
+  const handleBookmark = async (postId) => {
     setPosts(
       posts.map((post) =>
         post.id === postId
@@ -92,6 +86,8 @@ const Home = () => {
           : post
       )
     );
+
+    await toggleBookmark(postId);
   };
 
   const handleNewPost = (newPost) => {
@@ -126,62 +122,63 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-24 pb-16">
-      <main className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-10 gap-6 p-5">
-        {/* Left Sidebar */}
-        <aside className="lg:col-span-2 hidden lg:block">
-          <div className="sticky top-24">
-            <SidebarLeft />
-          </div>
-        </aside>
-
-        <div className="lg:col-span-5 h-[calc(100vh-4rem)] overflow-y-auto hide-scrollbar">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <PostCreator onNewPost={handleNewPost} />
-
-            <div className="space-y-4 mt-6">
-              {posts.map((post, index) => (
-                <motion.div
-                  key={post.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05, duration: 0.5 }}
-                >
-                  <PostCard
-                    post={post}
-                    onLike={() => handleLike(post.id)}
-                    onBookmark={() => handleBookmark(post.id)}
-                    onClick={() => !isAuthenticated && navigate("/login")}
-                  />
-                </motion.div>
-              ))}
+    <TopSpacer>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 ">
+        <main className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-10 gap-6 p-5">
+          <aside className="lg:col-span-2 hidden lg:block">
+            <div className="sticky top-24">
+              <SidebarLeft />
             </div>
+          </aside>
 
-            {hasMore && (
-              <div className="flex justify-center mt-6">
-                <button
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
-                  onClick={handleLoadMore}
-                  disabled={loading}
-                >
-                  {loading ? "Loading..." : "Load More"}
-                </button>
+          <div className="lg:col-span-5 h-[calc(100vh-4rem)] overflow-y-auto hide-scrollbar">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <PostCreator onNewPost={handleNewPost} />
+
+              <div className="space-y-4 mt-6">
+                {posts.map((post, index) => (
+                  <motion.div
+                    key={post.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05, duration: 0.5 }}
+                  >
+                    <PostCard
+                      post={post}
+                      onLike={() => handleLike(post.id)}
+                      onBookmark={() => handleBookmark(post.id)}
+                      onClick={() => !isAuthenticated && navigate("/login")}
+                    />
+                  </motion.div>
+                ))}
               </div>
-            )}
-          </motion.div>
-        </div>
 
-        <aside className="lg:col-span-3 hidden lg:block">
-          <div className="sticky top-24">
-            <SidebarRight />
+              {hasMore && (
+                <div className="flex justify-center mt-6">
+                  <button
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
+                    onClick={handleLoadMore}
+                    disabled={loading}
+                  >
+                    {loading ? "Loading..." : "Load More"}
+                  </button>
+                </div>
+              )}
+            </motion.div>
           </div>
-        </aside>
-      </main>
-    </div>
+
+          <aside className="lg:col-span-3 hidden lg:block">
+            <div className="sticky top-24">
+              <SidebarRight />
+            </div>
+          </aside>
+        </main>
+      </div>
+    </TopSpacer>
   );
 };
 

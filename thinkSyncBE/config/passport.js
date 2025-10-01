@@ -110,7 +110,7 @@ export default function setupPassport() {
               },
             };
             
-            // Only update refresh token if we received one
+            
             if (refreshToken) {
               updateData.googleRefreshToken = refreshToken;
               console.log('Updating refresh token for existing user');

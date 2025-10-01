@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { FaBrain } from "react-icons/fa";
-import axios from "axios";
+import api from "../utils/axios";
 
 const ForgotPassword = () => {
   const [formData, setFormData] = useState({ email: "" });
@@ -16,10 +16,7 @@ const ForgotPassword = () => {
     setIsError(false);
 
     try {
-      const response = await axios.post(
-        "http://localhost:3000/auth/forgot-password",
-        formData
-      );
+      const response = await api.post("/auth/forgot-password", formData);
 
       if (response.status === 200) {
         setMessage(

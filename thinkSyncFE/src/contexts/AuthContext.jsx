@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useContext } from "react";
-import axios from "axios";
+import api from "../utils/axios";
 
 const AuthContext = createContext();
 
@@ -11,9 +11,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/user/me", {
-          withCredentials: true,
-        });
+        const res = await api.get("/user/me");
 
         if (res.status === 200 && res.data) {
           setUser(res.data);
@@ -23,7 +21,6 @@ export const AuthProvider = ({ children }) => {
           setIsAuthenticated(false);
         }
       } catch (err) {
-        //just for debugging
         setUser(null);
         setIsAuthenticated(false);
       } finally {
@@ -36,11 +33,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axios.post(
-        "http://localhost:3000/auth/logout",
-        {},
-        { withCredentials: true }
-      );
+      await api.post("/auth/logout", {});
       setUser(null);
       setIsAuthenticated(false);
       window.location.href = "/login";
