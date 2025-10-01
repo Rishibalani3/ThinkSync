@@ -146,7 +146,7 @@ const deletePost = async (req, res) => {
 
 const getFeed = async (req, res) => {
   try {
-    const userId = req.user?.id || null; // current user ID (null for guests)
+    const userId = req.user?.id || null; // if used id is null then show default feed
     const limit = parseInt(req.query.limit) || 20;
     const page = parseInt(req.query.page) || 1;
     const skip = (page - 1) * limit;
@@ -219,6 +219,8 @@ const getSinglePost = async (req, res) => {
   const { postId } = req.params;
 
   try {
+    const userId = req.user?.id || null;
+
     const post = await prisma.post.findUnique({
       where: { id: postId },
       include: {
@@ -226,7 +228,13 @@ const getSinglePost = async (req, res) => {
         links: true,
         mentions: { include: { user: true } },
         topics: { include: { topic: true } },
-        author: true, // assuming you have relation post.author
+        author: {
+          include: {
+            details: true,
+          },
+        },
+        likes: userId ? { where: { userId } } : false,
+        _count: { select: { likes: true, comments: true } },
       },
     });
 
@@ -234,14 +242,13 @@ const getSinglePost = async (req, res) => {
       return res.status(404).json({ error: "Post not found" });
     }
 
-    // Transform data to match frontend expectation
     const transformedPost = {
       id: post.id,
       author: {
         name: post.author?.displayName || post.author?.username,
         username: post.author?.username,
         avatar:
-          post.author?.avatar ||
+          post.author?.details?.avatar ||
           `https://placehold.co/40x40/667eea/ffffff?text=${
             post.author?.username?.[1] || "U"
           }`,
@@ -253,8 +260,8 @@ const getSinglePost = async (req, res) => {
             (Date.now() - post.createdAt.getTime()) / 3600000
           )} hours ago`
         : "just now",
-      likes: post.likesCount || 0,
-      comments: post.commentsCount || 0,
+      likesCount: post._count?.likes || 0,
+      comments: post._count?.comments || 0,
       shares: post.sharesCount || 0,
       tags: post.topics.map((t) => t.topic.name),
       media: post.media,
@@ -264,6 +271,7 @@ const getSinglePost = async (req, res) => {
         name: m.user.displayName,
         username: m.user.username,
       })),
+      isLiked: userId ? post.likes?.length > 0 : false,
     };
 
     return res.status(200).json({ post: transformedPost });

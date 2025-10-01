@@ -33,7 +33,7 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
       setIsAuthenticated(false);
       navigate("/login");
     } catch (err) {
-      console.log("Logout failed:", err.response?.data || err.message);
+      console.error("Logout failed:", err.response?.data || err.message);
     }
   };
 

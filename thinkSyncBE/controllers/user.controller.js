@@ -116,7 +116,6 @@ const getProfile = async (req, res) => {
         },
       });
     } else {
-      // If username provided, find user by username
       profileUser = await prisma.user.findUnique({
         where: { username: username },
         select: {

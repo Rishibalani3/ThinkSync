@@ -27,6 +27,18 @@ app.use(passport.initialize());
 app.use(passport.session());
 setupPassport();
 
+// Ensure session is saved after authentication
+app.use((req, res, next) => {
+  if (req.isAuthenticated()) {
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error:', err);
+      }
+    });
+  }
+  next();
+});
+
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 app.use("/posts", postRoutes);

@@ -22,7 +22,11 @@ router.get("/validate-reset-token", validateResetToken);
 // google
 router.get(
   "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
+  passport.authenticate("google", { 
+    scope: ["profile", "email"],
+    accessType: 'offline',
+    prompt: 'consent' //it always asks for consent from user like you want to log in with google for this app.. 
+  })
 );
 router.get(
   "/google/callback",

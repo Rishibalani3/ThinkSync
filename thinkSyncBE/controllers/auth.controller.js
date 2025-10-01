@@ -59,6 +59,9 @@ const forgotPassword = async (req, res) => {
       },
     });
 
+
+    //i will implement kafka queue here to stop sending mails directly from here
+    //doing this here also put more pressure on the server
     await transporter.sendMail({
       from: process.env.EMAIL,
       to: user.email,
@@ -120,7 +123,7 @@ const resetPassword = async (req, res) => {
       where: {
         userId: id,
         token: hashedToken,
-        expiresAt: { gt: new Date() }, // Check if token is still valid
+        expiresAt: { gt: new Date() }, 
         used: false,
       },
     });
@@ -183,7 +186,7 @@ const logout = (req, res, next) => {
     if (err) return next(err);
     req.session.destroy((err) => {
       if (err) return next(err);
-      res.clearCookie("connect.sid");
+      res.clearCookie("thinksync.sid"); //session name
       res.json({ message: "Logged out" });
     });
   });

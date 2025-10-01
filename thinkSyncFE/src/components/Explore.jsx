@@ -73,15 +73,11 @@ const Explore = () => {
     },
   ];
 
-  // Guest-aware actions
-  const handleLike = (postId) => {
-    if (!isAuthenticated) {
-      alert("Please log in first to like a post.");
-      navigate("/login");
-      return;
-    }
-    console.log("Liked post:", postId);
-  };
+  // // Guest-aware actions
+  // const handleLike = async (postId) => {
+  //   const result = await toggleLike(postId);
+  //   if (result?.error) return;
+  // };
 
   const handleBookmark = (postId) => {
     if (!isAuthenticated) {
