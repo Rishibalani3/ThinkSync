@@ -9,7 +9,7 @@ const Actions = ({ post, onLike, onBookmark }) => (
       whileTap={{ scale: 0.95 }}
       onClick={(e) => {
         e.stopPropagation();
-        onLike(post.id);
+        if (typeof onLike === "function") onLike();
       }}
       className={`flex items-center gap-2 transition-colors p-2 rounded-full group ${
         post.isLiked
@@ -34,8 +34,6 @@ const Actions = ({ post, onLike, onBookmark }) => (
       </motion.div>
     </Link>
 
-    {/* Like */}
-
     {/* Share */}
     <motion.button
       whileHover={{ scale: 1.05, backgroundColor: "rgba(29, 161, 242, 0.1)" }}
@@ -52,7 +50,7 @@ const Actions = ({ post, onLike, onBookmark }) => (
       whileTap={{ scale: 0.95 }}
       onClick={(e) => {
         e.stopPropagation();
-        onBookmark(post.id);
+        if (typeof onBookmark === "function") onBookmark();
       }}
       className={`transition-colors p-2 rounded-full ${
         post.isBookmarked

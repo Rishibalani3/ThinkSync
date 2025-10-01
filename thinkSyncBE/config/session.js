@@ -8,15 +8,18 @@ const sessionMiddleware = session({
   store: new PgSession({
     pool: pgPool,
     tableName: "user_sessions",
+    createTableIfMissing: true, //if there will be no table for user_session it will create itself
   }),
   secret: process.env.SESSION_SECRET || "fallback-secret-key",
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true, 
+  rolling: true,
   cookie: { 
     httpOnly: true, 
-    secure: false, 
+    secure: process.env.NODE_ENV === 'production', // for the production (deployment)
     sameSite: "lax",
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days instead of 24 hours
+    name: 'thinksync.sid' // Custom session name
   },
 });
 

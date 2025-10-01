@@ -8,10 +8,12 @@ import PostCard from "./PostCard/PostCard";
 import SidebarLeft from "./SidebarLeft";
 import SidebarRight from "./SidebarRight";
 import { useAuth } from "../contexts/AuthContext";
+import useLike from "../hooks/useLike";
 
 const Home = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const { toggleLike } = useLike();
 
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
@@ -23,7 +25,8 @@ const Home = () => {
     setLoading(true);
     try {
       const res = await axios.get(
-        `http://localhost:3000/posts/?page=${pageNum}&limit=${limit}`
+        `http://localhost:3000/posts/?page=${pageNum}&limit=${limit}`,
+        { withCredentials: true }
       );
 
       const newPosts = res.data.data?.feed || [];
@@ -47,23 +50,33 @@ const Home = () => {
     fetchPosts(1);
   }, []);
 
-  const handleLike = (postId) => {
-    if (!isAuthenticated) {
-      alert("Please log in first to like a post.");
-      navigate("/login");
-      return;
-    }
-    setPosts(
-      posts.map((post) =>
+  const handleLike = async (postId) => {
+    setPosts((prev) =>
+      prev.map((post) =>
         post.id === postId
           ? {
               ...post,
-              likes: post.isLiked ? post.likes - 1 : post.likes + 1,
+              likesCount: (post.likesCount || 0) + (post.isLiked ? -1 : 1),
               isLiked: !post.isLiked,
             }
           : post
       )
     );
+
+    const result = await toggleLike(postId);
+    if (result?.error) {
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                likesCount: (post.likesCount || 0) + (post.isLiked ? -1 : 1),
+                isLiked: !post.isLiked,
+              }
+            : post
+        )
+      );
+    }
   };
 
   const handleBookmark = (postId) => {

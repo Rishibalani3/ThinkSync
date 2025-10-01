@@ -7,12 +7,16 @@ import MediaGrid from "./MediaGrid";
 import BoxModel from "./BoxModel";
 import Actions from "./Actions";
 import { formatTimeAgo, getTypeColor } from "./Utils.js";
+import useLike from "../../hooks/useLike";
 
 const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
   const [showOptions, setShowOptions] = useState(false);
   const [activeIndex, setActiveIndex] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const optionsRef = useRef(null);
+  const { toggleLike } = useLike();
+  const [localLiked, setLocalLiked] = useState(post.isLiked);
+  const [localLikesCount, setLocalLikesCount] = useState(post.likesCount || 0);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -23,6 +27,12 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // sync local like state when post changes
+  useEffect(() => {
+    setLocalLiked(post.isLiked);
+    setLocalLikesCount(post.likesCount || 0);
+  }, [post.id, post.isLiked, post.likesCount]);
 
   //for keyboard navigation for preview images
   useEffect(() => {
@@ -43,6 +53,28 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
     shouldTruncate && !isExpanded
       ? post.content.slice(0, 280) + "..."
       : post.content;
+
+  const handleLikeClick = async () => {
+    if (typeof onLike === "function") {
+      onLike(post.id);
+      return;
+    }
+    const prevLiked = localLiked;
+    const delta = prevLiked ? -1 : 1;
+    setLocalLiked(!prevLiked);
+    setLocalLikesCount((c) => (c || 0) + delta);
+    const result = await toggleLike(post.id);
+    if (result?.error) {
+      setLocalLiked(prevLiked);
+      setLocalLikesCount((c) => (c || 0) - delta);
+    }
+  };
+
+  const displayPost = {
+    ...post,
+    isLiked: localLiked,
+    likesCount: localLikesCount,
+  };
 
   return (
     <motion.article
@@ -131,7 +163,7 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
             />
           </div>
 
-          <Actions post={post} onLike={onLike} onBookmark={onBookmark} />
+          <Actions post={displayPost} onLike={handleLikeClick} onBookmark={onBookmark} />
         </div>
       </div>
     </motion.article>

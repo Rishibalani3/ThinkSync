@@ -12,6 +12,7 @@ import {
   FaReply,
   FaClock,
 } from "react-icons/fa";
+import useLike from "../hooks/useLike";
 
 const PostDetail = () => {
   const { id } = useParams();
@@ -21,14 +22,18 @@ const PostDetail = () => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const { toggleLike } = useLike();
 
-  // Fetch post from API
   useEffect(() => {
     const fetchPost = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`/api/posts/${id}`);
+        const response = await axios.get(`http://localhost:3000/posts/${id}`, {
+          withCredentials: true,
+        });
         setPost(response.data.post);
+        setIsLiked(!!response.data.post?.isLiked);
+        setIsBookmarked(false);
       } catch (err) {
         console.error(err);
         setError("Failed to fetch post");
@@ -45,7 +50,6 @@ const PostDetail = () => {
     if (comment.trim()) {
       console.log("Comment submitted:", comment);
       setComment("");
-      // Optionally, you can POST this comment to backend here
     }
   };
 
@@ -134,11 +138,54 @@ const PostDetail = () => {
             </div>
 
             {/* Post Content */}
-            <div className="mb-6">
+            <div className="mb-4">
               <p className="text-gray-800 dark:text-gray-200 leading-relaxed text-lg">
                 {post.content}
               </p>
             </div>
+
+            {/* Media */}
+            {post.media?.length > 0 && (
+              <div className="rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 mb-4">
+                {post.media.length === 1 ? (
+                  <div className="relative">
+                    {post.media[0].type === "image" ? (
+                      <img
+                        src={post.media[0].url}
+                        alt="media"
+                        className="w-full max-h-[500px] object-cover"
+                      />
+                    ) : (
+                      <video
+                        src={post.media[0].url}
+                        controls
+                        className="w-full max-h-[500px]"
+                      />
+                    )}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-0.5">
+                    {post.media.map((m, idx) => (
+                      <div key={idx} className="relative">
+                        {m.type === "image" ? (
+                          <img
+                            src={m.url}
+                            alt="media"
+                            className="w-full h-64 object-cover"
+                          />
+                        ) : (
+                          <video
+                            src={m.url}
+                            controls
+                            className="w-full h-64 object-cover"
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Tags */}
             {post.tags && post.tags.length > 0 && (
@@ -160,7 +207,23 @@ const PostDetail = () => {
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  onClick={() => setIsLiked(!isLiked)}
+                  onClick={async () => {
+                    const prev = isLiked;
+                    const delta = prev ? -1 : 1;
+                    setIsLiked(!prev);
+                    setPost((p) => ({
+                      ...p,
+                      likesCount: (p?.likesCount || 0) + delta,
+                    }));
+                    const result = await toggleLike(id);
+                    if (result?.error) {
+                      setIsLiked(prev);
+                      setPost((p) => ({
+                        ...p,
+                        likesCount: (p?.likesCount || 0) - delta,
+                      }));
+                    }
+                  }}
                   className={`flex items-center gap-2 text-sm transition-colors ${
                     isLiked
                       ? "text-red-500"
@@ -168,7 +231,7 @@ const PostDetail = () => {
                   }`}
                 >
                   <FaHeart className={isLiked ? "fill-current" : ""} />
-                  {isLiked ? post.likes + 1 : post.likes}
+                  {post?.likesCount || 0}
                 </motion.button>
 
                 <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
@@ -182,7 +245,6 @@ const PostDetail = () => {
                   className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 transition-colors"
                 >
                   <FaShare />
-                  {post.shares}
                 </motion.button>
               </div>
 

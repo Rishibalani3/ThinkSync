@@ -10,6 +10,7 @@ import { FaLightbulb } from "react-icons/fa";
 import { BiHelpCircle } from "react-icons/bi";
 import { GiSparkles } from "react-icons/gi";
 import NotFound from "../UtilComponents/NotFound";
+import useLike from "../../hooks/useLike";
 
 const Profile = () => {
   const { username } = useParams();
@@ -18,6 +19,7 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("posts");
   const [PostTypes, setPostTypes] = useState([]);
+  const { toggleLike } = useLike();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -116,9 +118,54 @@ const Profile = () => {
       icon: GiSparkles,
     },
   ];
+  const handleLike = async (postId) => {
+    setProfileData((prev) => {
+      const updatedPosts = prev.posts.map((post) =>
+        post.id === postId
+          ? {
+              ...post,
+              likesCount: (post.likesCount || 0) + (post.isLiked ? -1 : 1),
+              isLiked: !post.isLiked,
+            }
+          : post
+      );
+
+      const ideas = updatedPosts.filter((p) => p.type === "idea");
+      const questions = updatedPosts.filter((p) => p.type === "question");
+      const thoughts = updatedPosts.filter((p) => p.type === "thought");
+
+      setPostTypes({ ideas, questions, thoughts });
+      return { ...prev, posts: updatedPosts };
+    });
+
+    const result = await toggleLike(postId);
+    if (result?.error) {
+      setProfileData((prev) => {
+        const updatedPosts = prev.posts.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                likesCount: (post.likesCount || 0) + (post.isLiked ? -1 : 1),
+                isLiked: !post.isLiked,
+              }
+            : post
+        );
+
+        const ideas = updatedPosts.filter((p) => p.type === "idea");
+        const questions = updatedPosts.filter((p) => p.type === "question");
+        const thoughts = updatedPosts.filter((p) => p.type === "thought");
+
+        setPostTypes({ ideas, questions, thoughts });
+        return { ...prev, posts: updatedPosts };
+      });
+    }
+  };
+
   const renderPosts = (list) =>
     list.length > 0 ? (
-      list.map((post) => <PostCard key={post.id} post={post} />)
+      list.map((post) => (
+        <PostCard key={post.id} post={post} onLike={() => handleLike(post.id)} />
+      ))
     ) : (
       <p className="text-center text-gray-500">No posts yet.</p>
     );

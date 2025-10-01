@@ -57,14 +57,23 @@ export default function setupPassport() {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         callbackURL: "/auth/google/callback",
+        accessType: 'offline', // Requesting offline access for refresh token (not return null now)
+        prompt: 'consent', //it always asks for consent from user like you want to log in with google for this app.. 
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
+
+          //debubbiing 
+          // console.log('Google OAuth callback received:');
+          // console.log('Access Token:', accessToken ? 'Present' : 'Missing');
+          // console.log('Refresh Token:', refreshToken ? 'Present' : 'Missing');
+          // console.log('Profile ID:', profile.id);
+          
           let user = await prisma.user.findUnique({
             where: { googleId: profile.id },
           });
 
-          // Check if account exists by email
+          // duplicate email check
           if (!user && profile.emails?.[0]?.value) {
             user = await prisma.user.findUnique({
               where: { email: profile.emails[0].value },
@@ -77,7 +86,7 @@ export default function setupPassport() {
               data: {
                 googleId: profile.id,
                 displayName: profile.displayName,
-                username: uniqueName.generate(), // intially username will be random
+                username: uniqueName.generate(), // intially username will be random from unique-names-generator function
                 email: profile.emails?.[0]?.value,
                 googleAccessToken: accessToken,
                 googleRefreshToken: refreshToken || null,
@@ -90,19 +99,28 @@ export default function setupPassport() {
               include: { details: true },
             });
           } else {
-            // Update tokens and avatar if user exists
-            user = await prisma.user.update({
-              where: { id: user.id },
-              data: {
-                googleAccessToken: accessToken,
-                googleRefreshToken: refreshToken || user.googleRefreshToken,
-                details: {
-                  upsert: {
-                    create: { avatar: profile.photos?.[0]?.value },
-                    update: { avatar: profile.photos?.[0]?.value },
-                  },
+            // Updating existing tokens if users exists  (this will also update the avatar if user changed in email id)
+            const updateData = {
+              googleAccessToken: accessToken,
+              details: {
+                upsert: {
+                  create: { avatar: profile.photos?.[0]?.value },
+                  update: { avatar: profile.photos?.[0]?.value },
                 },
               },
+            };
+            
+            // Only update refresh token if we received one
+            if (refreshToken) {
+              updateData.googleRefreshToken = refreshToken;
+              console.log('Updating refresh token for existing user');
+            } else {
+              console.log('No refresh token received, keeping existing one');
+            }
+            
+            user = await prisma.user.update({
+              where: { id: user.id },
+              data: updateData,
               include: { details: true },
             });
           }
