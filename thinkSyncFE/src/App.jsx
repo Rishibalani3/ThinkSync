@@ -16,6 +16,7 @@ import Notifications from "./components/Notifications";
 import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
 import Navbar from "./components/Navbar"; // Your navbar component
+import MainLayout from "./layouts/MainLayout";
 import LoadingScreen from "./components/LoadingScreen";
 import ProtectedRoute from "./utils/ProtectedRoutes";
 import { useAuth } from "./contexts/AuthContext";
@@ -27,13 +28,13 @@ function App() {
 
   if (loading) return <LoadingScreen />;
 
-  // Guest-accessible routes
+  // Guest-accessible routes (will be nested under layout)
   const publicRoutes = [
     { path: "/", element: <Home /> },
     { path: "/explore", element: <Explore /> },
   ];
 
-  // Routes requiring login
+  // Routes requiring login (nested under layout)
   const protectedRoutes = [
     { path: "/profile", element: <Profile /> },
     { path: "/profile/:username", element: <Profile /> },
@@ -46,12 +47,8 @@ function App() {
 
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50 transition-colors duration-300">
-        {/* Navbar */}
-        <Navbar isAuthenticated={isAuthenticated} />
-
-        <AnimatePresence mode="wait">
-          <Routes>
+      <AnimatePresence mode="wait">
+        <Routes>
             {/* Auth routes */}
             <Route
               path="/login"
@@ -71,47 +68,47 @@ function App() {
             />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            
+            {/* App routes under main layout with sidebars */}
+            <Route element={<MainLayout />}>
+              {publicRoutes.map(({ path, element }) => (
+                <Route
+                  key={path}
+                  path={path}
+                  element={
+                    <motion.div
+                      initial={{ opacity: 0, x: -100 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 100 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      {element}
+                    </motion.div>
+                  }
+                />
+              ))}
 
-            {/* Public routes */}
-            {publicRoutes.map(({ path, element }) => (
-              <Route
-                key={path}
-                path={path}
-                element={
-                  <motion.div
-                    initial={{ opacity: 0, x: -100 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 100 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {element}
-                  </motion.div>
-                }
-              />
-            ))}
+              {protectedRoutes.map(({ path, element }) => (
+                <Route
+                  key={path}
+                  path={path}
+                  element={
+                    <ProtectedRoute
+                      isAuthenticated={isAuthenticated}
+                      setIsAuthenticated={setIsAuthenticated}
+                      redirectTo="/login"
+                    >
+                      {element}
+                    </ProtectedRoute>
+                  }
+                />
+              ))}
 
-            {/* Protected routes */}
-            {protectedRoutes.map(({ path, element }) => (
-              <Route
-                key={path}
-                path={path}
-                element={
-                  <ProtectedRoute
-                    isAuthenticated={isAuthenticated}
-                    setIsAuthenticated={setIsAuthenticated}
-                    redirectTo="/login"
-                  >
-                    {element}
-                  </ProtectedRoute>
-                }
-              />
-            ))}
-
-            {/* Fallback route */}
-            <Route path="/*" element={<NotFound />} />
-          </Routes>
-        </AnimatePresence>
-      </div>
+              {/* Fallback route inside layout */}
+              <Route path="/*" element={<NotFound />} />
+            </Route>
+        </Routes>
+      </AnimatePresence>
     </Router>
   );
 }

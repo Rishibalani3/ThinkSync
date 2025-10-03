@@ -12,7 +12,6 @@ import {
   FaEnvelope,
   FaStar,
 } from "react-icons/fa";
-import TopSpacer from "./UtilComponents/TopSpacer";
 
 const Notifications = () => {
   const [activeFilter, setActiveFilter] = useState("all");
@@ -175,166 +174,160 @@ const Notifications = () => {
   });
 
   return (
-    <TopSpacer>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <div className="max-w-4xl mx-auto p-5">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                  Notifications
-                </h1>
-                <p className="text-gray-600 dark:text-gray-400">
-                  Stay updated with your latest activity
-                </p>
-              </div>
-              <div className="flex gap-2">
-                {filteredNotifications.length > 0 && (
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleMarkAllAsRead}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
-                  >
-                    <FaCheck />
-                    Mark All Read
-                  </motion.button>
-                )}
-              </div>
-            </div>
+    <div className="max-w-4xl mx-auto p-5">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+              Notifications
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Stay updated with your latest activity
+            </p>
+          </div>
+          <div className="flex gap-2">
+            {filteredNotifications.length > 0 && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleMarkAllAsRead}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+              >
+                <FaCheck />
+                Mark All Read
+              </motion.button>
+            )}
+          </div>
+        </div>
 
-            {/* Filters */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 mb-6">
-              <div className="flex gap-2">
-                {filters.map((filter) => (
-                  <motion.button
-                    key={filter.id}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setActiveFilter(filter.id)}
-                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                      activeFilter === filter.id
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600"
-                    }`}
-                  >
-                    {filter.label}
-                    <span className="ml-2 text-xs bg-white/20 px-2 py-1 rounded-full">
-                      {filter.count}
-                    </span>
-                  </motion.button>
-                ))}
-              </div>
-            </div>
+        {/* Filters */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 mb-6">
+          <div className="flex gap-2">
+            {filters.map((filter) => (
+              <motion.button
+                key={filter.id}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setActiveFilter(filter.id)}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  activeFilter === filter.id
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600"
+                }`}
+              >
+                {filter.label}
+                <span className="ml-2 text-xs bg-white/20 px-2 py-1 rounded-full">
+                  {filter.count}
+                </span>
+              </motion.button>
+            ))}
+          </div>
+        </div>
 
-            {/* Notifications List */}
-            <div className="space-y-4">
-              {filteredNotifications.length === 0 ? (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-center py-12"
-                >
-                  <FaBell className="text-4xl text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                    No notifications
-                  </h3>
-                  <p className="text-gray-500 dark:text-gray-400">
-                    You're all caught up! Check back later for new updates.
-                  </p>
-                </motion.div>
-              ) : (
-                filteredNotifications.map((notification, index) => (
-                  <motion.div
-                    key={notification.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1, duration: 0.5 }}
-                    className={`bg-white dark:bg-gray-800 rounded-lg border p-4 transition-all duration-200 ${
-                      notification.isRead
-                        ? "border-gray-200 dark:border-gray-700"
-                        : `${getNotificationColor(
-                            notification.type
-                          )} border-l-4 border-l-blue-500`
-                    }`}
-                  >
-                    <div className="flex items-start gap-4">
-                      {/* Notification Icon */}
-                      <div className="flex-shrink-0">
-                        <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                          {getNotificationIcon(notification.type)}
-                        </div>
+        {/* Notifications List */}
+        <div className="space-y-4">
+          {filteredNotifications.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-12"
+            >
+              <FaBell className="text-4xl text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                No notifications
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400">
+                You're all caught up! Check back later for new updates.
+              </p>
+            </motion.div>
+          ) : (
+            filteredNotifications.map((notification, index) => (
+              <motion.div
+                key={notification.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1, duration: 0.5 }}
+                className={`bg-white dark:bg-gray-800 rounded-lg border p-4 transition-all duration-200 ${
+                  notification.isRead
+                    ? "border-gray-200 dark:border-gray-700"
+                    : `${getNotificationColor(
+                        notification.type
+                      )} border-l-4 border-l-blue-500`
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  {/* Notification Icon */}
+                  <div className="flex-shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                      {getNotificationIcon(notification.type)}
+                    </div>
+                  </div>
+
+                  {/* Notification Content */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-2 mb-1">
+                        <img
+                          src={notification.user.avatar}
+                          alt={notification.user.name}
+                          className="w-6 h-6 rounded-full"
+                        />
+                        <span className="font-medium text-gray-900 dark:text-gray-100">
+                          {notification.user.name}
+                        </span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                          {notification.user.username}
+                        </span>
                       </div>
-
-                      {/* Notification Content */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center gap-2 mb-1">
-                            <img
-                              src={notification.user.avatar}
-                              alt={notification.user.name}
-                              className="w-6 h-6 rounded-full"
-                            />
-                            <span className="font-medium text-gray-900 dark:text-gray-100">
-                              {notification.user.name}
-                            </span>
-                            <span className="text-sm text-gray-500 dark:text-gray-400">
-                              {notification.user.username}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-500 dark:text-gray-400">
-                              {notification.timestamp}
-                            </span>
-                            {!notification.isRead && (
-                              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                            )}
-                          </div>
-                        </div>
-                        <p className="text-gray-700 dark:text-gray-300">
-                          {notification.content}
-                        </p>
-                      </div>
-
-                      {/* Actions */}
                       <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                          {notification.timestamp}
+                        </span>
                         {!notification.isRead && (
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            onClick={() => handleMarkAsRead(notification.id)}
-                            className="p-2 text-gray-400 hover:text-green-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
-                            title="Mark as read"
-                          >
-                            <FaCheck />
-                          </motion.button>
+                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                         )}
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() =>
-                            handleDeleteNotification(notification.id)
-                          }
-                          className="p-2 text-gray-400 hover:text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
-                          title="Delete notification"
-                        >
-                          <FaTrash />
-                        </motion.button>
                       </div>
                     </div>
-                  </motion.div>
-                ))
-              )}
-            </div>
-          </motion.div>
+                    <p className="text-gray-700 dark:text-gray-300">
+                      {notification.content}
+                    </p>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-2">
+                    {!notification.isRead && (
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => handleMarkAsRead(notification.id)}
+                        className="p-2 text-gray-400 hover:text-green-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                        title="Mark as read"
+                      >
+                        <FaCheck />
+                      </motion.button>
+                    )}
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => handleDeleteNotification(notification.id)}
+                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                      title="Delete notification"
+                    >
+                      <FaTrash />
+                    </motion.button>
+                  </div>
+                </div>
+              </motion.div>
+            ))
+          )}
         </div>
-      </div>
-    </TopSpacer>
+      </motion.div>
+    </div>
   );
 };
 
