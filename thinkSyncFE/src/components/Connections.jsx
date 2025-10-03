@@ -92,19 +92,19 @@ const Connections = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16">
-      <div className="max-w-6xl mx-auto p-5">
+    <div className="w-full">
+      <div className="p-4 sm:p-5">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+          <div className="mb-4">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               Connections
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600 dark:text-gray-400 text-sm">
               Manage your network and discover new connections
             </p>
           </div>
@@ -138,21 +138,21 @@ const Connections = () => {
             </div>
           </div>
 
-          {/* Tabs */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 mb-6">
-            <div className="flex border-b border-gray-200 dark:border-gray-700">
+          {/* Tabs (pills) */}
+          <div className="mb-4 overflow-x-auto">
+            <div className="flex gap-2">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
                     activeTab === tab.id
-                      ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
-                      : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                      ? "bg-blue-600 text-white"
+                      : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                   }`}
                 >
                   {tab.label}
-                  <span className="ml-2 text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
+                  <span className="ml-2 text-xs bg-white/20 dark:bg-white/10 px-2 py-0.5 rounded-full">
                     {tab.count}
                   </span>
                 </button>
@@ -161,14 +161,14 @@ const Connections = () => {
           </div>
 
           {/* Connections Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {connections.map((connection, index) => (
               <motion.div
                 key={connection.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1, duration: 0.5 }}
-                className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-shadow"
+                className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-shadow"
               >
                 {/* Connection Header */}
                 <div className="flex items-start justify-between mb-4">
@@ -176,13 +176,13 @@ const Connections = () => {
                     <img
                       src={connection.avatar}
                       alt={connection.name}
-                      className="w-12 h-12 rounded-full"
+                      className="w-10 h-10 rounded-full"
                     />
                     <div>
                       <h3 className="font-semibold text-gray-900 dark:text-gray-100">
                         {connection.name}
                       </h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         {connection.username}
                       </p>
                     </div>
@@ -200,7 +200,7 @@ const Connections = () => {
 
                 {/* Connection Info */}
                 <div className="mb-4">
-                  <p className="text-gray-700 dark:text-gray-300 text-sm mb-3">
+                  <p className="text-gray-700 dark:text-gray-300 text-sm mb-3 line-clamp-2">
                     {connection.bio}
                   </p>
                   <div className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
@@ -223,7 +223,7 @@ const Connections = () => {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => handleMessage(connection.id)}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
                       >
                         <BiMessage />
                         Message
@@ -232,7 +232,7 @@ const Connections = () => {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => handleRemove(connection.id)}
-                        className="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium transition-colors"
+                        className="px-3 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium transition-colors"
                       >
                         <FaUserTimes />
                       </motion.button>
@@ -242,7 +242,7 @@ const Connections = () => {
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="flex-1 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-medium transition-colors"
+                        className="flex-1 px-3 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-medium transition-colors"
                       >
                         <FaUserCheck />
                         Accept
@@ -250,7 +250,7 @@ const Connections = () => {
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium transition-colors"
+                        className="px-3 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium transition-colors"
                       >
                         <FaUserTimes />
                       </motion.button>
@@ -260,7 +260,7 @@ const Connections = () => {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => handleConnect(connection.id)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
                     >
                       <FaUserPlus />
                       Connect
@@ -271,7 +271,7 @@ const Connections = () => {
             ))}
           </div>
 
-          {/* Stats Section */}
+          {/* (Optional) Footer spacing */}
         </motion.div>
       </div>
     </div>
