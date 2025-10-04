@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, memo } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
@@ -8,6 +8,7 @@ import BoxModel from "./BoxModel";
 import Actions from "./Actions";
 import { formatTimeAgo, getTypeColor } from "./Utils.js";
 import useLike from "../../hooks/useLike";
+import { cardVariants } from "../../utils/animations";
 
 const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
   const [showOptions, setShowOptions] = useState(false);
@@ -76,7 +77,11 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
 
   return (
     <motion.article
-      whileHover={{ scale: 1.01 }}
+      variants={cardVariants}
+      initial="initial"
+      animate="animate"
+      whileHover="hover"
+      style={{ willChange: 'transform, opacity' }}
       className={`bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-800/70 transition-colors duration-200 cursor-pointer ${
         extraClass || ""
       }`}
@@ -86,10 +91,12 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
         <div className="flex-shrink-0">
           <Link to={`/profile/${post.author.username}`}>
             <motion.img
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.15 }}
               src={post.author.details?.avatar}
               alt={`${post.author.displayName}'s avatar`}
               className="w-12 h-12 rounded-full hover:brightness-95 transition-all"
+              style={{ willChange: 'transform' }}
             />
           </Link>
         </div>
@@ -110,7 +117,9 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
               {displayContent}
               {shouldTruncate && (
                 <motion.button
-                  whileHover={{ scale: 1.02 }}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  transition={{ duration: 0.1 }}
                   onClick={(e) => {
                     e.stopPropagation();
                     setIsExpanded(!isExpanded);
@@ -168,4 +177,4 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
   );
 };
 
-export default PostCard;
+export default memo(PostCard);

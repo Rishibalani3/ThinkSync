@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import api from "../utils/axios";
@@ -8,6 +8,7 @@ import PostCard from "./PostCard/PostCard";
 import { useAuth } from "../contexts/AuthContext";
 import useLike from "../hooks/useLike";
 import useBookmark from "../hooks/useBookmark";
+import { cardVariants, staggerContainer, pageVariants } from "../utils/animations";
 const Home = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -118,22 +119,34 @@ const Home = () => {
     }
   };
 
+  // Memoize posts to prevent unnecessary re-renders
+  const memoizedPosts = useMemo(() => posts, [posts]);
+
   return (
     <div className="">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        variants={pageVariants}
+        initial="initial"
+        animate="in"
+        exit="out"
+        style={{ willChange: 'transform, opacity' }}
       >
         <PostCreator onNewPost={handleNewPost} />
 
-        <div className="space-y-4 mt-6">
-          {posts.map((post, index) => (
+        <motion.div 
+          className="space-y-4 mt-6"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
+          {memoizedPosts.map((post, index) => (
             <motion.div
               key={post.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05, duration: 0.5 }}
+              variants={cardVariants}
+              initial="initial"
+              animate="animate"
+              whileHover="hover"
+              style={{ willChange: 'transform, opacity' }}
             >
               <PostCard
                 post={post}
@@ -143,17 +156,19 @@ const Home = () => {
               />
             </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {hasMore && (
           <div className="flex justify-center mt-6">
-            <button
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
               onClick={handleLoadMore}
               disabled={loading}
             >
               {loading ? "Loading..." : "Load More"}
-            </button>
+            </motion.button>
           </div>
         )}
       </motion.div>

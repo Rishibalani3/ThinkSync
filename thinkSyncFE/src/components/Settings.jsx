@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { FaLink, FaPalette, FaUser } from "react-icons/fa";
+import { FaImage, FaLink, FaPalette, FaUser } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
 
@@ -45,6 +45,7 @@ const Settings = () => {
   const [loading, setLoading] = useState(false);
 
   const sections = [
+    { id: "images", label: "Profile Images", icon: FaImage },
     { id: "basic", label: "Basic Info", icon: FaUser },
     { id: "social", label: "Social Links", icon: FaLink },
     { id: "preferences", label: "Preferences", icon: FaPalette },
@@ -152,10 +153,7 @@ const Settings = () => {
         }}
       />
       <div className="container mx-auto py-2 px-0 sm:px-0 lg:px-0">
-        <div className="flex justify-between items-center mb-8">
-         
-       
-        </div>
+        <div className="flex justify-between items-center mb-8"></div>
 
         <div className="flex flex-col md:flex-row">
           <div className="md:w-2/2">
@@ -171,19 +169,19 @@ const Settings = () => {
                   }`}
                 >
                   <section.icon size={20} />
-                  <span className="font-medium">{section.label}</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">{section.label}</span>
                 </button>
               ))}
             </div>
 
             {renderActiveSection()}
             <button
-            disabled={loading}
-            onClick={handleSave}
-            className="self-start mt-10 mb-10 bg-indigo-600 cursor-pointer text-white py-2 px-4 rounded hover:shadow-md transition-all duration-300"
-          >
-            {loading ? "Saving..." : "Save"}
-          </button>
+              disabled={loading}
+              onClick={handleSave}
+              className="self-start mt-10 mb-10 bg-indigo-600 cursor-pointer text-white py-2 px-4 rounded hover:shadow-md transition-all duration-300"
+            >
+              {loading ? "Saving..." : "Save"}
+            </button>
           </div>
         </div>
       </div>

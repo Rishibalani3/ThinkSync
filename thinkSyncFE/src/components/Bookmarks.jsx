@@ -34,8 +34,8 @@ const Bookmarks = () => {
   }
 
   return (
-    <div className="pt-[5rem] pl-34 w-full h-full min-h-screen mx-auto py-6 px-4 bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100 shadow-md">
-      <h1 className="text-2xl font-bold mb-6">Your Bookmarks</h1>
+    <div className="pt-[5rem] w-full h-full min-h-screen mx-auto py-6 px-4 bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100 shadow-md">
+      <h1 className="text-2xl font-bold mb-6"> Bookmarks</h1>
       {bookmarks.length === 0 ? (
         <p className="text-gray-500 dark:text-gray-400">No bookmarks yet.</p>
       ) : (
