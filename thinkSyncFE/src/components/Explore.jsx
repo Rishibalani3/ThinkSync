@@ -73,12 +73,6 @@ const Explore = () => {
     },
   ];
 
-  // // Guest-aware actions
-  // const handleLike = async (postId) => {
-  //   const result = await toggleLike(postId);
-  //   if (result?.error) return;
-  // };
-
   const handleBookmark = (postId) => {
     if (!isAuthenticated) {
       alert("Please log in first to bookmark a post.");
@@ -106,7 +100,7 @@ const Explore = () => {
       >
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+          <h1 className="pt-4 text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             Explore
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
@@ -172,8 +166,8 @@ const Explore = () => {
         </div>
 
         {/* Trending Posts */}
-         <div className="grid grid-cols-1 gap-6 mb-8">
-           <div className="col-span-1">
+        <div className="grid grid-cols-1 gap-6 mb-8">
+          <div className="col-span-1">
             <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
               <div className="flex items-center gap-2 mb-4">
                 <BiTrendingUp className="text-orange-500" />
@@ -201,8 +195,8 @@ const Explore = () => {
             </div>
           </div>
 
-           {/* Secondary info (now stacked under trending) */}
-           <div className="space-y-6 col-span-1">
+          {/* Secondary info (now stacked under trending) */}
+          <div className="space-y-6 col-span-1">
             {/* Hot Topics */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
