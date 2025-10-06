@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import api from "../utils/axios";
 import { motion } from "framer-motion";
@@ -13,6 +13,143 @@ import {
   FaClock,
 } from "react-icons/fa";
 import useLike from "../hooks/useLike";
+import useComment from "../hooks/useComment";
+
+const CommentItem = ({
+  node,
+  depth = 0,
+  parentAuthor,
+  onReply,
+  onToggleLike,
+}) => {
+  const [showReply, setShowReply] = useState(false);
+  const [replyText, setReplyText] = useState("");
+  const [showAllReplies, setShowAllReplies] = useState(false);
+
+  const repliesToShow = showAllReplies
+    ? node.replies || []
+    : (node.replies || []).slice(0, 1);
+
+  return (
+    <div className="mt-5">
+      <div className="flex gap-3 items-start">
+        <img
+          src={node.author?.details?.avatar || "https://placehold.co/40x40"}
+          alt={node.author?.displayName}
+          className="w-9 h-9 rounded-full object-cover border border-gray-200 dark:border-gray-600"
+        />
+        <div className="flex-1">
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl px-4 py-3 border border-gray-200 dark:border-gray-700 shadow-sm transition-all duration-200">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="font-medium text-gray-900 dark:text-gray-100 text-sm">
+                {node.author?.displayName}
+              </span>
+              <span className="text-xs text-gray-500">
+                @{node.author?.username}
+              </span>
+            </div>
+
+            {depth > 0 && parentAuthor && (
+              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                Replying to{" "}
+                <span className="text-blue-600 dark:text-blue-400 font-medium">
+                  @{parentAuthor}
+                </span>
+              </div>
+            )}
+
+            <div className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words leading-relaxed">
+              {node.content}
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-4 mt-2 ml-1 text-xs">
+            <button
+              onClick={() => onToggleLike(node.id)}
+              className={`flex items-center gap-1 transition-colors ${
+                node.isLiked
+                  ? "text-red-600 dark:text-red-400"
+                  : "text-gray-600 dark:text-gray-300 hover:text-red-600"
+              }`}
+            >
+              <FaHeart className={node.isLiked ? "fill-current" : ""} />
+              <span>{node.likesCount || 0}</span>
+            </button>
+
+            <button
+              onClick={() => setShowReply((prev) => !prev)}
+              className="flex items-center gap-1 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            >
+              <FaReply />
+              <span>Reply</span>
+            </button>
+          </div>
+
+          {/* Reply input */}
+          {showReply && (
+            <form
+              className="mt-3 flex gap-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!replyText.trim()) return;
+                onReply(node.id, replyText, () => {
+                  setReplyText("");
+                  setShowReply(false);
+                });
+              }}
+            >
+              <input
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                className="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+                placeholder="Write a reply..."
+              />
+              <button
+                type="submit"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+              >
+                Reply
+              </button>
+            </form>
+          )}
+
+          {/* Replies (only one visible by default) */}
+          {node.replies?.length > 0 && (
+            <div className="mt-3 pl-6 border-l border-gray-300 dark:border-gray-700 space-y-3">
+              {repliesToShow.map((reply) => (
+                <div key={reply.id}>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                    Replying to{" "}
+                    <span className="text-blue-600 dark:text-blue-400 font-medium">
+                      @{node.author?.username}
+                    </span>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-gray-800 rounded-xl px-3 py-2 border border-gray-200 dark:border-gray-700 text-sm text-gray-800 dark:text-gray-200 leading-relaxed">
+                    {reply.content}
+                  </div>
+                </div>
+              ))}
+
+              {node.replies.length > 1 && (
+                <button
+                  onClick={() => setShowAllReplies((s) => !s)}
+                  className="text-xs text-blue-600 dark:text-blue-400 hover:underline mt-1 font-medium"
+                >
+                  {showAllReplies
+                    ? "Hide replies"
+                    : `View ${node.replies.length - 1} more repl${
+                        node.replies.length - 1 === 1 ? "y" : "ies"
+                      }`}
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const PostDetail = () => {
   const { id } = useParams();
@@ -22,6 +159,7 @@ const PostDetail = () => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const { getComments, addComment, toggleCommentLike } = useComment();
   const { toggleLike } = useLike();
 
   useEffect(() => {
@@ -38,18 +176,128 @@ const PostDetail = () => {
       } finally {
         setLoading(false);
       }
+      const comments = await getComments(id);
+      setCommentsTree(comments);
+      setPost((p) => ({ ...p, comments: comments.length }));
     };
 
     fetchPost();
   }, [id]);
+  const [commentsTree, setCommentsTree] = useState([]);
 
-  const handleSubmitComment = (e) => {
+  const handleSubmitRootComment = async (e) => {
     e.preventDefault();
-    if (comment.trim()) {
-      console.log("Comment submitted:", comment);
-      setComment("");
+    if (!comment.trim()) return;
+    // optimistic: push temporary node
+    const tempId = `temp-${Date.now()}`;
+    const optimistic = {
+      id: tempId,
+      content: comment,
+      createdAt: new Date().toISOString(),
+      postId: id,
+      parentId: null,
+      author: post?.author || {
+        displayName: "You",
+        username: "you",
+        details: { avatar: "https://placehold.co/40" },
+      },
+      likesCount: 0,
+      isLiked: false,
+      replies: [],
+    };
+    setCommentsTree((prev) => [...prev, optimistic]);
+    setPost((p) => ({ ...p, comments: (p?.comments || 0) + 1 }));
+    setComment("");
+
+    const res = await addComment(id, optimistic.content, null);
+    if (res?.error) {
+      // revert
+      setCommentsTree((prev) => prev.filter((c) => c.id !== tempId));
+      setPost((p) => ({ ...p, comments: Math.max((p?.comments || 1) - 1, 0) }));
+    } else if (res?.data) {
+      // replace temp with real
+      setCommentsTree((prev) =>
+        prev.map((c) => (c.id === tempId ? res.data : c))
+      );
     }
   };
+
+  const handleReply = useCallback(
+    async (parentId, text, done) => {
+      const tempId = `temp-${Date.now()}`;
+      const optimistic = {
+        id: tempId,
+        content: text,
+        createdAt: new Date().toISOString(),
+        postId: id,
+        parentId,
+        author: post?.author || {
+          displayName: "You",
+          username: "you",
+          details: { avatar: "https://placehold.co/40" },
+        },
+        likesCount: 0,
+        isLiked: false,
+        replies: [],
+      };
+
+      const addToTree = (nodes) =>
+        nodes.map((n) =>
+          n.id === parentId
+            ? { ...n, replies: [...(n.replies || []), optimistic] }
+            : { ...n, replies: addToTree(n.replies || []) }
+        );
+      setCommentsTree((prev) => addToTree(prev));
+      setPost((p) => ({ ...p, comments: (p?.comments || 0) + 1 }));
+
+      const res = await addComment(id, text, parentId);
+      if (res?.error) {
+        // remove temp
+        const removeFromTree = (nodes) =>
+          nodes
+            .map((n) => ({ ...n, replies: removeFromTree(n.replies || []) }))
+            .filter((n) => n.id !== tempId);
+        setCommentsTree((prev) => removeFromTree(prev));
+        setPost((p) => ({
+          ...p,
+          comments: Math.max((p?.comments || 1) - 1, 0),
+        }));
+      } else if (res?.data) {
+        const replaceInTree = (nodes) =>
+          nodes.map((n) => {
+            if (n.id === tempId) return res.data;
+            return { ...n, replies: replaceInTree(n.replies || []) };
+          });
+        setCommentsTree((prev) => replaceInTree(prev));
+      }
+      if (typeof done === "function") done();
+    },
+    [id, addComment, post]
+  );
+
+  const handleToggleCommentLike = async (commentId) => {
+    // optimistic update like state
+    const toggleInTree = (nodes) =>
+      nodes.map((n) => {
+        if (n.id === commentId) {
+          const liked = !n.isLiked;
+          return {
+            ...n,
+            isLiked: liked,
+            likesCount: (n.likesCount || 0) + (liked ? 1 : -1),
+          };
+        }
+        return { ...n, replies: toggleInTree(n.replies || []) };
+      });
+    setCommentsTree((prev) => toggleInTree(prev));
+    const res = await toggleCommentLike(commentId);
+    if (res?.error) {
+      // revert
+      setCommentsTree((prev) => toggleInTree(prev));
+    }
+  };
+
+  const handleSubmitComment = handleSubmitRootComment;
 
   const getTypeColor = (type) => {
     switch (type) {
@@ -299,6 +547,16 @@ const PostDetail = () => {
           </form>
 
           {/* Comments List */}
+          <div className="space-y-2">
+            {commentsTree.map((node) => (
+              <CommentItem
+                key={node.id}
+                node={node}
+                onReply={handleReply}
+                onToggleLike={handleToggleCommentLike}
+              />
+            ))}
+          </div>
         </div>
       </motion.div>
     </div>

@@ -1,5 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { pageVariants } from "./animations";
 
 function ProtectedRoute({ children, isAuthenticated, redirectTo = "/login" }) {
   if (!isAuthenticated) {
@@ -9,10 +10,11 @@ function ProtectedRoute({ children, isAuthenticated, redirectTo = "/login" }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
+      variants={pageVariants}
+      initial="initial"
+      animate="in"
+      exit="out"
+      style={{ willChange: 'transform, opacity' }}
     >
       {children}
     </motion.div>

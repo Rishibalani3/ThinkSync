@@ -4,7 +4,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponce } from "../utils/ApiResponse.js";
 
 const bookmarkPost = async (req, res) => {
-  const { postId } = req.params;
+  const { postId } = req.body;
 
   try {
     const post = await prisma.post.findUnique({ where: { id: postId } });

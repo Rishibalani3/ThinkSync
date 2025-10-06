@@ -1,12 +1,14 @@
 import { FaComment, FaHeart, FaBookmark, FaShare } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { buttonVariants } from "../../utils/animations";
 
 const Actions = ({ post, onLike, onBookmark }) => (
   <div className="flex items-center justify-between max-w-md mt-3 -ml-2">
     <motion.button
-      whileHover={{ scale: 1.05, backgroundColor: "rgba(239, 68, 68, 0.1)" }}
-      whileTap={{ scale: 0.95 }}
+      variants={buttonVariants}
+      whileHover="hover"
+      whileTap="tap"
       onClick={(e) => {
         e.stopPropagation();
         if (typeof onLike === "function") onLike();
@@ -16,6 +18,7 @@ const Actions = ({ post, onLike, onBookmark }) => (
           ? "text-red-500 dark:text-red-400"
           : "text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400"
       }`}
+      style={{ willChange: 'transform' }}
     >
       <FaHeart className={`w-4 h-4 ${post.isLiked ? "fill-current" : ""}`} />
       <span className="text-sm font-medium">{post.likesCount || 0}</span>
@@ -23,9 +26,11 @@ const Actions = ({ post, onLike, onBookmark }) => (
 
     <Link to={`/post/${post.id}`}>
       <motion.div
-        whileHover={{ scale: 1.05, backgroundColor: "rgba(29, 161, 242, 0.1)" }}
-        whileTap={{ scale: 0.95 }}
+        variants={buttonVariants}
+        whileHover="hover"
+        whileTap="tap"
         className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors p-2 rounded-full group"
+        style={{ willChange: 'transform' }}
       >
         <FaComment className="w-4 h-4" />
         <span className="text-sm font-medium">
@@ -34,20 +39,22 @@ const Actions = ({ post, onLike, onBookmark }) => (
       </motion.div>
     </Link>
 
-    {/* Share */}
+   
     <motion.button
-      whileHover={{ scale: 1.05, backgroundColor: "rgba(29, 161, 242, 0.1)" }}
-      whileTap={{ scale: 0.95 }}
+      variants={buttonVariants}
+      whileHover="hover"
+      whileTap="tap"
       onClick={(e) => e.stopPropagation()}
       className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors p-2 rounded-full group"
+      style={{ willChange: 'transform' }}
     >
       <FaShare className="w-4 h-4" />
     </motion.button>
 
-    {/* Bookmark */}
     <motion.button
-      whileHover={{ scale: 1.05, backgroundColor: "rgba(29, 161, 242, 0.1)" }}
-      whileTap={{ scale: 0.95 }}
+      variants={buttonVariants}
+      whileHover="hover"
+      whileTap="tap"
       onClick={(e) => {
         e.stopPropagation();
         if (typeof onBookmark === "function") onBookmark();
@@ -57,6 +64,7 @@ const Actions = ({ post, onLike, onBookmark }) => (
           ? "text-blue-500 dark:text-blue-400"
           : "text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400"
       }`}
+      style={{ willChange: 'transform' }}
     >
       <FaBookmark
         className={`w-4 h-4 ${post.isBookmarked ? "fill-current" : ""}`}

@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { buttonVariants } from "../../utils/animations";
 
 const MediaGrid = ({ post, setActiveIndex }) => {
   if (!post.media?.length) return null;
@@ -16,11 +17,13 @@ const MediaGrid = ({ post, setActiveIndex }) => {
         <div className="relative">
           {post.media[0].type === "image" && (
             <motion.img
-              whileHover={{ scale: 1.02 }}
+              whileHover={{ scale: 1.01 }}
+              transition={{ duration: 0.15 }}
               src={post.media[0].url}
               alt="media"
               className="w-full max-h-[400px] object-cover cursor-pointer"
               onClick={(e) => handleClick(e, 0)}
+              style={{ willChange: 'transform' }}
             />
           )}
           {post.media[0].type === "video" && (
@@ -40,11 +43,13 @@ const MediaGrid = ({ post, setActiveIndex }) => {
             <div key={m.id} className="relative">
               {m.type === "image" && (
                 <motion.img
-                  whileHover={{ scale: 1.02 }}
+                  whileHover={{ scale: 1.01 }}
+                  transition={{ duration: 0.15 }}
                   src={m.url}
                   alt="media"
                   className="w-full h-64 object-cover cursor-pointer"
                   onClick={(e) => handleClick(e, idx)}
+                  style={{ willChange: 'transform' }}
                 />
               )}
               {m.type === "video" && (
@@ -65,11 +70,13 @@ const MediaGrid = ({ post, setActiveIndex }) => {
           <div className="">
             {post.media[0].type === "image" && (
               <motion.img
-                whileHover={{ scale: 1.02 }}
+                whileHover={{ scale: 1.01 }}
+                transition={{ duration: 0.15 }}
                 src={post.media[0].url}
                 alt="media"
                 className="w-full h-64 object-cover cursor-pointer"
                 onClick={(e) => handleClick(e, 0)}
+                style={{ willChange: 'transform' }}
               />
             )}
           </div>
@@ -79,11 +86,13 @@ const MediaGrid = ({ post, setActiveIndex }) => {
               <div key={m.id} className="relative">
                 {m.type === "image" && (
                   <motion.img
-                    whileHover={{ scale: 1.02 }}
+                    whileHover={{ scale: 1.01 }}
+                    transition={{ duration: 0.15 }}
                     src={m.url}
                     alt="media"
                     className="w-full h-32 object-cover cursor-pointer"
                     onClick={(e) => handleClick(e, idx + 1)}
+                    style={{ willChange: 'transform' }}
                   />
                 )}
                 {idx === 1 && mediaCount > 3 && (
