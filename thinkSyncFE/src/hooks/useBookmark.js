@@ -15,6 +15,7 @@ export default function useBookmark() {
 
     try {
       const res = await api.post(`/bookmark/create/${postId}`);
+      
       const message = res?.data?.message || "";
       const action = message.toLowerCase().includes("unbookmarked")
         ? "unbookmark"

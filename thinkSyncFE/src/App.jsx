@@ -9,7 +9,7 @@ import Home from "./components/Home";
 import Login from "./components/Login";
 import Profile from "./components/Profile/Profile";
 import Settings from "./components/Settings";
-import PostDetail from "./components/PostDetail";
+import PostDetail from "./components/PostDetail/PostDetails";
 import Explore from "./components/Explore";
 import Connections from "./components/Connections";
 import Notifications from "./components/Notifications";

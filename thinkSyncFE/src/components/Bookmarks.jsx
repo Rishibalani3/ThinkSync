@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import useBookmark from "../hooks/useBookmark";
 import PostCard from "./PostCard/PostCard";
+import LoadingScreen from "./LoadingScreen";
 
 const Bookmarks = () => {
   const { getBookmarks, toggleBookmark } = useBookmark();
@@ -26,11 +27,7 @@ const Bookmarks = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center py-10 text-gray-500 dark:text-gray-400">
-        Loading bookmarks...
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   return (

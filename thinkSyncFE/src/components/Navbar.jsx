@@ -37,7 +37,6 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
     }
   };
 
-
   const navItems = [
     { path: "/", label: "Home", icon: FaHome, auth: false },
     { path: "/explore", label: "Explore", icon: FaCompass, auth: false },
@@ -227,9 +226,9 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
                     initial={{ opacity: 0, scale: 0.9, y: -10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.9, y: -10 }}
-                    className="absolute right-0 top-full mt-2 w-80 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-xl py-3 z-50"
+                    className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-gray-900 border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-xl py-3 z-50"
                   >
-                    <div className="px-4 py-2 font-semibold text-gray-700 dark:text-gray-200 border-b dark:border-gray-700">
+                    <div className="px-4 py-2 font-semibold text-gray-700 dark:text-gray-20">
                       Notifications
                     </div>
                     <div className="max-h-60 overflow-y-auto">
@@ -246,7 +245,7 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
                         </div>
                       ))}
                     </div>
-                    <div className="px-4 py-2 border-t dark:border-gray-700 text-center">
+                    <div className="px-4 py-2 text-center">
                       <Link
                         to="/notifications"
                         className="text-blue-600 dark:text-blue-400 text-sm font-medium hover:underline"
@@ -265,7 +264,7 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="lg:hidden p-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-all duration-300"
-              > 
+              >
                 <motion.div
                   animate={{ rotate: isMobileMenuOpen ? 180 : 0 }}
                   transition={{ duration: 0.3 }}

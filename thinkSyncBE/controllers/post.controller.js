@@ -7,7 +7,6 @@ const createPost = async (req, res) => {
   try {
     const { content, type } = req.body;
 
-    console.log("req.body:", req.body);
     if (!content || !type) {
       return res.status(400).json(new ApiError(400, "Missing fields"));
     }

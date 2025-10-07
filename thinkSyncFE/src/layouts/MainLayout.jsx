@@ -8,8 +8,12 @@ const MainLayout = () => {
   const { isAuthenticated, setIsAuthenticated } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Navbar isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 ">
+      <div className="fixed top-0 h-4 left-0 w-full z-100 backdrop-blur-3xl"  />
+      <Navbar
+        isAuthenticated={isAuthenticated}
+        setIsAuthenticated={setIsAuthenticated}
+      />
 
       <main className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-10 gap-6 p-5 pt-[5rem]">
         <aside className="lg:col-span-2 hidden lg:block">
@@ -33,5 +37,3 @@ const MainLayout = () => {
 };
 
 export default MainLayout;
-
-
