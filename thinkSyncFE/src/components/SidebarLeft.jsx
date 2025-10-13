@@ -25,10 +25,12 @@ const SidebarLeft = () => {
     { tag: "Future", count: 123 },
   ];
 
-  const handleGuestAction = () => {
+  const handleTopicClick = (selectedTopic) => {
     if (!isAuthenticated) {
       alert("Please log in to access this feature.");
       navigate("/login");
+    } else {
+      navigate(`/topics/${selectedTopic}`);
     }
   };
 
@@ -83,7 +85,7 @@ const SidebarLeft = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 + index * 0.1, duration: 0.3 }}
               className="flex items-center justify-between cursor-pointer"
-              onClick={handleGuestAction}
+              onClick={() => handleTopicClick(topic.tag)}
             >
               <span className="text-blue-600 dark:text-blue-400 hover:underline">
                 #{topic.tag}

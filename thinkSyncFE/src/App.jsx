@@ -22,6 +22,7 @@ import { useAuth } from "./contexts/AuthContext";
 import NotFound from "./components/UtilComponents/NotFound";
 import Bookmarks from "./components/Bookmarks";
 import { pageVariants } from "./utils/animations";
+import Topics from "./components/Topics";
 
 function App() {
   const { isAuthenticated, loading, setIsAuthenticated } = useAuth();
@@ -41,6 +42,7 @@ function App() {
     { path: "/connections", element: <Connections /> },
     { path: "/notifications", element: <Notifications /> },
     { path: "/bookmarks", element: <Bookmarks /> },
+    { path: "/topics/:selectedTopic", element: <Topics /> },
   ];
 
   return (
