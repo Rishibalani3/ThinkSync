@@ -33,7 +33,7 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
     setLocalLiked(post.isLiked);
     setLocalLikesCount(post.likesCount || 0);
   }, [post.id, post.isLiked, post.likesCount]);
-  
+
   useEffect(() => {
     const handleKey = (e) => {
       if (activeIndex === null) return;
@@ -81,7 +81,7 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
       initial="initial"
       animate="animate"
       whileHover="hover"
-      style={{ willChange: 'transform, opacity' }}
+      style={{ willChange: "transform, opacity" }}
       className={`bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-800/70 transition-colors duration-200 cursor-pointer ${
         extraClass || ""
       }`}
@@ -93,10 +93,10 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
             <motion.img
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.15 }}
-              src={post.author.details?.avatar}
+              src={post.author.details?.avatar || post.author.avatar}
               alt={`${post.author.displayName}'s avatar`}
               className="w-12 h-12 rounded-full hover:brightness-95 transition-all"
-              style={{ willChange: 'transform' }}
+              style={{ willChange: "transform" }}
             />
           </Link>
         </div>
@@ -170,7 +170,11 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
             />
           </div>
 
-          <Actions post={displayPost} onLike={handleLikeClick} onBookmark={onBookmark} />
+          <Actions
+            post={displayPost}
+            onLike={handleLikeClick}
+            onBookmark={onBookmark}
+          />
         </div>
       </div>
     </motion.article>

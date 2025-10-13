@@ -1,5 +1,5 @@
-import { prisma } from "../config/db.js";
-import { ApiResponce } from "../utils/ApiResponse.js";
+  import { prisma } from "../config/db.js";
+  import { ApiResponce } from "../utils/ApiResponse.js";
 
 const updateDetails = async (req, res) => {
   const { displayName, email, username, ...detailsFields } = req.body;

@@ -2,33 +2,36 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponce } from "../utils/ApiResponse.js";
 import { prisma } from "../config/db.js";
 import { uploadOnCloudinary } from "../utils/Cloudinary.js";
-
+import { timeAgo } from "../utils/HelperFunction.js";
 const createPost = async (req, res) => {
   try {
     const { content, type } = req.body;
 
-    console.log("req.body:", req.body);
     if (!content || !type) {
       return res.status(400).json(new ApiError(400, "Missing fields"));
     }
 
+    // Parse optional JSON fields safely
     const links = req.body.links ? JSON.parse(req.body.links) : [];
     const mentions = req.body.mentions ? JSON.parse(req.body.mentions) : [];
     const hashtags = req.body.hashtags ? JSON.parse(req.body.hashtags) : [];
 
+    // Handle media uploads safely
     let mediaData = [];
-    if (req.files) {
-      for (const file of req.files.image) {
+    if (req?.files?.image) {
+      const images = Array.isArray(req.files.image)
+        ? req.files.image
+        : [req.files.image];
+
+      for (const file of images) {
         const url = await uploadOnCloudinary(file.path);
         if (url) {
-          mediaData.push({
-            url,
-            type: "image",
-          });
+          mediaData.push({ url, type: "image" });
         }
       }
     }
 
+    // Create post
     const post = await prisma.post.create({
       data: {
         content,
@@ -36,17 +39,13 @@ const createPost = async (req, res) => {
         authorId: req.user.id,
         media: { create: mediaData },
         links: {
-          create: links.map((link) => ({
-            url: link.url,
-          })),
+          create: links.map((link) => ({ url: link.url })),
         },
       },
-      include: {
-        media: true,
-        links: true,
-      },
+      include: { media: true, links: true },
     });
 
+    // Handle mentions
     if (mentions.length > 0) {
       for (const mention of mentions) {
         const user = await prisma.user.findUnique({
@@ -54,16 +53,13 @@ const createPost = async (req, res) => {
         });
         if (user) {
           await prisma.mention.create({
-            data: {
-              postId: post.id,
-              userId: user.id,
-            },
+            data: { postId: post.id, userId: user.id },
           });
         }
       }
     }
 
-    // 3: attach topics (resolve tags to topicId)
+    // Handle hashtags → topics
     if (hashtags.length > 0) {
       for (const hashtag of hashtags) {
         const topic = await prisma.topic.upsert({
@@ -72,15 +68,12 @@ const createPost = async (req, res) => {
           update: {},
         });
         await prisma.postTopic.create({
-          data: {
-            postId: post.id,
-            topicId: topic.id,
-          },
+          data: { postId: post.id, topicId: topic.id },
         });
       }
     }
 
-    // 4: fetch post with all relations
+    // Fetch full post with all relations
     const fullPost = await prisma.post.findUnique({
       where: { id: post.id },
       include: {
@@ -182,6 +175,7 @@ const getFeed = async (req, res) => {
 
     const feedWithState = feed.map((post) => ({
       ...post,
+      timestamp: timeAgo(post.createdAt),
       isLiked: userId ? post.likes?.length > 0 : false,
       isBookmarked: userId ? post.Bookmark?.length > 0 : false,
       likesCount: post.likes?.length || 0, // optional: total likes count

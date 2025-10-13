@@ -13,6 +13,7 @@ import postRoutes from "./routes/post.routes.js";
 import bookmarkRoutes from "./routes/bookmark.routes.js";
 import commentRoutes from "./routes/comment.routes.js";
 import followRoutes from "./routes/follower.routes.js";
+import topicRoutes from "./routes/topics.routes.js";
 
 dotenv.config();
 
@@ -32,7 +33,7 @@ app.use((req, res, next) => {
   if (req.isAuthenticated()) {
     req.session.save((err) => {
       if (err) {
-        console.error('Session save error:', err);
+        console.error("Session save error:", err);
       }
     });
   }
@@ -46,6 +47,7 @@ app.use("/likes", likeRoutes);
 app.use("/bookmark", bookmarkRoutes);
 app.use("/comment", commentRoutes);
 app.use("/follower", followRoutes);
+app.use("/topics", topicRoutes);
 
 app.get("/health", (req, res) => {
   res.json({

@@ -32,7 +32,7 @@ const Header = ({
         to={`/post/${post.id}`}
         className="text-gray-500 dark:text-gray-400 hover:underline text-[15px] whitespace-nowrap"
       >
-        {formatTimeAgo(post.createdAt)}
+        {post.timestamp}
       </Link>
 
       <span
@@ -66,14 +66,10 @@ const Header = ({
             exit={{ opacity: 0, scale: 0.95, y: -10 }}
             className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg py-2 z-20 min-w-[180px]"
           >
-            <motion.button
-              className="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
+            <motion.button className="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
               Report post
             </motion.button>
-            <motion.button
-              className="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
+            <motion.button className="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
               Copy link
             </motion.button>
           </motion.div>

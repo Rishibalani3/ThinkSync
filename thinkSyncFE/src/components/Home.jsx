@@ -8,7 +8,11 @@ import PostCard from "./PostCard/PostCard";
 import { useAuth } from "../contexts/AuthContext";
 import useLike from "../hooks/useLike";
 import useBookmark from "../hooks/useBookmark";
-import { cardVariants, staggerContainer, pageVariants } from "../utils/animations";
+import {
+  cardVariants,
+  staggerContainer,
+  pageVariants,
+} from "../utils/animations";
 const Home = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -123,17 +127,17 @@ const Home = () => {
   const memoizedPosts = useMemo(() => posts, [posts]);
 
   return (
-    <div className="">
+    <div className="pt-4">
       <motion.div
         variants={pageVariants}
         initial="initial"
         animate="in"
         exit="out"
-        style={{ willChange: 'transform, opacity' }}
+        style={{ willChange: "transform, opacity" }}
       >
         <PostCreator onNewPost={handleNewPost} />
 
-        <motion.div 
+        <motion.div
           className="space-y-4 mt-6"
           variants={staggerContainer}
           initial="initial"
@@ -146,7 +150,7 @@ const Home = () => {
               initial="initial"
               animate="animate"
               whileHover="hover"
-              style={{ willChange: 'transform, opacity' }}
+              style={{ willChange: "transform, opacity" }}
             >
               <PostCard
                 post={post}

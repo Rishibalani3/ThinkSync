@@ -34,9 +34,10 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       await api.post("/auth/logout", {});
+      window.location.href = "/login";
       setUser(null);
       setIsAuthenticated(false);
-      window.location.href = "/login";
+      alert("Logged out successfully");
     } catch (err) {
       console.log("Logout failed:", err.response?.data || err.message);
     }
