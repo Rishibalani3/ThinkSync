@@ -1,5 +1,6 @@
-  import { prisma } from "../config/db.js";
-  import { ApiResponce } from "../utils/ApiResponse.js";
+import { prisma } from "../config/db.js";
+import { ApiResponce } from "../utils/ApiResponse.js";
+import { uploadOnCloudinary } from "../utils/Cloudinary.js";
 
 const updateDetails = async (req, res) => {
   const { displayName, email, username, ...detailsFields } = req.body;
@@ -167,4 +168,56 @@ const getProfile = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch profile" });
   }
 };
-export { me, updateDetails, getUserPosts, getProfile };
+
+const updateImages = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const files = req.files;
+    const updates = {};
+
+    if (files?.avatar?.[0]) {
+      const avatarUrl = await uploadOnCloudinary(files.avatar[0]);
+      if (avatarUrl) updates.avatar = avatarUrl;
+    }
+    if (files?.coverImage?.[0]) {
+      const coverUrl = await uploadOnCloudinary(files.coverImage[0]);
+      if (coverUrl) updates.coverImage = coverUrl;
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ error: "No files were uploaded" });
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        details: {
+          upsert: {
+            create: { ...updates },
+            update: { ...updates },
+          },
+        },
+      },
+      select: {
+        username: true,
+        details: {
+          select: {
+            avatar: true,
+            coverImage: true,
+          },
+        },
+      },
+    });
+
+    return res.json({
+      success: true,
+      message: "Images updated successfully",
+      data: updatedUser,
+    });
+  } catch (error) {
+    console.error("Error updating images:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export { me, updateDetails, getUserPosts, getProfile, updateImages };
