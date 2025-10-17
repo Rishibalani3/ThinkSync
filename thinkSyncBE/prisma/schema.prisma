@@ -46,6 +46,7 @@ model User {
 model UserDetails {
   id                  String    @id @default(uuid())
   avatar              String?
+  coverImage          String?
   bio                 String?
   github              String?
   occupation          String?

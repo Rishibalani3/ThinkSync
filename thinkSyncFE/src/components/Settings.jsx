@@ -15,7 +15,6 @@ const Settings = () => {
   const navigate = useNavigate();
   const { user, setUser } = useAuth();
 
-  // Initialize flat formData
   const [formData, setFormData] = useState({
     displayName: user.displayName || "",
     username: user.username || "",
@@ -23,6 +22,7 @@ const Settings = () => {
     Mailnotification: user.details?.Mailnotification || false,
     MessageNotification: user.details?.MessageNotification || false,
     avatar: user.details?.avatar || "",
+    coverImage: user.details?.coverImage || "",
     bio: user.details?.bio || "",
     dateOfBirth: user.details?.dateOfBirth || "",
     github: user.details?.github || "",
@@ -35,9 +35,7 @@ const Settings = () => {
     website: user.details?.website || "",
   });
 
-  // Keep original values to calculate changes
   const initialData = useRef({ ...formData });
-
   const [activeSection, setActiveSection] = useState(
     new URLSearchParams(location.search).get("tab") || "basic"
   );
@@ -57,20 +55,42 @@ const Settings = () => {
     navigate({ search: params.toString() }, { replace: true });
   }, [activeSection, navigate, location.search]);
 
-  const handleImageUpload = (type) => {
+  // Image upload handler
+  const handleImageUpload = async (type, file) => {
     setIsUploading(true);
-    setTimeout(() => {
-      setIsUploading(false);
+    try {
+      const formDataObj = new FormData();
+      formDataObj.append(type, file);
+
+      const res = await axios.patch(
+        "http://localhost:3000/user/update-images",
+        formDataObj,
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      const imageUrl = res.data.url; // backend should return URL
+
+      setFormData((prev) => ({
+        ...prev,
+        [type]: imageUrl,
+      }));
+
       toast.success("Image uploaded successfully!");
-    }, 2000);
+    } catch (err) {
+      toast.error("Failed to upload image");
+      console.error(err);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
-  // Compute only changed fields
   const getChangedFields = () => {
     const changes = {};
     Object.keys(formData).forEach((key) => {
       if (formData[key] !== initialData.current[key]) {
-        // Convert dateOfBirth string to Date object for Prisma
         if (key === "dateOfBirth" && formData[key]) {
           changes[key] = new Date(formData[key]);
         } else {
@@ -83,7 +103,7 @@ const Settings = () => {
 
   const handleSave = async () => {
     const changes = getChangedFields();
-    if (Object.keys(changes).length === 0) {
+    if (!Object.keys(changes).length) {
       toast("No changes detected!");
       return;
     }
@@ -102,11 +122,11 @@ const Settings = () => {
         initialData.current = { ...formData };
         toast.success("Profile updated successfully!");
       } else {
-        toast.error(`Failed to update profile! Internal Server Error`);
+        toast.error("Failed to update profile!");
       }
     } catch (err) {
-      toast.error(`Failed to update profile! ${err.response.data.error}`);
-      console.log(err.response.data.error);
+      toast.error(`Failed to update profile! ${err.response?.data?.error}`);
+      console.error(err.response?.data?.error);
     } finally {
       setLoading(false);
     }
@@ -114,6 +134,14 @@ const Settings = () => {
 
   const renderActiveSection = () => {
     switch (activeSection) {
+      case "images":
+        return (
+          <ProfileImages
+            userData={formData}
+            onUpload={handleImageUpload}
+            isUploading={isUploading}
+          />
+        );
       case "basic":
         return (
           <BasicInfoSection userData={formData} setUserData={setFormData} />
@@ -136,27 +164,14 @@ const Settings = () => {
   return (
     <div className="w-full">
       <Toaster
-        containerClassName="!text-green-300"
         toastOptions={{
-          success: {
-            style: {
-              background: "green",
-              color: "white",
-            },
-          },
-          error: {
-            style: {
-              background: "red",
-              color: "white",
-            },
-          },
+          success: { style: { background: "green", color: "white" } },
+          error: { style: { background: "red", color: "white" } },
         }}
       />
       <div className="container mx-auto py-2 px-0 sm:px-0 lg:px-0">
-        <div className="flex justify-between items-center mb-8"></div>
-
         <div className="flex flex-col md:flex-row">
-          <div className="md:w-2/2">
+          <div className="md:w-full">
             <div className="flex flex-col md:flex-row gap-12 mb-4">
               {sections.map((section) => (
                 <button
@@ -169,16 +184,19 @@ const Settings = () => {
                   }`}
                 >
                   <section.icon size={20} />
-                  <span className="font-medium text-gray-900 dark:text-gray-100">{section.label}</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">
+                    {section.label}
+                  </span>
                 </button>
               ))}
             </div>
 
             {renderActiveSection()}
+
             <button
               disabled={loading}
               onClick={handleSave}
-              className="self-start mt-10 mb-10 bg-indigo-600 cursor-pointer text-white py-2 px-4 rounded hover:shadow-md transition-all duration-300"
+              className="self-start mt-10 mb-10 bg-indigo-600 text-white py-2 px-4 rounded hover:shadow-md transition-all duration-300"
             >
               {loading ? "Saving..." : "Save"}
             </button>
