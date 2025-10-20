@@ -1,4 +1,5 @@
 import { FaCamera } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const ProfileHeader = ({ user, isOwnProfile, isFollowing, onFollow }) => (
   <div className="bg-white/80 dark:bg-gray-800/90 backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden mb-6 sm:mb-8 shadow-xl sm:shadow-2xl shadow-blue-500/5 dark:shadow-blue-400/5 relative">
@@ -9,11 +10,11 @@ const ProfileHeader = ({ user, isOwnProfile, isFollowing, onFollow }) => (
         className="w-full h-full object-cover object-center"
       />
       {isOwnProfile && (
-        <a href="/settings?tab=cover">
+        <Link to="/settings?tab=cover">
           <button className="absolute cursor-pointer text-gray-800 px-7 dark:text-gray-200 top-4 right-4 bg-white dark:bg-gray-700 rounded-2xl p-2 hover:bg-white dark:hover:bg-gray-600 transition">
             Edit
           </button>
-        </a>
+        </Link>
       )}
     </div>
 
