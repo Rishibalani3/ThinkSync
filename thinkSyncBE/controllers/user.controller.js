@@ -1,6 +1,7 @@
 import { prisma } from "../config/db.js";
 import { ApiResponce } from "../utils/ApiResponse.js";
 import { uploadOnCloudinary } from "../utils/Cloudinary.js";
+import { timeAgo } from "../utils/HelperFunction.js";
 
 const updateDetails = async (req, res) => {
   const { displayName, email, username, ...detailsFields } = req.body;
@@ -66,6 +67,8 @@ const getUserPosts = async (req, res) => {
         },
         media: true,
         links: true,
+        likes: true,
+        Bookmark: true,
         mentions: {
           include: {
             user: {
@@ -90,8 +93,15 @@ const getUserPosts = async (req, res) => {
         },
       },
     });
+    const feedWithState = posts.map((post) => ({
+      ...post,
+      timestamp: timeAgo(post.createdAt),
+      isLiked: userId ? post.likes?.length > 0 : false,
+      isBookmarked: userId ? post.Bookmark?.length > 0 : false,
+      likesCount: post.likes?.length || 0, // optional: total likes count
+    }));
 
-    res.json(posts);
+    res.json(feedWithState);
   } catch (error) {
     console.error("Error fetching user posts:", error);
     res.status(500).json({ error: "Failed to fetch user posts" });

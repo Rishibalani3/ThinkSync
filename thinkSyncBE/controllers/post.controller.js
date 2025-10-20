@@ -73,7 +73,6 @@ const createPost = async (req, res) => {
       }
     }
 
-    // Fetch full post with all relations
     const fullPost = await prisma.post.findUnique({
       where: { id: post.id },
       include: {
@@ -179,7 +178,6 @@ const getFeed = async (req, res) => {
       isLiked: userId ? post.likes?.length > 0 : false,
       isBookmarked: userId ? post.Bookmark?.length > 0 : false,
       likesCount: post.likes?.length || 0, // optional: total likes count
-      Bookmark: undefined, // remove raw bookmark array
     }));
 
     return res.status(200).json(

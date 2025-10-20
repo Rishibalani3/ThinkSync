@@ -4,7 +4,6 @@ import { prisma } from "../config/db.js";
 
 const followUser = async (req, res) => {
   const { userId } = req.params;
-  console.log("user incoming id:", userId);
 
   try {
     const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -64,7 +63,7 @@ const getFollowers = async (req, res) => {
 
     return res
       .status(200)
-      .json(new ApiResponse(200, followers, "Followers fetched"));
+      .json(new ApiResponce(200, followers, "Followers fetched"));
   } catch (error) {
     console.error(error);
     return res.status(500).json(new ApiError(500, error.message));

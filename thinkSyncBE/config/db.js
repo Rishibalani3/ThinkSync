@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import pkg from "pg";
 
 const prisma = new PrismaClient();
+
 const { Pool } = pkg;
 
 const pgPool = new Pool({

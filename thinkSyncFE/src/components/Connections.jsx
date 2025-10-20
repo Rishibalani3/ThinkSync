@@ -19,8 +19,7 @@ const Connections = () => {
   const [sortBy, setSortBy] = useState("recent");
 
   const tabs = [
-    { id: "all", label: "All Connections", count: 156 },
-    { id: "mutual", label: "Mutual", count: 89 },
+    { id: "my", label: "My Connections", count: 156 },
     { id: "suggestions", label: "Suggestions", count: 45 },
   ];
 
@@ -121,20 +120,6 @@ const Connections = () => {
                   className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg pl-10 pr-4 py-3 text-gray-700 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
                 />
               </div>
-
-              {/* Sort Dropdown */}
-              <div className="relative">
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 text-gray-700 dark:text-gray-200 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
-                >
-                  <option value="recent">Most Recent</option>
-                  <option value="name">Name</option>
-                  <option value="mutual">Most Mutual</option>
-                  <option value="active">Most Active</option>
-                </select>
-              </div>
             </div>
           </div>
 
@@ -215,57 +200,18 @@ const Connections = () => {
                   </div>
                 </div>
 
-                {/* Connection Actions */}
-                <div className="flex gap-2">
-                  {connection.isConnected ? (
-                    <>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => handleMessage(connection.id)}
-                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
-                      >
-                        <BiMessage />
-                        Message
-                      </motion.button>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => handleRemove(connection.id)}
-                        className="px-3 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium transition-colors"
-                      >
-                        <FaUserTimes />
-                      </motion.button>
-                    </>
-                  ) : connection.isPending ? (
-                    <>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="flex-1 px-3 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-medium transition-colors"
-                      >
-                        <FaUserCheck />
-                        Accept
-                      </motion.button>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="px-3 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium transition-colors"
-                      >
-                        <FaUserTimes />
-                      </motion.button>
-                    </>
-                  ) : (
+                <div>
+                  <div>
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={() => handleConnect(connection.id)}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                      onClick={() => handleMessage(connection.id)}
+                      className="w-full flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
                     >
-                      <FaUserPlus />
-                      Connect
+                      <BiMessage />
+                      Message
                     </motion.button>
-                  )}
+                  </div>
                 </div>
               </motion.div>
             ))}
