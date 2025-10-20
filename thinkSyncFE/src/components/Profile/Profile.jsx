@@ -5,21 +5,25 @@ import ProfileHeader from "./Header";
 import Tabs from "./ProfileTabs";
 import PostCard from "./PostCard";
 import api from "../../utils/axios";
-import { FiMessageCircle } from "react-icons/fi";
-import { FaLightbulb } from "react-icons/fa";
-import { BiHelpCircle } from "react-icons/bi";
-import { GiSparkles } from "react-icons/gi";
 import NotFound from "../UtilComponents/NotFound";
 import useLike from "../../hooks/useLike";
+import useBookmark from "../../hooks/useBookmark";
 
 const Profile = () => {
   const { username } = useParams();
   const { user: currentUser } = useAuth();
+
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("posts");
-  const [PostTypes, setPostTypes] = useState([]);
+  const [postTypes, setPostTypes] = useState({
+    ideas: [],
+    questions: [],
+    thoughts: [],
+  });
+
   const { toggleLike } = useLike();
+  const { toggleBookmark } = useBookmark();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -45,11 +49,7 @@ const Profile = () => {
         const questions = posts.filter((p) => p.type === "question");
         const thoughts = posts.filter((p) => p.type === "thought");
 
-        setPostTypes({
-          ideas,
-          questions,
-          thoughts,
-        });
+        setPostTypes({ ideas, questions, thoughts });
 
         setProfileData({
           profileUser,
@@ -75,7 +75,7 @@ const Profile = () => {
 
   const handleFollow = async () => {
     try {
-      await api.post(`/follower/follow/${profileUser.id}`, {});
+      await api.post(`/follower/follow/${profileUser.id}`);
       setProfileData((prev) => ({
         ...prev,
         isFollowing: !prev.isFollowing,
@@ -86,26 +86,20 @@ const Profile = () => {
   };
 
   const tabs = [
-    { id: "posts", label: "Posts", count: posts.length, icon: FiMessageCircle },
-    {
-      id: "ideas",
-      label: "Ideas",
-      count: posts.filter((p) => p.type === "idea").length,
-      icon: FaLightbulb,
-    },
-    {
-      id: "questions",
-      label: "Questions",
-      count: posts.filter((p) => p.type === "question").length,
-      icon: BiHelpCircle,
-    },
-    {
-      id: "thoughts",
-      label: "Thoughts",
-      count: posts.filter((p) => p.type === "thought").length,
-      icon: GiSparkles,
-    },
+    { id: "posts", label: "Posts", count: posts.length },
+    { id: "ideas", label: "Ideas", count: postTypes.ideas.length },
+    { id: "questions", label: "Questions", count: postTypes.questions.length },
+    { id: "thoughts", label: "Thoughts", count: postTypes.thoughts.length },
   ];
+
+  const updatePostTypes = (updatedPosts) => {
+    setPostTypes({
+      ideas: updatedPosts.filter((p) => p.type === "idea"),
+      questions: updatedPosts.filter((p) => p.type === "question"),
+      thoughts: updatedPosts.filter((p) => p.type === "thought"),
+    });
+  };
+
   const handleLike = async (postId) => {
     setProfileData((prev) => {
       const updatedPosts = prev.posts.map((post) =>
@@ -117,19 +111,14 @@ const Profile = () => {
             }
           : post
       );
-
-      const ideas = updatedPosts.filter((p) => p.type === "idea");
-      const questions = updatedPosts.filter((p) => p.type === "question");
-      const thoughts = updatedPosts.filter((p) => p.type === "thought");
-
-      setPostTypes({ ideas, questions, thoughts });
+      updatePostTypes(updatedPosts);
       return { ...prev, posts: updatedPosts };
     });
 
     const result = await toggleLike(postId);
     if (result?.error) {
       setProfileData((prev) => {
-        const updatedPosts = prev.posts.map((post) =>
+        const reverted = prev.posts.map((post) =>
           post.id === postId
             ? {
                 ...post,
@@ -138,15 +127,24 @@ const Profile = () => {
               }
             : post
         );
-
-        const ideas = updatedPosts.filter((p) => p.type === "idea");
-        const questions = updatedPosts.filter((p) => p.type === "question");
-        const thoughts = updatedPosts.filter((p) => p.type === "thought");
-
-        setPostTypes({ ideas, questions, thoughts });
-        return { ...prev, posts: updatedPosts };
+        updatePostTypes(reverted);
+        return { ...prev, posts: reverted };
       });
     }
+  };
+
+  const handleBookmark = async (postId) => {
+    setProfileData((prev) => {
+      const updatedPosts = prev.posts.map((post) =>
+        post.id === postId
+          ? { ...post, isBookmarked: !post.isBookmarked }
+          : post
+      );
+      updatePostTypes(updatedPosts);
+      return { ...prev, posts: updatedPosts };
+    });
+
+    await toggleBookmark(postId);
   };
 
   const renderPosts = (list) =>
@@ -156,15 +154,16 @@ const Profile = () => {
           key={post.id}
           post={post}
           onLike={() => handleLike(post.id)}
+          onBookmark={() => handleBookmark(post.id)}
         />
       ))
     ) : (
       <p className="text-center text-gray-500">No posts yet.</p>
     );
+
   return (
     <div className="w-full">
       <div className="p-3 sm:p-5">
-        {/* Profile Header */}
         <ProfileHeader
           user={profileUser}
           isOwnProfile={isOwnProfile}
@@ -172,37 +171,21 @@ const Profile = () => {
           onFollow={handleFollow}
         />
 
-        {/* Tabs */}
-        <div className="bg-white/80 dark:bg-gray-800/90 backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-gray-200/50 dark:border-gray-700/50 shadow-xl sm:shadow-2xl shadow-blue-500/5 dark:shadow-blue-400/5 overflow-x-auto mb-6">
+        <div className="bg-white/80 dark:bg-gray-800/90 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-xl sm:shadow-2xl shadow-blue-500/5 dark:shadow-blue-400/5 overflow-x-auto mb-6">
           <Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
         </div>
 
-        {/* Posts */}
-        <div className="p-4 sm:p-6 md:p-2 min-h-[50vh]">
+        <div className="p-4 sm:p-6 md:p-2 min-h-[50vh] ">
           {loading ? (
             <p className="text-center text-gray-500">Loading posts...</p>
           ) : (
             <>
-              {activeTab === "posts" && (
-                <div className="space-y-4 sm:space-y-6">
-                  {renderPosts(posts)}
-                </div>
-              )}
-              {activeTab === "ideas" && (
-                <div className="space-y-4 sm:space-y-6">
-                  {renderPosts(PostTypes.ideas)}
-                </div>
-              )}
-              {activeTab === "questions" && (
-                <div className="space-y-4 sm:space-y-6">
-                  {renderPosts(PostTypes.questions)}
-                </div>
-              )}
-              {activeTab === "thoughts" && (
-                <div className="space-y-4 sm:space-y-6">
-                  {renderPosts(PostTypes.thoughts)}
-                </div>
-              )}
+              <div className="gap-6 flex flex-col">
+                {activeTab === "posts" && renderPosts(posts)}
+                {activeTab === "ideas" && renderPosts(postTypes.ideas)}
+                {activeTab === "questions" && renderPosts(postTypes.questions)}
+                {activeTab === "thoughts" && renderPosts(postTypes.thoughts)}
+              </div>
             </>
           )}
         </div>

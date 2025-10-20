@@ -37,7 +37,7 @@ const Settings = () => {
 
   const initialData = useRef({ ...formData });
   const [activeSection, setActiveSection] = useState(
-    new URLSearchParams(location.search).get("tab") || "basic"
+    new URLSearchParams(location.search).get("tab") || "images"
   );
   const [isUploading, setIsUploading] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -71,7 +71,7 @@ const Settings = () => {
         }
       );
 
-      const imageUrl = res.data.url; // backend should return URL
+      const imageUrl = res.data.url;
 
       setFormData((prev) => ({
         ...prev,
@@ -172,7 +172,7 @@ const Settings = () => {
       <div className="container mx-auto py-2 px-0 sm:px-0 lg:px-0">
         <div className="flex flex-col md:flex-row">
           <div className="md:w-full">
-            <div className="flex flex-col md:flex-row gap-12 mb-4">
+            <div className="flex flex-col md:flex-row gap-12 mb-4 mt-6">
               {sections.map((section) => (
                 <button
                   key={section.id}
