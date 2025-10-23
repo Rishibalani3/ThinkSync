@@ -5,65 +5,63 @@ import { createPortal } from "react-dom";
 const BoxModal = ({ post, activeIndex, setActiveIndex }) => {
   if (activeIndex === null) return null;
 
+  const media = post.media[activeIndex];
+
   return createPortal(
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center backdrop-blur-sm"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
+        key="modal"
+        style={{
+          height: "100dvh",
+          position: "sticky",
+          inset: 0,
+          zIndex: 9999,
+          backgroundColor: "rgba(0,0,0,0.95)",
+          backdropFilter: "blur(6px)",
+        }}
         onClick={() => setActiveIndex(null)}
       >
         <div
-          className="relative max-w-4xl w-full px-4 flex items-center justify-center"
+          className="relative w-full h-[100dvh] flex items-center justify-center px-4"
           onClick={(e) => e.stopPropagation()}
         >
           <motion.img
-            layoutId={`post-media-${post.media[activeIndex].id}`}
-            src={post.media[activeIndex].url}
+            layoutId={`post-media-${media.id}`}
+            src={media.url}
             alt="preview"
-            className="max-h-[90vh] w-auto mx-auto rounded-lg object-contain"
+            className="max-w-[95vw] max-h-[95dvh] object-contain rounded-lg"
             initial={{ scale: 0.95 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.25 }}
           />
 
-          {/* Close button */}
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className="absolute top-4 right-4 text-white text-xl p-3 bg-black/60 rounded-full hover:bg-black/80 transition-colors"
+          {/* Controls */}
+          <button
             onClick={() => setActiveIndex(null)}
+            className="absolute top-6 right-6 text-white text-2xl p-3 bg-black/60 rounded-full hover:bg-black/80 transition"
           >
             <FaTimes />
-          </motion.button>
+          </button>
 
-          {/* Previous */}
           {activeIndex > 0 && (
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="absolute left-4 text-white text-xl p-3 bg-black/60 rounded-full hover:bg-black/80 transition-colors"
+            <button
               onClick={() => setActiveIndex((i) => i - 1)}
+              className="absolute left-6 text-white text-2xl p-3 bg-black/60 rounded-full hover:bg-black/80 transition"
             >
               <FaChevronLeft />
-            </motion.button>
+            </button>
           )}
 
-          {/* Next */}
           {activeIndex < post.media.length - 1 && (
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="absolute right-4 text-white text-xl p-3 bg-black/60 rounded-full hover:bg-black/80 transition-colors"
+            <button
               onClick={() => setActiveIndex((i) => i + 1)}
+              className="absolute right-6 text-white text-2xl p-3 bg-black/60 rounded-full hover:bg-black/80 transition"
             >
               <FaChevronRight />
-            </motion.button>
+            </button>
           )}
 
-          {/* Counter */}
-          <div className="absolute top-full left-1/2 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
             {activeIndex + 1} of {post.media.length}
           </div>
         </div>
