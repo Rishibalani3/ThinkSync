@@ -34,11 +34,13 @@ const MainLayout = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="fixed top-0 h-4 left-0 w-full z-100 backdrop-blur-3xl" />
-      <Navbar
-        isAuthenticated={isAuthenticated}
-        setIsAuthenticated={setIsAuthenticated}
-      />
+      <div className="sticky top-0 left-0 w-full h-6 backdrop-blur-3xl bg-white/20 dark:bg-gray-900/20 z-90" />
+      <div className="sticky top-6 left-0 w-full backdrop-blur-3xl bg-white/60 dark:bg-gray-900/60 z-100 shadow-sm">
+        <Navbar
+          isAuthenticated={isAuthenticated}
+          setIsAuthenticated={setIsAuthenticated}
+        />
+      </div>
 
       <main className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-10 gap-6 p-5 pt-[5rem]">
         <aside className="lg:col-span-2 hidden lg:block">

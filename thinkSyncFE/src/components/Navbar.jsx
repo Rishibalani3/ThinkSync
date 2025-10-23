@@ -57,10 +57,10 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
   return (
     <>
       <motion.nav
-        initial={{ y: -100, opacity: 0 }}
+        initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-[98%] max-w-7xl"
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="absolute bg-white/80 dark:bg-gray-900/80 top-0 left-1/2 transform -translate-x-1/2 z-[101] w-[96%] max-w-7xl backdrop-blur-3xl"
       >
         <div className="backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border border-gray-200/50 dark:border-gray-700/50 rounded-2xl shadow-xl">
           <div className="px-4 lg:px-6 h-16 flex items-center justify-between">
