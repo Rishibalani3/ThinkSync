@@ -1,24 +1,33 @@
-import { useState } from "react";
-import { IoChatbubbles, IoClose, IoArrowBack, IoSend } from "react-icons/io5";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
+import { IoChatbubbles, IoClose } from "react-icons/io5";
 import ChatModal from "./ChatModel";
 
 export default function FloatingChatButton({ connections = [] }) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [mounted, setMounted] = useState(false);
 
-  return (
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) return null;
+
+  const portalRoot = document.getElementById("floating-chat-root");
+  if (!portalRoot) return null;
+
+  const content = (
     <>
       {/* Floating button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center font-bold text-xl transition-all duration-300 transform hover:scale-110 active:scale-95 bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 text-white hover:from-blue-600 hover:to-blue-700 dark:hover:from-blue-700 dark:hover:to-blue-800"
+        className="fixed bottom-6 right-6 z-[9999] w-14 h-14 rounded-full shadow-2xl flex items-center justify-center font-bold text-xl transition-all duration-300 transform hover:scale-110 active:scale-95 bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 text-white"
       >
         <IoChatbubbles size={24} />
       </button>
 
       {/* Chat list modal */}
       {isOpen && !selectedUser && (
-        <div className="fixed bottom-24 right-6 w-96 max-h-[500px] rounded-2xl shadow-2xl flex flex-col bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700">
+        <div className="fixed bottom-24 right-6 w-96 max-h-[500px] rounded-2xl shadow-2xl flex flex-col bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 z-[9999]">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-t-2xl">
             <h3 className="font-bold text-lg flex items-center gap-2">
@@ -72,7 +81,7 @@ export default function FloatingChatButton({ connections = [] }) {
               })
             ) : (
               <div className="p-8 text-center text-slate-500 dark:text-slate-400">
-                <p>No connections yet</p>
+                No connections yet
               </div>
             )}
           </div>
@@ -85,4 +94,6 @@ export default function FloatingChatButton({ connections = [] }) {
       )}
     </>
   );
+
+  return createPortal(content, portalRoot);
 }

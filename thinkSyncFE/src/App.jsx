@@ -23,10 +23,33 @@ import NotFound from "./components/UtilComponents/NotFound";
 import Bookmarks from "./components/Bookmarks";
 import { pageVariants } from "./utils/animations";
 import Topics from "./components/Topics";
+import { useState, useEffect } from "react";
+import FloatingChatButton from "./components/Messages/FloatingButton";
+import axios from "axios";
 
 function App() {
   const { isAuthenticated, loading, setIsAuthenticated } = useAuth();
+  const [connections, setConnections] = useState([]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetchFollowers();
+    };
+    fetchData();
+  }, [isAuthenticated]);
+
+  const fetchFollowers = async () => {
+    if (isAuthenticated) {
+      try {
+        let res = await axios.get("http://localhost:3000/follower", {
+          withCredentials: true,
+        });
+        setConnections(res.data.data);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  };
   if (loading) return <LoadingScreen />;
 
   const publicRoutes = [
@@ -46,70 +69,75 @@ function App() {
   ];
 
   return (
-    <Router>
-      <AnimatePresence mode="wait">
-        <Routes>
-          <Route
-            path="/login"
-            element={
-              <motion.div
-                variants={pageVariants}
-                initial="initial"
-                animate="in"
-                exit="out"
-                style={{ willChange: "transform, opacity" }}
-              >
-                <Login
-                  isAuthenticated={isAuthenticated}
-                  setIsAuthenticated={setIsAuthenticated}
-                />
-              </motion.div>
-            }
-          />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-
-          <Route element={<MainLayout />}>
-            {publicRoutes.map(({ path, element }) => (
-              <Route
-                key={path}
-                path={path}
-                element={
-                  <motion.div
-                    variants={pageVariants}
-                    initial="initial"
-                    animate="in"
-                    exit="out"
-                    style={{ willChange: "transform, opacity" }}
-                  >
-                    {element}
-                  </motion.div>
-                }
-              />
-            ))}
-
-            {protectedRoutes.map(({ path, element }) => (
-              <Route
-                key={path}
-                path={path}
-                element={
-                  <ProtectedRoute
+    <>
+      <Router>
+        <AnimatePresence mode="wait">
+          <Routes>
+            <Route
+              path="/login"
+              element={
+                <motion.div
+                  variants={pageVariants}
+                  initial="initial"
+                  animate="in"
+                  exit="out"
+                  style={{ willChange: "transform, opacity" }}
+                >
+                  <Login
                     isAuthenticated={isAuthenticated}
                     setIsAuthenticated={setIsAuthenticated}
-                    redirectTo="/login"
-                  >
-                    {element}
-                  </ProtectedRoute>
-                }
-              />
-            ))}
+                  />
+                </motion.div>
+              }
+            />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
 
-            <Route path="/*" element={<NotFound />} />
-          </Route>
-        </Routes>
-      </AnimatePresence>
-    </Router>
+            <Route element={<MainLayout />}>
+              {publicRoutes.map(({ path, element }) => (
+                <Route
+                  key={path}
+                  path={path}
+                  element={
+                    <motion.div
+                      variants={pageVariants}
+                      initial="initial"
+                      animate="in"
+                      exit="out"
+                      style={{ willChange: "transform, opacity" }}
+                    >
+                      {element}
+                    </motion.div>
+                  }
+                />
+              ))}
+
+              {protectedRoutes.map(({ path, element }) => (
+                <Route
+                  key={path}
+                  path={path}
+                  element={
+                    <ProtectedRoute
+                      isAuthenticated={isAuthenticated}
+                      setIsAuthenticated={setIsAuthenticated}
+                      redirectTo="/login"
+                    >
+                      {element}
+                    </ProtectedRoute>
+                  }
+                />
+              ))}
+
+              <Route path="/*" element={<NotFound />} />
+            </Route>
+          </Routes>
+        </AnimatePresence>
+      </Router>
+
+      {isAuthenticated && <FloatingChatButton connections={connections} />}
+    </>
   );
 }
 
 export default App;
+  
