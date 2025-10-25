@@ -70,6 +70,7 @@ model Message {
   receiver   User     @relation("receivedMessages", fields: [receiverId], references: [id])
   receiverId String
   content    String
+  read       Boolean  @default(false)
   createdAt  DateTime @default(now())
 }
 

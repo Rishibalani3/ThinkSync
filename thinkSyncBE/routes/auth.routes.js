@@ -13,7 +13,27 @@ import forgotPasswordLimiter from "../utils/ForgotPasswordMiddleware.js";
 const router = Router();
 
 router.post("/signup", signup);
-router.post("/login", passport.authenticate("local"), login);
+router.post("/login", (req, res, next) => {
+  passport.authenticate("local", (err, user, info) => {
+    if (err) return next(err);
+    if (!user)
+      return res.status(401).json({ message: info.message || "Unauthorized" });
+
+    req.login(user, (err) => {
+      if (err) return next(err);
+      // Return user object without sensitive fields
+      const {
+        password,
+        googleAccessToken,
+        googleRefreshToken,
+        googleId,
+        ...safeUser
+      } = user;
+      return res.json({ user: safeUser });
+    });
+  })(req, res, next);
+});
+
 router.post("/logout", logout);
 router.post("/forgot-password", forgotPasswordLimiter, forgotPassword);
 router.post("/reset-password", resetPassword);
@@ -22,16 +42,16 @@ router.get("/validate-reset-token", validateResetToken);
 // google
 router.get(
   "/google",
-  passport.authenticate("google", { 
+  passport.authenticate("google", {
     scope: ["profile", "email"],
-    accessType: 'offline',
-    prompt: 'consent' //it always asks for consent from user like you want to log in with google for this app.. 
+    accessType: "offline",
+    prompt: "consent", //it always asks for consent from user like you want to log in with google for this app..
   })
 );
 router.get(
   "/google/callback",
   passport.authenticate("google", { failureRedirect: "/" }),
-  (req, res) => res.redirect("http://localhost:5173/") 
+  (req, res) => res.redirect("http://localhost:5173/")
 );
 
 export default router;

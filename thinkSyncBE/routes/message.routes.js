@@ -1,11 +1,24 @@
 import express from "express";
-import { sendMessage, getMessages } from "../controllers/message.controller.js";
+import {
+  sendMessage,
+  getMessages,
+  getRecentChats,
+  getUnreadCount,
+  markMessagesRead,
+} from "../controllers/message.controller.js";
 import { ensureAuth } from "../middleware/ensureAuth.middleware.js";
 
-const router = express.Router();
+const messageRoutes = (io) => {
+  const router = express.Router();
 
-router.post("/send", ensureAuth, sendMessage);
+  router.post("/send", ensureAuth, sendMessage(io));
 
-router.get("/:userId", ensureAuth, getMessages);
+  router.get("/recent", ensureAuth, getRecentChats);
+  router.get("/unread-count", ensureAuth, getUnreadCount);
+  router.post("/:userId/mark-read", ensureAuth, markMessagesRead);
+  router.get("/:userId", ensureAuth, getMessages);
 
-export default router;
+  return router;
+};
+
+export default messageRoutes;
