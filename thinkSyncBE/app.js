@@ -33,7 +33,7 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  console.log("New socket connected:", socket.id);
+  // console.log("New socket connected:", socket.id);
 
   // Join a chat room between two users
   socket.on("joinRoom", (roomId) => socket.join(roomId));
@@ -79,7 +79,7 @@ app.use("/bookmark", bookmarkRoutes);
 app.use("/comment", commentRoutes);
 app.use("/follower", followRoutes);
 app.use("/topics", topicRoutes);
-app.use("/messages", messageRoutes);
+app.use("/messages", messageRoutes(io));
 
 // Health check
 app.get("/health", (req, res) => {

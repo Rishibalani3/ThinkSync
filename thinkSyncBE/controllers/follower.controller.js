@@ -70,4 +70,23 @@ const getFollowers = async (req, res) => {
   }
 };
 
-export { followUser, getFollowers };
+const getFollowing = async (req, res) => {
+  try {
+    const following = await prisma.follows.findMany({
+      where: { followerId: req.user.id },
+      include: { following: true },
+    });
+    return res.status(200).json(
+      new ApiResponce(
+        200,
+        following.map((f) => f.following),
+        "Following fetched"
+      )
+    );
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(new ApiError(500, error.message));
+  }
+};
+
+export { followUser, getFollowers, getFollowing };

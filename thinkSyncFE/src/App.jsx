@@ -29,27 +29,7 @@ import axios from "axios";
 
 function App() {
   const { isAuthenticated, loading, setIsAuthenticated } = useAuth();
-  const [connections, setConnections] = useState([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      await fetchFollowers();
-    };
-    fetchData();
-  }, [isAuthenticated]);
-
-  const fetchFollowers = async () => {
-    if (isAuthenticated) {
-      try {
-        let res = await axios.get("http://localhost:3000/follower", {
-          withCredentials: true,
-        });
-        setConnections(res.data.data);
-      } catch (err) {
-        console.log(err);
-      }
-    }
-  };
   if (loading) return <LoadingScreen />;
 
   const publicRoutes = [
@@ -134,10 +114,9 @@ function App() {
         </AnimatePresence>
       </Router>
 
-      {isAuthenticated && <FloatingChatButton connections={connections} />}
+      {isAuthenticated && <FloatingChatButton />}
     </>
   );
 }
 
 export default App;
-  
