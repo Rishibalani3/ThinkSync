@@ -34,13 +34,14 @@ model User {
   receivedMessages   Message[]            @relation("receivedMessages")
   PasswordResetToken PasswordResetToken[] @relation("PasswordResetToken")
 
-  Contentreport Contentreport[]
+  Contentreport Contentreport[] @relation("Reporter")
   UserActivity  UserActivity[]
   AdminAuditLog AdminAuditLog[]
 
   NotificationsSent     Notifications[] @relation("NotificationSender")
   NotificationsReceived Notifications[] @relation("NotificationReceiver")
   commentLikes          CommentLike[]
+  ContentreportReceived Contentreport[] @relation("ReportedUser")
 }
 
 model UserDetails {
@@ -114,14 +115,15 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  likes         Like[]
-  topics        PostTopic[]
-  media         Media[]
-  comments      Comment[]
-  mentions      Mention[]
-  links         Link[]
-  Bookmark      Bookmark[]
-  notifications Notifications[] @relation("NotificationPost")
+  likes          Like[]
+  topics         PostTopic[]
+  media          Media[]
+  comments       Comment[]
+  mentions       Mention[]
+  links          Link[]
+  Bookmark       Bookmark[]
+  notifications  Notifications[] @relation("NotificationPost")
+  contentReports Contentreport[] @relation("ContentReportPost")
 }
 
 model Link {
@@ -173,6 +175,7 @@ model Comment {
   likes         CommentLike[]
   createdAt     DateTime        @default(now())
   notifications Notifications[] @relation("NotificationComment")
+  Contentreport Contentreport[] @relation("ContentReportComment")
 }
 
 model CommentLike {
@@ -234,12 +237,15 @@ model Contentreport {
   type           String // "post", "comment", "user"
   reason         String
   postId         String?
+  post           Post?    @relation("ContentReportPost", fields: [postId], references: [id], onDelete: Cascade)
   commentId      String?
+  comment        Comment? @relation("ContentReportComment", fields: [commentId], references: [id], onDelete: Cascade)
   reportedUserId String?
-  reporter       User     @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  reportedUser   User?    @relation("ReportedUser", fields: [reportedUserId], references: [id], onDelete: Cascade)
+  reporter       User?    @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
   reporterId     String
   createdAt      DateTime @default(now())
-  status         String   @default("pending") // "pending", "accepted", "rejected"
+  status         String   @default("pending")
 }
 
 model UserActivity {

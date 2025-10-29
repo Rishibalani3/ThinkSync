@@ -1,5 +1,5 @@
 import { ApiError } from "../utils/ApiError.js";
-import { ApiResponce } from "../utils/ApiResponse.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 import { prisma } from "../config/db.js";
 
 const followUser = async (req, res) => {
@@ -34,7 +34,7 @@ const followUser = async (req, res) => {
 
       return res
         .status(200)
-        .json(new ApiResponce(200, deleteFollower, "User unfollowed"));
+        .json(new ApiResponse(200, deleteFollower, "User unfollowed"));
     } else {
       // follow
       const follower = await prisma.follows.create({
@@ -46,7 +46,7 @@ const followUser = async (req, res) => {
 
       return res
         .status(201)
-        .json(new ApiResponce(201, follower, "User followed"));
+        .json(new ApiResponse(201, follower, "User followed"));
     }
   } catch (err) {
     console.error(err);
@@ -63,7 +63,7 @@ const getFollowers = async (req, res) => {
 
     return res
       .status(200)
-      .json(new ApiResponce(200, followers, "Followers fetched"));
+      .json(new ApiResponse(200, followers, "Followers fetched"));
   } catch (error) {
     console.error(error);
     return res.status(500).json(new ApiError(500, error.message));
@@ -77,7 +77,7 @@ const getFollowing = async (req, res) => {
       include: { following: true },
     });
     return res.status(200).json(
-      new ApiResponce(
+      new ApiResponse(
         200,
         following.map((f) => f.following),
         "Following fetched"

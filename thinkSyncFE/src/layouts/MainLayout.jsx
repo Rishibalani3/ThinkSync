@@ -23,7 +23,7 @@ const MainLayout = () => {
           </div>
         </aside>
 
-        <div className="lg:col-span-5 min-h-[calc(100vh-6rem) ]">
+        <div className="lg:col-span-5 min-h-[calc(100vh-6rem)]">
           <Outlet />
         </div>
 

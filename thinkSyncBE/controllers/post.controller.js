@@ -1,5 +1,5 @@
 import { ApiError } from "../utils/ApiError.js";
-import { ApiResponce } from "../utils/ApiResponse.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 import { prisma } from "../config/db.js";
 import { uploadOnCloudinary } from "../utils/Cloudinary.js";
 import { timeAgo } from "../utils/HelperFunction.js";
@@ -85,7 +85,7 @@ const createPost = async (req, res) => {
 
     return res
       .status(201)
-      .json(new ApiResponce(201, fullPost, "Post created successfully"));
+      .json(new ApiResponse(201, fullPost, "Post created successfully"));
   } catch (err) {
     console.error("Post creation error:", err);
     return res
@@ -123,7 +123,7 @@ const deletePost = async (req, res) => {
 
     return res
       .status(200)
-      .json(new ApiResponce(200, deletedPost, "Post deleted successfully"));
+      .json(new ApiResponse(200, deletedPost, "Post deleted successfully"));
   } catch (err) {
     console.error("Post deletion error:", err);
     return res
@@ -162,8 +162,9 @@ const getFeed = async (req, res) => {
         topics: { include: { topic: { select: { id: true, name: true } } } },
         media: true,
         links: true,
-        likes: userId ? { where: { userId } } : false,
+        likes: true,
         Bookmark: userId ? { where: { userId } } : false,
+        comments: true,
       },
       orderBy: { createdAt: "desc" },
       take: limit,
@@ -175,13 +176,16 @@ const getFeed = async (req, res) => {
     const feedWithState = feed.map((post) => ({
       ...post,
       timestamp: timeAgo(post.createdAt),
-      isLiked: userId ? post.likes?.length > 0 : false,
+      isLiked: userId
+        ? post.likes?.some((like) => like.userId === userId)
+        : false,
       isBookmarked: userId ? post.Bookmark?.length > 0 : false,
-      likesCount: post.likes?.length || 0, // optional: total likes count
+      likesCount: post.likes?.length || 0, //total likes count
+      commentsCount: post.comments?.length || 0, // total comments count
     }));
 
     return res.status(200).json(
-      new ApiResponce(
+      new ApiResponse(
         200,
         {
           feed: feedWithState,

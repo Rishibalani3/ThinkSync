@@ -15,6 +15,7 @@ import commentRoutes from "./routes/comment.routes.js";
 import followRoutes from "./routes/follower.routes.js";
 import topicRoutes from "./routes/topics.routes.js";
 import messageRoutes from "./routes/message.routes.js";
+import moderationRoutes from "./routes/moderation.routes.js";
 
 import { createServer } from "http";
 import { Server } from "socket.io";
@@ -28,10 +29,13 @@ const app = express();
 const server = createServer(app);
 
 // Socket.IO setup
+// Setting here origin to allow requests from frontend
 const io = new Server(server, {
   cors: { origin: "http://localhost:5173", credentials: true },
 });
 
+// Socket.IO middleware to share session
+//handling the request made by frontend
 io.on("connection", (socket) => {
   // console.log("New socket connected:", socket.id);
 
@@ -80,6 +84,7 @@ app.use("/comment", commentRoutes);
 app.use("/follower", followRoutes);
 app.use("/topics", topicRoutes);
 app.use("/messages", messageRoutes(io));
+app.use("/moderation", moderationRoutes);
 
 // Health check
 app.get("/health", (req, res) => {
