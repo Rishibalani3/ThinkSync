@@ -1,5 +1,5 @@
 import { prisma } from "../config/db.js";
-import { ApiResponce } from "../utils/ApiResponse.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 import { uploadOnCloudinary } from "../utils/Cloudinary.js";
 import { timeAgo } from "../utils/HelperFunction.js";
 
@@ -36,7 +36,7 @@ const updateDetails = async (req, res) => {
 
     return res
       .status(200)
-      .json(new ApiResponce(200, updatedUser, "User details updated"));
+      .json(new ApiResponse(200, updatedUser, "User details updated"));
   } catch (error) {
     console.error(error);
     return res.status(500).json({

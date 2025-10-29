@@ -1,5 +1,5 @@
 import { prisma } from "../config/db.js";
-import { ApiResponce } from "../utils/ApiResponse.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 import { timeAgo } from "../utils/HelperFunction.js";
 const fetchPostsByTopic = async (req, res) => {
   const { topicName } = req.params;
@@ -71,7 +71,6 @@ const fetchPostsByTopic = async (req, res) => {
       isBookmarked: userId ? post.Bookmark?.length > 0 : false,
     }));
 
-    console.log("Transformed Posts:", transformedPosts);
     return res.status(200).json({ posts: transformedPosts });
   } catch (error) {
     console.error("Posts by topic fetch error:", error);
@@ -113,7 +112,7 @@ const fetchTredingPosts = async (req, res) => {
     });
     return res.status(200).json({ posts });
   } catch (error) {
-    return res.status(500).json(new ApiResponce(500, "Internal Server Error"));
+    return res.status(500).json(new ApiResponse(500, "Internal Server Error"));
   }
 };
 
@@ -126,7 +125,7 @@ const fetchTredingTopics = async (req, res) => {
   //   });
   //   return res.status(200).json({ topics });
   // } catch (error) {
-  //   return res.status(500).json(new ApiResponce(500, "Internal Server Error"));
+  //   return res.status(500).json(new ApiResponse(500, "Internal Server Error"));
   // }
 
   return res.status(200).json({

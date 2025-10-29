@@ -92,22 +92,12 @@ const Connections = () => {
 
   return (
     <div className="w-full">
-      <div className="p-4 sm:p-5">
+      <div className="">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          {/* Header */}
-          <div className="mb-4">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              Connections
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 text-sm">
-              Manage your network and discover new connections
-            </p>
-          </div>
-
           <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-6">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="relative flex-1">

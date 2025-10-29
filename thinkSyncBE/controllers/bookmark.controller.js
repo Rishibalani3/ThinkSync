@@ -1,7 +1,7 @@
 // controllers/bookmarkController.js
 import { prisma } from "../config/db.js";
 import { ApiError } from "../utils/ApiError.js";
-import { ApiResponce } from "../utils/ApiResponse.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 
 const bookmarkPost = async (req, res) => {
   const { postId } = req.params;
@@ -20,14 +20,14 @@ const bookmarkPost = async (req, res) => {
       await prisma.bookmark.delete({ where: { id: existingBookmark.id } });
       return res
         .status(200)
-        .json(new ApiResponce(200, null, "Post unbookmarked"));
+        .json(new ApiResponse(200, null, "Post unbookmarked"));
     } else {
       const newBookmark = await prisma.bookmark.create({
         data: { postId, userId: req.user.id },
       });
       return res
         .status(201)
-        .json(new ApiResponce(201, newBookmark, "Post bookmarked"));
+        .json(new ApiResponse(201, newBookmark, "Post bookmarked"));
     }
   } catch (error) {
     return res.status(500).json(new ApiError(500, error.message));
@@ -75,7 +75,7 @@ const getBookmarks = async (req, res) => {
 
     return res
       .status(200)
-      .json(new ApiResponce(200, posts, "Bookmarks fetched successfully"));
+      .json(new ApiResponse(200, posts, "Bookmarks fetched successfully"));
   } catch (error) {
     return res.status(500).json(new ApiError(500, error.message));
   }

@@ -98,17 +98,6 @@ const Explore = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="pt-4 text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-            Explore
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Discover new ideas, questions, and thoughts from the ThinkSync
-            community
-          </p>
-        </div>
-
         {/* Search and Filters */}
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-6">
           <div className="relative mb-6">

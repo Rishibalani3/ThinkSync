@@ -1,5 +1,5 @@
 import { ApiError } from "../utils/ApiError.js";
-import { ApiResponce } from "../utils/ApiResponse.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 import { prisma } from "../config/db.js";
 
 const createComment = async (req, res) => {
@@ -47,7 +47,7 @@ const createComment = async (req, res) => {
 
     return res
       .status(201)
-      .json(new ApiResponce(201, shaped, "Comment created successfully"));
+      .json(new ApiResponse(201, shaped, "Comment created successfully"));
   } catch (error) {
     return res.status(500).json(new ApiError(500, error.message));
   }
@@ -74,7 +74,7 @@ const deleteComment = async (req, res) => {
     return res
       .status(200)
       .json(
-        new ApiResponce(200, deletedComment, "Comment deleted successfully")
+        new ApiResponse(200, deletedComment, "Comment deleted successfully")
       );
   } catch (error) {
     return res.status(500).json(new ApiError(500, error.message));
@@ -130,7 +130,7 @@ const getComments = async (req, res) => {
 
     return res
       .status(200)
-      .json(new ApiResponce(200, roots, "Comments fetched successfully"));
+      .json(new ApiResponse(200, roots, "Comments fetched successfully"));
   } catch (error) {
     return res.status(500).json(new ApiError(500, error.message));
   }
@@ -148,13 +148,13 @@ const toggleCommentLike = async (req, res) => {
 
     if (existing) {
       await prisma.commentLike.delete({ where: { id: existing.id } });
-      return res.status(200).json(new ApiResponce(200, null, "Comment unliked"));
+      return res.status(200).json(new ApiResponse(200, null, "Comment unliked"));
     }
 
     const like = await prisma.commentLike.create({
       data: { commentId, userId: req.user.id },
     });
-    return res.status(201).json(new ApiResponce(201, like, "Comment liked"));
+    return res.status(201).json(new ApiResponse(201, like, "Comment liked"));
   } catch (error) {
     return res.status(500).json(new ApiError(500, error.message));
   }

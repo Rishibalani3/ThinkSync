@@ -1,8 +1,7 @@
-import { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import api from "../utils/axios";
-
 import PostCreator from "./PostCreator";
 import PostCard from "./PostCard/PostCard";
 import { useAuth } from "../contexts/AuthContext";
@@ -127,7 +126,7 @@ const Home = () => {
   const memoizedPosts = useMemo(() => posts, [posts]);
 
   return (
-    <div className="pt-4">
+    <React.Fragment>
       <motion.div
         variants={pageVariants}
         initial="initial"
@@ -176,7 +175,7 @@ const Home = () => {
           </div>
         )}
       </motion.div>
-    </div>
+    </React.Fragment>
   );
 };
 
