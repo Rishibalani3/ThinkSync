@@ -2,7 +2,6 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,
 } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Home from "./components/Home";
@@ -23,9 +22,8 @@ import NotFound from "./components/UtilComponents/NotFound";
 import Bookmarks from "./components/Bookmarks";
 import { pageVariants } from "./utils/animations";
 import Topics from "./components/Topics";
-import { useState, useEffect } from "react";
 import FloatingChatButton from "./components/Messages/FloatingButton";
-import axios from "axios";
+import { NotificationProvider } from "./contexts/NotificationContext";
 
 function App() {
   const { isAuthenticated, loading, setIsAuthenticated } = useAuth();
@@ -50,6 +48,7 @@ function App() {
 
   return (
     <>
+    <NotificationProvider>
       <Router>
         <AnimatePresence mode="wait">
           <Routes>
@@ -115,6 +114,7 @@ function App() {
       </Router>
 
       {isAuthenticated && <FloatingChatButton />}
+    </NotificationProvider>
     </>
   );
 }
