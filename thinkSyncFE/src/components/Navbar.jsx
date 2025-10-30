@@ -13,19 +13,31 @@ import {
   FaBars,
   FaTimes,
   FaUser,
+  FaCheck,
+  FaTrash,
 } from "react-icons/fa";
 import { useDarkMode } from "../contexts/DarkModeContext";
 import { useAuth } from "../contexts/AuthContext";
+import { useNotifications } from "../contexts/NotificationContext";
 
 const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-
   const { logout, user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const { isDarkMode, toggleDarkMode } = useDarkMode();
+
+  // Reuse hook!
+  const {
+    unreadCount,
+    latestUnread,
+    markAsRead,
+    deleteNotification,
+    notifications,
+    loading: notificationsLoading,
+  } = useNotifications();
 
   const handleLogout = async () => {
     try {
@@ -156,13 +168,15 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
                   onClick={() => setShowNotifications(!showNotifications)}
                 >
                   <FaBell className="text-lg" />
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
-                  >
-                    3
-                  </motion.span>
+                  {unreadCount > 0 && (
+                    <motion.span
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
+                    >
+                      {unreadCount}
+                    </motion.span>
+                  )}
                 </motion.button>
               )}
 
@@ -220,6 +234,7 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
                 </div>
               )}
 
+              {/* Notification popup outside profile menu*/}
               <AnimatePresence>
                 {showNotifications && (
                   <motion.div
@@ -232,24 +247,62 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
                       Notifications
                     </div>
                     <div className="max-h-60 overflow-y-auto">
-                      {[
-                        "Someone liked your posts",
-                        "Your post got 5 likes",
-                        "System update available",
-                      ].map((msg, i) => (
+                      {notificationsLoading ? (
+                        <div className="px-4 py-6 text-center text-gray-400">Loading...</div>
+                      ) : latestUnread.length > 0 ? latestUnread.map((notif, i) => (
                         <div
-                          key={i}
-                          className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-colors"
+                          key={notif.id}
+                          className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-colors cursor-pointer flex gap-2 items-start"
+                          onClick={(e) => {
+                            // prevent click if child action button is clicked
+                            if (e.target.closest('.notif-action-btn')) return;
+                            const type = notif.content.includes("comment") || notif.content.includes("like") ? "post" : (notif.content.includes("follow") ? "profile" : null);
+                            if(type === "post" && notif.post?.id) navigate(`/post/${notif.post.id}`);
+                            if(type === "profile" && notif.sender?.username) navigate(`/profile/${notif.sender.username}`);
+                            setShowNotifications(false);
+                          }}
                         >
-                          {msg}
+                          <img src={notif.sender?.details?.avatar || "https://placehold.co/24x24/667eea/fff?text=U"} className="w-6 h-6 rounded-full mr-2" alt="avatar" />
+                          <div className="flex-1">
+                            <span className="font-medium">{notif.sender?.displayName}</span>
+                            <span className="ml-1 text-xs text-gray-400">@{notif.sender?.username} </span>
+                            <div className="">{notif.content}</div>
+                          </div>
+                          <span className="ml-2 mt-0.5 text-xs text-gray-400 whitespace-nowrap">{(new Date(notif.createdAt)).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                          {!notif.seen && (
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.95 }}
+                              className="p-1.5 mx-0.5 notif-action-btn text-gray-400 hover:text-green-500 rounded-full transition-colors"
+                              title="Mark as read"
+                              type="button"
+                              tabIndex={-1}
+                              onClick={async (e) => { e.stopPropagation(); await markAsRead(notif.id); }}
+                            >
+                              <FaCheck />
+                            </motion.button>
+                          )}
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="p-1.5 notif-action-btn text-gray-400 hover:text-red-500 rounded-full transition-colors"
+                            title="Delete"
+                            type="button"
+                            tabIndex={-1}
+                            onClick={async (e) => { e.stopPropagation(); await deleteNotification(notif.id); }}
+                          >
+                            <FaTrash />
+                          </motion.button>
                         </div>
-                      ))}
+                      )) : (
+                        <div className="px-4 py-6 text-center text-gray-400">No unread notifications</div>
+                      )}
                     </div>
                     <div className="px-4 py-2 text-center">
                       <Link
                         to="/notifications"
                         className="text-blue-600 dark:text-blue-400 text-sm font-medium hover:underline"
-                        onClick={() => setShowNotifications(!showNotifications)}
+                        onClick={() => setShowNotifications(false)}
                       >
                         View all
                       </Link>

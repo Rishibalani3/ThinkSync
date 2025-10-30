@@ -16,7 +16,7 @@ const MainLayout = () => {
           setIsAuthenticated={setIsAuthenticated}
         />
       </div>
-      <main className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-10 gap-6 p-5 pt-[5rem]">
+      <main className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-10 gap-6 pt-[5rem]">
         <aside className="lg:col-span-2 hidden lg:block">
           <div className="sticky top-26">
             <SidebarLeft />

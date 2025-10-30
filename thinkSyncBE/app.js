@@ -16,6 +16,7 @@ import followRoutes from "./routes/follower.routes.js";
 import topicRoutes from "./routes/topics.routes.js";
 import messageRoutes from "./routes/message.routes.js";
 import moderationRoutes from "./routes/moderation.routes.js";
+import notificationRoutes from "./routes/notification.routes.js";
 
 import { createServer } from "http";
 import { Server } from "socket.io";
@@ -34,10 +35,21 @@ const io = new Server(server, {
   cors: { origin: "http://localhost:5173", credentials: true },
 });
 
-// Socket.IO middleware to share session
-//handling the request made by frontend
+// ---- USER-SOCKETID MAPPING ----
+const userSocketMap = {}; // userId: socketId
+
 io.on("connection", (socket) => {
-  // console.log("New socket connected:", socket.id);
+  // Frontend must emit this right after connecting
+  socket.on("registerUser", (userId) => {
+    userSocketMap[userId] = socket.id;
+    socket.userId = userId;
+  });
+
+  socket.on("disconnect", () => {
+    if (socket.userId && userSocketMap[socket.userId] === socket.id) {
+      delete userSocketMap[socket.userId];
+    }
+  });
 
   // Join a chat room between two users
   socket.on("joinRoom", (roomId) => socket.join(roomId));
@@ -46,8 +58,6 @@ io.on("connection", (socket) => {
   socket.on("sendMessage", ({ roomId, message }) => {
     io.to(roomId).emit("receiveMessage", message);
   });
-
-  socket.on("disconnect", () => console.log("Socket disconnected:", socket.id));
 });
 
 // ---------------------
@@ -85,6 +95,7 @@ app.use("/follower", followRoutes);
 app.use("/topics", topicRoutes);
 app.use("/messages", messageRoutes(io));
 app.use("/moderation", moderationRoutes);
+app.use("/notifications", notificationRoutes);
 
 // Health check
 app.get("/health", (req, res) => {
@@ -95,4 +106,5 @@ app.get("/health", (req, res) => {
   });
 });
 
-export { app, server };
+// Export io and userSocketMap for notification utility usage
+export { app, server, io, userSocketMap };

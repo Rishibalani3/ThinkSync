@@ -1,6 +1,8 @@
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { prisma } from "../config/db.js";
+import { sendNotification } from "../utils/notification.js";
+import { io, userSocketMap } from "../app.js";
 
 const createComment = async (req, res) => {
   const { content, postId, parentId } = req.body;
@@ -32,6 +34,18 @@ const createComment = async (req, res) => {
         likes: true,
       },
     });
+
+    // Notify post author (don't notify self)
+    const post = await prisma.post.findUnique({ where: { id: postId } });
+    if (post && req.user.id !== post.authorId) {
+      await sendNotification({
+        receiverId: post.authorId,
+        content: "commented on your post",
+        senderId: req.user.id,
+        postId,
+        commentId: comment.id
+      }, io, userSocketMap);
+    }
 
     const shaped = {
       id: comment.id,
@@ -154,6 +168,17 @@ const toggleCommentLike = async (req, res) => {
     const like = await prisma.commentLike.create({
       data: { commentId, userId: req.user.id },
     });
+
+    // Notify comment author (don't notify self)
+    if (req.user.id !== comment.authorId) {
+      await sendNotification({
+        receiverId: comment.authorId,
+        content: "liked your comment",
+        senderId: req.user.id,
+        postId: comment.postId,
+        commentId: commentId
+      }, io, userSocketMap);
+    }
     return res.status(201).json(new ApiResponse(201, like, "Comment liked"));
   } catch (error) {
     return res.status(500).json(new ApiError(500, error.message));
