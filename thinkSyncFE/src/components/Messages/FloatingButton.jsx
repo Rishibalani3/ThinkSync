@@ -13,7 +13,9 @@ export default function FloatingChatButton() {
   useEffect(() => setMounted(true), []);
   const fetchUsers = async () => {
     try {
-      const recentRes = await api.get("/messages/recent");
+      const recentRes = await api.get("/messages/recent", {
+        withCredentials: true,
+      });
       const recentUsers = recentRes.data.map((u) => ({
         ...u,
         unreadCount: u.lastMessage?.read === false ? 1 : 0,
