@@ -24,14 +24,30 @@ const likePost = async (req, res) => {
       const newLike = await prisma.like.create({
         data: { postId, userId: req.user.id },
       });
+
+      //-----------------------Traking like activity(For Ai Training) --------------------//
+
+      await prisma.userActivity.create({
+        data: {
+          userId: req.user.id,
+          postId: postId,
+          activityType: "like",
+        },
+      });
+
+      //-----------------Sending Notification -----------------//
       // Send notification (don't notify self-like)
       if (req.user.id !== post.authorId) {
-        await sendNotification({
-          receiverId: post.authorId,
-          content: "liked your post",
-          senderId: req.user.id,
-          postId,
-        }, io, userSocketMap);
+        await sendNotification(
+          {
+            receiverId: post.authorId,
+            content: "liked your post",
+            senderId: req.user.id,
+            postId,
+          },
+          io,
+          userSocketMap
+        );
       }
       return res.status(201).json({ message: "Post liked", like: newLike });
     }

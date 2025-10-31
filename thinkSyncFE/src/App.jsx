@@ -1,8 +1,4 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Home from "./components/Home";
 import Login from "./components/Login";
@@ -24,6 +20,7 @@ import { pageVariants } from "./utils/animations";
 import Topics from "./components/Topics";
 import FloatingChatButton from "./components/Messages/FloatingButton";
 import { NotificationProvider } from "./contexts/NotificationContext";
+import TopicSelector from "./components/UtilComponents/InterestPopUp";
 
 function App() {
   const { isAuthenticated, loading, setIsAuthenticated } = useAuth();
@@ -48,73 +45,73 @@ function App() {
 
   return (
     <>
-    <NotificationProvider>
-      <Router>
-        <AnimatePresence mode="wait">
-          <Routes>
-            <Route
-              path="/login"
-              element={
-                <motion.div
-                  variants={pageVariants}
-                  initial="initial"
-                  animate="in"
-                  exit="out"
-                  style={{ willChange: "transform, opacity" }}
-                >
-                  <Login
-                    isAuthenticated={isAuthenticated}
-                    setIsAuthenticated={setIsAuthenticated}
-                  />
-                </motion.div>
-              }
-            />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-
-            <Route element={<MainLayout />}>
-              {publicRoutes.map(({ path, element }) => (
-                <Route
-                  key={path}
-                  path={path}
-                  element={
-                    <motion.div
-                      variants={pageVariants}
-                      initial="initial"
-                      animate="in"
-                      exit="out"
-                      style={{ willChange: "transform, opacity" }}
-                    >
-                      {element}
-                    </motion.div>
-                  }
-                />
-              ))}
-
-              {protectedRoutes.map(({ path, element }) => (
-                <Route
-                  key={path}
-                  path={path}
-                  element={
-                    <ProtectedRoute
+      <NotificationProvider>  
+        <Router>
+          <AnimatePresence mode="wait">
+            <Routes>
+              <Route
+                path="/login"
+                element={
+                  <motion.div
+                    variants={pageVariants}
+                    initial="initial"
+                    animate="in"
+                    exit="out"
+                    style={{ willChange: "transform, opacity" }}
+                  >
+                    <Login
                       isAuthenticated={isAuthenticated}
                       setIsAuthenticated={setIsAuthenticated}
-                      redirectTo="/login"
-                    >
-                      {element}
-                    </ProtectedRoute>
-                  }
-                />
-              ))}
+                    />
+                  </motion.div>
+                }
+              />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
 
-              <Route path="/*" element={<NotFound />} />
-            </Route>
-          </Routes>
-        </AnimatePresence>
-      </Router>
+              <Route element={<MainLayout />}>
+                {publicRoutes.map(({ path, element }) => (
+                  <Route
+                    key={path}
+                    path={path}
+                    element={
+                      <motion.div
+                        variants={pageVariants}
+                        initial="initial"
+                        animate="in"
+                        exit="out"
+                        style={{ willChange: "transform, opacity" }}
+                      >
+                        {element}
+                      </motion.div>
+                    }
+                  />
+                ))}
 
-      {isAuthenticated && <FloatingChatButton />}
-    </NotificationProvider>
+                {protectedRoutes.map(({ path, element }) => (
+                  <Route
+                    key={path}
+                    path={path}
+                    element={
+                      <ProtectedRoute
+                        isAuthenticated={isAuthenticated}
+                        setIsAuthenticated={setIsAuthenticated}
+                        redirectTo="/login"
+                      >
+                        {element}
+                      </ProtectedRoute>
+                    }
+                  />
+                ))}
+
+                <Route path="/*" element={<NotFound />} />
+              </Route>
+            </Routes>
+          </AnimatePresence>
+        </Router>
+
+        {isAuthenticated && <FloatingChatButton />}
+      </NotificationProvider>
     </>
   );
 }

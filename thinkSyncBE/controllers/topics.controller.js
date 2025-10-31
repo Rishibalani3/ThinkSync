@@ -1,6 +1,8 @@
 import { prisma } from "../config/db.js";
+import Fuse from "fuse.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { timeAgo } from "../utils/HelperFunction.js";
+
 const fetchPostsByTopic = async (req, res) => {
   const { topicName } = req.params;
   const userId = req.user?.id || null;
@@ -139,4 +141,107 @@ const fetchTredingTopics = async (req, res) => {
   });
 };
 
-export { fetchPostsByTopic, fetchTredingTopics, fetchTredingPosts };
+const getTopics = async (req, res) => {
+  try {
+    const userId = req.user?.id; // assuming user ID is available via auth middleware
+
+    // Fetch all topics
+    const topics = await prisma.topic.findMany({
+      orderBy: { name: "asc" },
+    });
+
+    // Fetch user’s selected topics
+    const userTopics = await prisma.userTopic.findMany({
+      where: { userId },
+      select: { topicId: true },
+    });
+    const userTopicIds = userTopics.map((t) => t.topicId);
+
+    // Map topics and mark selected
+    const transformedTopics = topics.map((topic) => ({
+      id: topic.id,
+      name: topic.name,
+      isSelected: userTopicIds.includes(topic.id), // ✅ mark if user already selected
+    }));
+
+    res.status(200).json(transformedTopics);
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ message: "Failed to fetch topics", error: err.message });
+  }
+};
+
+const updateUserTopics = async (req, res) => {
+  try {
+    const { topicIds } = req.body; // array of selected topic IDs
+    const userId = req.user?.id;  
+    if (!userId || !Array.isArray(topicIds)) {
+      return res
+        .status(400)
+        .json({ message: "userId and topicIds array required" });
+    }
+
+    // 1. Fetch existing user topics
+    const existing = await prisma.userTopic.findMany({
+      where: { userId },
+      select: { topicId: true },
+    });
+    const existingIds = existing.map((t) => t.topicId);
+
+    // 2. Topics to add
+    const toAdd = topicIds.filter((id) => !existingIds.includes(id));
+    // 3. Topics to remove
+    const toRemove = existingIds.filter((id) => !topicIds.includes(id));
+
+    // 4. Perform DB operations
+    if (toAdd.length > 0) {
+      await prisma.userTopic.createMany({
+        data: toAdd.map((topicId) => ({ userId, topicId })),
+        skipDuplicates: true,
+      });
+    }
+
+    if (toRemove.length > 0) {
+      await prisma.userTopic.deleteMany({
+        where: {
+          userId,
+          topicId: { in: toRemove },
+        },
+      });
+    }
+
+    res.status(200).json({ message: "User topics updated" });
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ message: "Failed to update topics", error: err.message });
+  }
+};
+
+const getUserTopics = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const topics = await prisma.userTopic.findMany({
+      where: { userId },
+      include: { topic: true },
+    });
+    res.status(200).json(topics);
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ message: "Failed to fetch user topics", error: err.message });
+  }
+};
+
+export {
+  fetchPostsByTopic,
+  fetchTredingTopics,
+  fetchTredingPosts,
+  updateUserTopics,
+  getTopics,
+  getUserTopics,
+};

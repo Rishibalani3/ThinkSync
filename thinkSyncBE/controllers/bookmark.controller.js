@@ -25,6 +25,17 @@ const bookmarkPost = async (req, res) => {
       const newBookmark = await prisma.bookmark.create({
         data: { postId, userId: req.user.id },
       });
+
+      //-----------------------Traking bookmark activity(For Ai Training) --------------------//
+
+      await prisma.userActivity.create({
+        data: {
+          userId: req.user.id,
+          postId: postId,
+          activityType: "bookmark",
+        },
+      });
+
       return res
         .status(201)
         .json(new ApiResponse(201, newBookmark, "Post bookmarked"));

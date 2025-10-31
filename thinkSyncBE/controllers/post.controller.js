@@ -279,4 +279,61 @@ const getSinglePost = async (req, res) => {
   }
 };
 
-export { createPost, deletePost, getFeed, getSinglePost };
+// --- NEW UTILITY FUNCTION (from previous step) ---
+const trackPostView = async (userId, postId) => {
+  // 1. Prevent tracking views for guests (if userId is null) or if postId is missing
+  if (!userId || !postId) return;
+
+  // Optional: Add logic to prevent recording the same view too often (e.g., within 5 minutes)
+  // For simplicity, we'll record every time the frontend calls, trusting the frontend logic.
+
+  try {
+    await prisma.userActivity.create({
+      data: {
+        userId: userId,
+        postId: postId,
+        type: "view_post", // This is the crucial signal for the AI model
+      },
+    });
+  } catch (error) {
+    // Log the error but do NOT throw it to prevent breaking the frontend experience
+    console.error("Error tracking post view:", error.message);
+  }
+};
+
+const recordPostView = async (req, res) => {
+  const { postId } = req.params;
+
+  // Check if the user is logged in (assuming req.user is set by middleware)
+  const userId = req.user?.id;
+
+  if (!userId) {
+    // We shouldn't stop the process for guests, but we can't record activity for them.
+    // Return a 401 or just a successful 200/204 if you want the client to not worry.
+    // Let's return a simple status to acknowledge the request.
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          null,
+          "Guest view request received but not recorded."
+        )
+      );
+  }
+
+  // Check if the post exists
+  const post = await prisma.post.findUnique({ where: { id: postId } });
+  if (!post) {
+    return res.status(404).json(new ApiError(404, "Post not found."));
+  }
+
+  // Call the utility function to record the view in the background
+  await trackPostView(userId, postId);
+
+  // Send a simple, fast response back to the frontend
+  return res
+    .status(204) // 204 No Content is ideal for a successful update without a body
+    .send();
+};
+export { createPost, deletePost, getFeed, getSinglePost, recordPostView };
