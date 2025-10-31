@@ -84,7 +84,6 @@ model Follows {
   followingId String
 
   createdAt DateTime @default(now())
-
   @@unique([followerId, followingId])
 }
 
@@ -95,7 +94,7 @@ model Topic {
   posts          PostTopic[]
   TrendingTopics TrendingTopics[]
 }
-
+ 
 model UserTopic {
   id      String @id @default(uuid())
   user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
