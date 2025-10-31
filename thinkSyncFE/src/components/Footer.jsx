@@ -114,8 +114,24 @@ const Footer = () => {
             &copy; {year} ThinkSync. All rights reserved.
           </p>
           <p className="text-center md:text-right">
-            Crafted with <span className="text-red-500 animate-pulse">❤️</span>{" "}
-            for better thinking
+            Developed by{" "}
+            <a
+              href="https://github.com/akshay08k"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 dark:text-blue-400 hover:underline transition-all duration-300 hover:translate-x-1"
+            >
+              Akshay Komale
+            </a>
+            &nbsp;|&nbsp;
+            <a
+              href="https://github.com/Rishibalani3"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 dark:text-blue-400 hover:underline transition-all duration-300 hover:translate-x-1"
+            >
+              Rishi Balani
+            </a>
           </p>
         </div>
       </div>

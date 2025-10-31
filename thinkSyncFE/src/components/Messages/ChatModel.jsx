@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import io from "socket.io-client";
-import axios from "axios";
+import api from "../../utils/axios";
 import { useAuth } from "../../contexts/AuthContext";
 import { IoArrowBack, IoSend } from "react-icons/io5";
 
@@ -43,10 +43,9 @@ export default function ChatModal({ user, goBack, onMarkRead }) {
     const fetchMessages = async () => {
       if (!user?.id) return;
       try {
-        const res = await axios.get(
-          `http://localhost:3000/messages/${user.id}`,
-          { withCredentials: true }
-        );
+        const res = await api.get(`/messages/${user.id}`, {
+          withCredentials: true,
+        });
         setMessages(res.data);
 
         // Optimistically mark messages as read
@@ -57,8 +56,8 @@ export default function ChatModal({ user, goBack, onMarkRead }) {
         );
 
         // Mark unread messages in backend
-        const resMark = await axios.post(
-          `http://localhost:3000/messages/${user.id}/mark-read`,
+        const resMark = await api.post(
+          `/messages/${user.id}/mark-read`,
           {},
           { withCredentials: true }
         );
@@ -75,17 +74,17 @@ export default function ChatModal({ user, goBack, onMarkRead }) {
     if (!input.trim()) return;
 
     try {
-      const res = await axios.post(
-        "http://localhost:3000/messages/send",
+      const res = await api.post(
+        "/messages/send",
         { receiverId: user.id, content: input },
         { withCredentials: true }
       );
 
       // socket emits message to room (backend sends back to everyone)
       socket.emit("sendMessage", { roomId, message: res.data });
-      setInput(""); // do NOT append manually
+      setInput("");
     } catch (err) {
-      console.error("❌ Error sending message:", err);
+      console.error("Error sending message:", err);
     }
   };
 

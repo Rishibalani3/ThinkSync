@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { IoChatbubbles, IoClose } from "react-icons/io5";
 import ChatModal from "./ChatModel";
-import axios from "axios";
+import api from "../../utils/axios";
 
 export default function FloatingChatButton() {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,23 +13,15 @@ export default function FloatingChatButton() {
   useEffect(() => setMounted(true), []);
   const fetchUsers = async () => {
     try {
-      const recentRes = await axios.get(
-        "http://localhost:3000/messages/recent",
-        {
-          withCredentials: true,
-        }
-      );
+      const recentRes = await api.get("/messages/recent");
       const recentUsers = recentRes.data.map((u) => ({
         ...u,
         unreadCount: u.lastMessage?.read === false ? 1 : 0,
       }));
 
-      const followRes = await axios.get(
-        "http://localhost:3000/follower/following",
-        {
-          withCredentials: true,
-        }
-      );
+      const followRes = await api.get("/follower/following", {
+        withCredentials: true,
+      });
 
       const followingUsers = followRes.data.data
         .filter((u) => !recentUsers.find((r) => r.id === u.id))
