@@ -5,7 +5,7 @@ import cookieParser from "cookie-parser";
 import passport from "passport";
 import sessionMiddleware from "./config/session.js";
 import setupPassport from "./config/passport.js";
-
+import axios from "axios";
 import likeRoutes from "./routes/like.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
@@ -39,7 +39,6 @@ const io = new Server(server, {
 const userSocketMap = {}; // userId: socketId
 
 io.on("connection", (socket) => {
-  // Frontend must emit this right after connecting
   socket.on("registerUser", (userId) => {
     userSocketMap[userId] = socket.id;
     socket.userId = userId;
@@ -82,22 +81,45 @@ app.use((req, res, next) => {
   next();
 });
 
+// for proxying images to avoid CORS issues
+app.get("/proxy", async (req, res) => {
+  const { url } = req.query;
+  if (!url) return res.status(400).send("Missing URL");
+
+  try {
+    const decodedUrl = decodeURIComponent(url);
+    const response = await axios.get(decodedUrl, {
+      responseType: "arraybuffer",
+      headers: {
+        "User-Agent":
+          "windows-1252''Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
+      },
+    });
+
+    res.set("Content-Type", response.headers["content-type"]);
+    res.send(response.data);
+  } catch (err) {
+    console.error("Proxy error:", err.message);
+    res.status(500).send("Failed to load image");
+  }
+});
+
 // ---------------------
 // Routes
 // ---------------------
-app.use("/auth", authRoutes);
-app.use("/user", userRoutes);
-app.use("/posts", postRoutes);
-app.use("/likes", likeRoutes);
-app.use("/bookmark", bookmarkRoutes);
-app.use("/comment", commentRoutes);
-app.use("/follower", followRoutes);
-app.use("/topics", topicRoutes);
-app.use("/messages", messageRoutes(io));
-app.use("/moderation", moderationRoutes);
-app.use("/notifications", notificationRoutes);
+app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/posts", postRoutes);
+app.use("/api/v1/likes", likeRoutes);
+app.use("/api/v1/bookmark", bookmarkRoutes);
+app.use("/api/v1/comment", commentRoutes);
+app.use("/api/v1/follower", followRoutes);
+app.use("/api/v1/topics", topicRoutes);
+app.use("/api/v1/messages", messageRoutes(io));
+app.use("/api/v1/moderation", moderationRoutes);
+app.use("/api/v1/notifications", notificationRoutes);
 
-// Health check
+// Health check (for testing purposes)
 app.get("/health", (req, res) => {
   res.json({
     message: "Server is running",
@@ -106,5 +128,4 @@ app.get("/health", (req, res) => {
   });
 });
 
-// Export io and userSocketMap for notification utility usage
 export { app, server, io, userSocketMap };

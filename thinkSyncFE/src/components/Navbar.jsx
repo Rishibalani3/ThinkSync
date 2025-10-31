@@ -72,9 +72,9 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="absolute bg-white/80 dark:bg-gray-900/80 top-0 left-1/2 transform -translate-x-1/2 z-[101] w-[96%] max-w-7xl backdrop-blur-3xl"
+        className="fixed left-1/2 transform -translate-x-1/2 z-[101] w-[96%] max-w-7xl"
       >
-        <div className="backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border border-gray-200/50 dark:border-gray-700/50 rounded-2xl shadow-xl">
+        <div className="backdrop-blur-xl bg-white/90 dark:bg-gray-800/90 border border-gray-200/50 dark:border-gray-700/50 rounded-2xl shadow-xl">
           <div className="px-4 lg:px-6 h-16 flex items-center justify-between">
             {/* Logo */}
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -86,9 +86,13 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
                   animate={{ rotate: [0, 10, -10, 0] }}
                   transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
                 >
-                  <FaBrain className="text-2xl lg:text-3xl" />
+                  <div className="flex items-center gap-3 text-3xl font-bold">
+                    <FaBrain className="text-3xl text-blue-600 dark:text-blue-400 animate-pulse" />
+                  </div>
                 </motion.div>
-                <span className="hidden sm:block">ThinkSync</span>
+                <span className="text-xl bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                  ThinkSync
+                </span>
               </Link>
             </motion.div>
 
@@ -248,54 +252,90 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
                     </div>
                     <div className="max-h-60 overflow-y-auto">
                       {notificationsLoading ? (
-                        <div className="px-4 py-6 text-center text-gray-400">Loading...</div>
-                      ) : latestUnread.length > 0 ? latestUnread.map((notif, i) => (
-                        <div
-                          key={notif.id}
-                          className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-colors cursor-pointer flex gap-2 items-start"
-                          onClick={(e) => {
-                            // prevent click if child action button is clicked
-                            if (e.target.closest('.notif-action-btn')) return;
-                            const type = notif.content.includes("comment") || notif.content.includes("like") ? "post" : (notif.content.includes("follow") ? "profile" : null);
-                            if(type === "post" && notif.post?.id) navigate(`/post/${notif.post.id}`);
-                            if(type === "profile" && notif.sender?.username) navigate(`/profile/${notif.sender.username}`);
-                            setShowNotifications(false);
-                          }}
-                        >
-                          <img src={notif.sender?.details?.avatar || "https://placehold.co/24x24/667eea/fff?text=U"} className="w-6 h-6 rounded-full mr-2" alt="avatar" />
-                          <div className="flex-1">
-                            <span className="font-medium">{notif.sender?.displayName}</span>
-                            <span className="ml-1 text-xs text-gray-400">@{notif.sender?.username} </span>
-                            <div className="">{notif.content}</div>
-                          </div>
-                          <span className="ml-2 mt-0.5 text-xs text-gray-400 whitespace-nowrap">{(new Date(notif.createdAt)).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
-                          {!notif.seen && (
+                        <div className="px-4 py-6 text-center text-gray-400">
+                          Loading...
+                        </div>
+                      ) : latestUnread.length > 0 ? (
+                        latestUnread.map((notif, i) => (
+                          <div
+                            key={notif.id}
+                            className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-colors cursor-pointer flex gap-2 items-start"
+                            onClick={(e) => {
+                              // prevent click if child action button is clicked
+                              if (e.target.closest(".notif-action-btn")) return;
+                              const type =
+                                notif.content.includes("comment") ||
+                                notif.content.includes("like")
+                                  ? "post"
+                                  : notif.content.includes("follow")
+                                  ? "profile"
+                                  : null;
+                              if (type === "post" && notif.post?.id)
+                                navigate(`/post/${notif.post.id}`);
+                              if (type === "profile" && notif.sender?.username)
+                                navigate(`/profile/${notif.sender.username}`);
+                              setShowNotifications(false);
+                            }}
+                          >
+                            <img
+                              src={
+                                notif.sender?.details?.avatar ||
+                                "https://placehold.co/24x24/667eea/fff?text=U"
+                              }
+                              className="w-6 h-6 rounded-full mr-2"
+                              alt="avatar"
+                            />
+                            <div className="flex-1">
+                              <span className="font-medium">
+                                {notif.sender?.displayName}
+                              </span>
+                              <span className="ml-1 text-xs text-gray-400">
+                                @{notif.sender?.username}{" "}
+                              </span>
+                              <div className="">{notif.content}</div>
+                            </div>
+                            <span className="ml-2 mt-0.5 text-xs text-gray-400 whitespace-nowrap">
+                              {new Date(notif.createdAt).toLocaleTimeString(
+                                [],
+                                { hour: "2-digit", minute: "2-digit" }
+                              )}
+                            </span>
+                            {!notif.seen && (
+                              <motion.button
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="p-1.5 mx-0.5 notif-action-btn text-gray-400 hover:text-green-500 rounded-full transition-colors"
+                                title="Mark as read"
+                                type="button"
+                                tabIndex={-1}
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  await markAsRead(notif.id);
+                                }}
+                              >
+                                <FaCheck />
+                              </motion.button>
+                            )}
                             <motion.button
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.95 }}
-                              className="p-1.5 mx-0.5 notif-action-btn text-gray-400 hover:text-green-500 rounded-full transition-colors"
-                              title="Mark as read"
+                              className="p-1.5 notif-action-btn text-gray-400 hover:text-red-500 rounded-full transition-colors"
+                              title="Delete"
                               type="button"
                               tabIndex={-1}
-                              onClick={async (e) => { e.stopPropagation(); await markAsRead(notif.id); }}
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                await deleteNotification(notif.id);
+                              }}
                             >
-                              <FaCheck />
+                              <FaTrash />
                             </motion.button>
-                          )}
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="p-1.5 notif-action-btn text-gray-400 hover:text-red-500 rounded-full transition-colors"
-                            title="Delete"
-                            type="button"
-                            tabIndex={-1}
-                            onClick={async (e) => { e.stopPropagation(); await deleteNotification(notif.id); }}
-                          >
-                            <FaTrash />
-                          </motion.button>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="px-4 py-6 text-center text-gray-400">
+                          No unread notifications
                         </div>
-                      )) : (
-                        <div className="px-4 py-6 text-center text-gray-400">No unread notifications</div>
                       )}
                     </div>
                     <div className="px-4 py-2 text-center">

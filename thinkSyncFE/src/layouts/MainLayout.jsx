@@ -3,22 +3,25 @@ import Navbar from "../components/Navbar";
 import SidebarLeft from "../components/SidebarLeft";
 import SidebarRight from "../components/SidebarRight";
 import { useAuth } from "../contexts/AuthContext";
+import Footer from "../components/Footer";
 
 const MainLayout = () => {
   const { isAuthenticated, setIsAuthenticated } = useAuth();
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-900">
-      <div className="sticky top-0 left-0 w-full h-6 backdrop-blur-3xl bg-white/20 dark:bg-gray-900/20 z-90" />
-      <div className="sticky top-6 left-0 w-full backdrop-blur-3xl bg-white/60 dark:bg-gray-900/60 z-100 shadow-sm">
+    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
+      <div className="sticky top-0 left-0 w-full h-6 backdrop-blur-3xl bg-white/20 dark:bg-gray-900/20 z-50" />
+
+      <div className="sticky top-6 left-0 w-full backdrop-blur-3xl bg-white/60 dark:bg-gray-900/60 z-50 shadow-sm">
         <Navbar
           isAuthenticated={isAuthenticated}
           setIsAuthenticated={setIsAuthenticated}
         />
       </div>
-      <main className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-10 gap-6 pt-[5rem]">
-        <aside className="lg:col-span-2 hidden lg:block">
-          <div className="sticky top-26">
+
+      <main className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-10 gap-6 pt-[5rem] px-4">
+        <aside className="lg:col-span-2 hidden lg:block relative">
+          <div className="sticky top-24">
             <SidebarLeft />
           </div>
         </aside>
@@ -27,12 +30,13 @@ const MainLayout = () => {
           <Outlet />
         </div>
 
-        <aside className="lg:col-span-3 hidden lg:block">
-          <div className="sticky top-26">
+        <aside className="lg:col-span-3 hidden lg:block relative">
+          <div className="sticky top-24">
             <SidebarRight />
           </div>
         </aside>
       </main>
+      <Footer />
     </div>
   );
 };
