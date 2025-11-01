@@ -17,6 +17,7 @@ import topicRoutes from "./routes/topics.routes.js";
 import messageRoutes from "./routes/message.routes.js";
 import moderationRoutes from "./routes/moderation.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
+import aiRecommendationRoutes from "./routes/aiRecommendation.routes.js";
 
 import { createServer } from "http";
 import { Server } from "socket.io";
@@ -118,6 +119,7 @@ app.use("/api/v1/topics", topicRoutes);
 app.use("/api/v1/messages", messageRoutes(io));
 app.use("/api/v1/moderation", moderationRoutes);
 app.use("/api/v1/notifications", notificationRoutes);
+app.use("/api/v1/ai", aiRecommendationRoutes);
 
 // Health check (for testing purposes)
 app.get("/health", (req, res) => {

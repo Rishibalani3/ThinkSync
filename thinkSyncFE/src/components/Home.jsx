@@ -23,7 +23,7 @@ const Home = () => {
 
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
-  const [limit] = useState(20);
+  const [limit] = useState(12); // Reduced to 12 posts per page for better performance
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
 

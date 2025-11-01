@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
@@ -12,14 +12,20 @@ import {
 import { BiTrendingUp } from "react-icons/bi";
 import PostCard from "./PostCard/PostCard";
 import { useAuth } from "../contexts/AuthContext";
+import useAIRecommendations from "../hooks/useAIRecommendations";
+import useTopics from "../hooks/useTopics";
 
 const Explore = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("trending");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [trendingPosts, setTrendingPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const { getAITrendingPosts } = useAIRecommendations();
+  const { getTrendingPosts } = useTopics();
 
   const filters = [
     { id: "trending", label: "Trending", icon: FaFire },
@@ -36,42 +42,33 @@ const Explore = () => {
     { id: "future", label: "Future", count: 123 },
   ];
 
-  const trendingPosts = [
-    {
-      id: 1,
-      author: {
-        name: "Alex Chen",
-        avatar: "https://placehold.co/40x40/667eea/ffffff?text=AC",
-        username: "@alexchen",
-      },
-      content:
-        "The future of remote work isn't just about working from home—it's about creating a new paradigm of productivity...",
-      type: "idea",
-      timestamp: "1 hour ago",
-      likes: 156,
-      comments: 23,
-      shares: 12,
-      isLiked: false,
-      isBookmarked: false,
-    },
-    {
-      id: 2,
-      author: {
-        name: "Maria Garcia",
-        avatar: "https://placehold.co/40x40/667eea/ffffff?text=MG",
-        username: "@mariagarcia",
-      },
-      content:
-        "How do we stay productive in an increasingly distracted world? Are traditional productivity methods still relevant...",
-      type: "question",
-      timestamp: "3 hours ago",
-      likes: 89,
-      comments: 34,
-      shares: 8,
-      isLiked: true,
-      isBookmarked: false,
-    },
-  ];
+  // Fetch trending posts when filter is set to trending
+  useEffect(() => {
+    const fetchPosts = async () => {
+      if (activeFilter !== "trending") {
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        let posts = await getAITrendingPosts(20);
+        
+        if (!posts || posts.length === 0) {
+          posts = await getTrendingPosts();
+        }
+
+        setTrendingPosts(posts);
+      } catch (error) {
+        console.error("Error fetching trending posts:", error);
+        setTrendingPosts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, [activeFilter, getAITrendingPosts, getTrendingPosts]);
 
   const handleBookmark = (postId) => {
     if (!isAuthenticated) {
@@ -165,21 +162,30 @@ const Explore = () => {
                 </h2>
               </div>
               <div className="space-y-4">
-                {trendingPosts.map((post, index) => (
-                  <motion.div
-                    key={post.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1, duration: 0.5 }}
-                  >
-                    <PostCard
-                      post={post}
-                      onLike={() => handleLike(post.id)}
-                      onBookmark={() => handleBookmark(post.id)}
-                      onClick={() => handlePostClick(post.id)}
-                    />
-                  </motion.div>
-                ))}
+                {loading ? (
+                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                    Loading trending posts...
+                  </div>
+                ) : trendingPosts.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                    No trending posts available
+                  </div>
+                ) : (
+                  trendingPosts.map((post, index) => (
+                    <motion.div
+                      key={post.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1, duration: 0.5 }}
+                    >
+                      <PostCard
+                        post={post}
+                        onBookmark={() => handleBookmark(post.id)}
+                        onClick={() => handlePostClick(post.id)}
+                      />
+                    </motion.div>
+                  ))
+                )}
               </div>
             </div>
           </div>
