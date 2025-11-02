@@ -56,19 +56,18 @@ export default function setupPassport() {
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: "/auth/google/callback",
-        accessType: 'offline', // Requesting offline access for refresh token (not return null now)
-        prompt: 'consent', //it always asks for consent from user like you want to log in with google for this app.. 
+        callbackURL: "/api/v1/auth/google/callback",
+        accessType: "offline", // Requesting offline access for refresh token (not return null now)
+        prompt: "consent", //it always asks for consent from user like you want to log in with google for this app..
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
-
-          //debubbiing 
+          //debubbiing
           // console.log('Google OAuth callback received:');
           // console.log('Access Token:', accessToken ? 'Present' : 'Missing');
           // console.log('Refresh Token:', refreshToken ? 'Present' : 'Missing');
           // console.log('Profile ID:', profile.id);
-          
+
           let user = await prisma.user.findUnique({
             where: { googleId: profile.id },
           });
@@ -109,15 +108,14 @@ export default function setupPassport() {
                 },
               },
             };
-            
-            
+
             if (refreshToken) {
               updateData.googleRefreshToken = refreshToken;
-              console.log('Updating refresh token for existing user');
+              console.log("Updating refresh token for existing user");
             } else {
-              console.log('No refresh token received, keeping existing one');
+              console.log("No refresh token received, keeping existing one");
             }
-            
+
             user = await prisma.user.update({
               where: { id: user.id },
               data: updateData,

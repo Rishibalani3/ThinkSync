@@ -29,7 +29,9 @@ const followUser = async (req, res) => {
           },
         },
       });
-      return res.status(200).json(new ApiResponse(200, deleteFollower, "User unfollowed"));
+      return res
+        .status(200)
+        .json(new ApiResponse(200, deleteFollower, "User unfollowed"));
     } else {
       // follow
       const follower = await prisma.follows.create({
@@ -38,15 +40,32 @@ const followUser = async (req, res) => {
           followingId: userId,
         },
       });
+
+      //----------------------------Traking follow activity(For Ai Training) --------------------//
+      await prisma.userActivity.create({
+        data: {
+          userId: req.user.id,
+          activityType: "follow",
+          metadata: { followedUserId: userId },
+        },
+      });
+      
+      //----------------------------Sending Notification -----------------//
       // Send notification to user you followed (not yourself)
       if (req.user.id !== userId) {
-        await sendNotification({
-          receiverId: userId,
-          content: "started following you",
-          senderId: req.user.id,
-        }, io, userSocketMap);
+        await sendNotification(
+          {
+            receiverId: userId,
+            content: "started following you",
+            senderId: req.user.id,
+          },
+          io,
+          userSocketMap
+        );
       }
-      return res.status(201).json(new ApiResponse(201, follower, "User followed"));
+      return res
+        .status(201)
+        .json(new ApiResponse(201, follower, "User followed"));
     }
   } catch (err) {
     console.error(err);

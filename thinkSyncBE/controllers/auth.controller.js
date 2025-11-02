@@ -2,6 +2,8 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
 import { prisma } from "../config/db.js";
+import { sendNotification } from "../utils/notification.js";
+import { sendMailToUser } from "../utils/SendEmail.js";
 
 const signup = async (req, res) => {
   const { username, email, password } = req.body;
@@ -41,7 +43,7 @@ const forgotPassword = async (req, res) => {
       data: {
         userId: user.id,
         token: hashedToken,
-        expiresAt: new Date(Date.now() + 1000 * 60 * 15), // 15 minutes
+        expiresAt: new Date(Date.now() + 1000 * 60 * 15),
       },
     });
 
@@ -59,48 +61,34 @@ const forgotPassword = async (req, res) => {
       },
     });
 
-
     //i will implement kafka queue here to stop sending mails directly from here
     //doing this here also put more pressure on the server
-    await transporter.sendMail({
-      from: process.env.EMAIL,
+    await sendMailToUser({
       to: user.email,
-      sender: "ThinkSync",
-
-      subject: "Password Reset Request from thinkSync",
-      html: `<body style="font-family: Arial, sans-serif; background-color: #f4f7fa; padding: 40px; color: #333;">
-  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden;">
-    <tr>
-      <td style="background: #4f46e5; padding: 20px; text-align: center; color: #fff; font-size: 24px; font-weight: bold;">
-        ThinkSync
-      </td>
-    </tr>
-    <tr>
-      <td style="padding: 30px;">
-        <h2 style="margin: 0 0 15px; color: #111;">Password Reset Request</h2>
-        <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-          Hey there 👋,<br><br>
-          We received a request to reset your ThinkSync account password. If this was you, simply click the button below to set a new one.
-        </p>
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${resetURL}" style="background: #4f46e5; color: #fff; text-decoration: none; font-weight: bold; padding: 14px 28px; border-radius: 8px; display: inline-block;">
-            Reset My Password
-          </a>
-        </div>
-        <p style="font-size: 14px; line-height: 1.6; color: #666;">
-          ⚠️ For your security, this link will expire in <strong>15 minutes</strong>.<br>
-          If you didn't request a reset, you can safely ignore this email—your password will remain unchanged.
-        </p>
-      </td>
-    </tr>
-    <tr>
-      <td style="background: #f4f7fa; text-align: center; padding: 15px; font-size: 12px; color: #999;">
-        © ${new Date().getFullYear()} ThinkSync. All rights reserved.
-      </td>
-    </tr>
-  </table>
-</body>
-`,
+      subject: "Password Reset Request from ThinkSync",
+      html: `  <div style="font-family: Arial, sans-serif; background-color: #f9fafb; padding: 24px; text-align: center;">
+    <div style="max-width: 420px; margin: auto; background: #fff; border-radius: 8px; padding: 24px; border: 1px solid #e5e7eb;">
+      <img 
+        src="https://res.cloudinary.com/dbwt5yere/image/upload/v1761888346/thinksync_rvcgpp.jpg" 
+        alt="ThinkSync Logo" 
+        style="width: 120px; margin-bottom: 16px;"
+      />
+      <h2 style="color: #111827; margin-bottom: 12px;">Reset Your Password</h2>
+      <p style="color: #374151; font-size: 14px; margin-bottom: 24px;">
+        Click the button below to set a new password. This link expires in 15 minutes.
+      </p>
+      <a href="${resetURL}" 
+         style="background: #4f46e5; color: white; text-decoration: none; padding: 10px 20px; border-radius: 6px; font-size: 14px; display: inline-block;">
+         Reset Password
+      </a>
+      <p style="color: #9ca3af; font-size: 12px; margin-top: 24px;">
+        If you didn't request this, you can safely ignore this email.
+      </p>
+    </div>
+    <p style="color: #9ca3af; font-size: 11px; margin-top: 16px;">
+      © ${new Date().getFullYear()} ThinkSync
+    </p>
+  </div>`,
     });
 
     res.status(200).json({
@@ -123,7 +111,7 @@ const resetPassword = async (req, res) => {
       where: {
         userId: id,
         token: hashedToken,
-        expiresAt: { gt: new Date() }, 
+        expiresAt: { gt: new Date() },
         used: false,
       },
     });
@@ -133,10 +121,29 @@ const resetPassword = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    await prisma.user.update({
-      where: { id },
-      data: { password: hashedPassword },
-    });
+    await prisma.user
+      .update({
+        where: { id },
+        data: { password: hashedPassword },
+      })
+      .then(() => {
+        sendNotification(
+          {
+            receiverId: id,
+            content:
+              "Your password has changed recently . If this wasn't you, please secure your account.",
+            senderId: null,
+            postId: null,
+          },
+          req.app.get("io"),
+          req.app.get("userSocketMap")
+        );
+      })
+      .then(async () => {
+        await prisma.passwordResetToken.delete({
+          where: { id: resetRecord.id },
+        });
+      });
 
     await prisma.passwordResetToken.update({
       where: { id: resetRecord.id },

@@ -63,7 +63,7 @@ const Settings = () => {
       formDataObj.append(type, file);
 
       const res = await axios.patch(
-        "http://localhost:3000/user/update-images",
+        "http://localhost:3000/api/v1/user/update-images",
         formDataObj,
         {
           withCredentials: true,
@@ -112,7 +112,7 @@ const Settings = () => {
       setLoading(true);
 
       const res = await axios.patch(
-        "http://localhost:3000/user/update",
+        "http://localhost:3000/api/v1/user/update",
         changes,
         { withCredentials: true }
       );

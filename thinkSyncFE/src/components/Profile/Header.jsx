@@ -5,7 +5,7 @@ const ProfileHeader = ({ user, isOwnProfile, isFollowing, onFollow }) => (
   <div className="bg-white/80 dark:bg-gray-800/90 backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden mb-6 sm:mb-8 shadow-xl sm:shadow-2xl shadow-blue-500/5 dark:shadow-blue-400/5 relative">
     <div className="relative h-32 sm:h-48 md:h-56 overflow-hidden">
       <img
-        src={user.details.coverImage || "https://via.placeholder.com/800x200"}
+        src={user.details.coverImage || "https://placehold.co/800x200"}
         alt="Cover"
         className="w-full h-full object-cover object-center"
       />
@@ -24,7 +24,9 @@ const ProfileHeader = ({ user, isOwnProfile, isFollowing, onFollow }) => (
         {/* Avatar */}
         <div className="relative self-center sm:self-auto">
           <img
-            src={user.details.avatar || "https://via.placeholder.com/150"}
+            src={`http://localhost:3000/proxy?url=${encodeURIComponent(
+              user.details.avatar
+            )}`}
             alt="Profile"
             className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-2xl sm:rounded-3xl border-3 sm:border-4 border-white dark:border-gray-800 shadow-xl sm:shadow-2xl transition-transform duration-500 hover:scale-105"
           />

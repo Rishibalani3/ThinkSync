@@ -8,6 +8,7 @@ import api from "../../utils/axios";
 import NotFound from "../UtilComponents/NotFound";
 import useLike from "../../hooks/useLike";
 import useBookmark from "../../hooks/useBookmark";
+import { showToast } from "../../utils/toast";
 
 const Profile = () => {
   const { username } = useParams();
@@ -74,14 +75,41 @@ const Profile = () => {
   const { profileUser, posts, isOwnProfile, isFollowing } = profileData;
 
   const handleFollow = async () => {
+    const prevFollowing = isFollowing;
+    
+    // Optimistic update
+    setProfileData((prev) => ({
+      ...prev,
+      isFollowing: !prev.isFollowing,
+    }));
+
     try {
-      await api.post(`/follower/follow/${profileUser.id}`);
+      const res = await api.post(`/follower/follow/${profileUser.id}`);
+      const message = res?.data?.message || "";
+      // Backend returns "User followed" (201) or "User unfollowed" (200)
+      const isNowFollowing = message.toLowerCase().includes("user followed") || 
+                            (res.status === 201 && message.toLowerCase().includes("followed"));
+      
+      // Update based on server response
       setProfileData((prev) => ({
         ...prev,
-        isFollowing: !prev.isFollowing,
+        isFollowing: isNowFollowing,
       }));
+      
+      // Show toast
+      if (isNowFollowing) {
+        showToast.success(`Now following ${profileUser.displayName || profileUser.username}!`);
+      } else {
+        showToast.info(`Unfollowed ${profileUser.displayName || profileUser.username}`);
+      }
     } catch (error) {
       console.error("Error toggling follow:", error);
+      showToast.error("Failed to update follow status");
+      // Rollback on error
+      setProfileData((prev) => ({
+        ...prev,
+        isFollowing: prevFollowing,
+      }));
     }
   };
 
@@ -101,6 +129,11 @@ const Profile = () => {
   };
 
   const handleLike = async (postId) => {
+    // Optimistic update
+    const prevPost = posts.find(p => p.id === postId);
+    const prevLiked = prevPost?.isLiked || false;
+    const prevLikesCount = prevPost?.likesCount || 0;
+    
     setProfileData((prev) => {
       const updatedPosts = prev.posts.map((post) =>
         post.id === postId
@@ -117,23 +150,43 @@ const Profile = () => {
 
     const result = await toggleLike(postId);
     if (result?.error) {
+      // Rollback on error
       setProfileData((prev) => {
         const reverted = prev.posts.map((post) =>
           post.id === postId
             ? {
                 ...post,
-                likesCount: (post.likesCount || 0) + (post.isLiked ? -1 : 1),
-                isLiked: !post.isLiked,
+                likesCount: prevLikesCount,
+                isLiked: prevLiked,
               }
             : post
         );
         updatePostTypes(reverted);
         return { ...prev, posts: reverted };
       });
+    } else if (result?.data) {
+      // Update with server response
+      setProfileData((prev) => {
+        const updatedPosts = prev.posts.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                likesCount: result.data?.likesCount ?? post.likesCount,
+                isLiked: result.action === "like",
+              }
+            : post
+        );
+        updatePostTypes(updatedPosts);
+        return { ...prev, posts: updatedPosts };
+      });
     }
   };
 
   const handleBookmark = async (postId) => {
+    // Optimistic update
+    const prevPost = posts.find(p => p.id === postId);
+    const prevBookmarked = prevPost?.isBookmarked || false;
+    
     setProfileData((prev) => {
       const updatedPosts = prev.posts.map((post) =>
         post.id === postId
@@ -144,7 +197,19 @@ const Profile = () => {
       return { ...prev, posts: updatedPosts };
     });
 
-    await toggleBookmark(postId);
+    const result = await toggleBookmark(postId);
+    if (result?.error) {
+      // Rollback on error
+      setProfileData((prev) => {
+        const reverted = prev.posts.map((post) =>
+          post.id === postId
+            ? { ...post, isBookmarked: prevBookmarked }
+            : post
+        );
+        updatePostTypes(reverted);
+        return { ...prev, posts: reverted };
+      });
+    }
   };
 
   const renderPosts = (list) =>

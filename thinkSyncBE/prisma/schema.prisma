@@ -55,13 +55,19 @@ model UserDetails {
   twitter             String?
   location            String?
   website             String?
-  role                String?
+  role                String?   @default("user") // "user", "admin", "moderator"
   dateOfBirth         DateTime?
   themePreference     String?   @default("dark")
   MessageNotification Boolean?  @default(true)
   Mailnotification    Boolean?  @default(true)
   userId              String    @unique
   user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isSuspended         Boolean?  @default(false)
+  suspendedUntil      DateTime?
+  suspensionReason    String?
+  isBanned            Boolean?  @default(false)
+  banReason           String?
+  warningCount        Int?      @default(0)
 }
 
 model Message {
@@ -84,7 +90,6 @@ model Follows {
   followingId String
 
   createdAt DateTime @default(now())
-
   @@unique([followerId, followingId])
 }
 
@@ -95,7 +100,7 @@ model Topic {
   posts          PostTopic[]
   TrendingTopics TrendingTopics[]
 }
-
+ 
 model UserTopic {
   id      String @id @default(uuid())
   user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -245,7 +250,10 @@ model Contentreport {
   reporter       User?    @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
   reporterId     String
   createdAt      DateTime @default(now())
-  status         String   @default("pending")
+  status         String   @default("pending") // "pending", "resolved", "dismissed", "warned", "suspended", "banned"
+  resolvedAt     DateTime?
+  resolvedBy     String?
+  resolutionNote String?
 }
 
 model UserActivity {
@@ -291,4 +299,39 @@ model user_sessions {
   expire DateTime @db.Timestamp(6)
 
   @@index([expire], map: "IDX_user_sessions_expire")
+}
+
+model Announcement {
+  id          String   @id @default(uuid())
+  title       String
+  content     String
+  type        String   @default("info") // "info", "warning", "maintenance", "feature"
+  isActive    Boolean  @default(true)
+  priority    Int      @default(0) // Higher = more prominent
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String   // Admin user ID
+}
+
+model CommunityGuideline {
+  id          String   @id @default(uuid())
+  title       String
+  content     String
+  category    String   // "content", "behavior", "privacy", "safety"
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  updatedBy   String   // Admin user ID
+}
+
+model StaticContent {
+  id          String   @id @default(uuid())
+  key         String   @unique // "about", "privacy_policy", "terms", etc.
+  title       String?
+  content     String
+  type        String   @default("text") // "text", "html", "markdown"
+  metadata    Json?    // Additional structured data
+  updatedAt   DateTime @updatedAt
+  updatedBy   String   // Admin user ID
 }

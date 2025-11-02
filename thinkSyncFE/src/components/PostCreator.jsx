@@ -15,6 +15,7 @@ import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
+import api from "../utils/axios";
 
 const PostCreator = ({ onNewPost }) => {
   const [state, setState] = useState({
@@ -154,16 +155,12 @@ const PostCreator = ({ onNewPost }) => {
       formData.append("mentions", JSON.stringify(state.mentions));
       formData.append("hashtags", JSON.stringify(state.hashtags));
 
-      const res = await axios.post(
-        "http://localhost:3000/posts/create",
-        formData,
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const res = await api.post("/posts/create", formData, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       if (res.status === 201) {
         toast.success("Post Created Successfully!");
