@@ -20,11 +20,13 @@ This Python service provides AI-powered recommendations for the ThinkSync platfo
 ### Installation
 
 1. Navigate to the `thinkSyncAI` directory:
+
 ```bash
 cd thinkSyncAI
 ```
 
 2. Create a virtual environment (recommended):
+
 ```bash
 python -m venv venv
 
@@ -36,11 +38,13 @@ source venv/bin/activate
 ```
 
 3. Install dependencies:
+
 ```bash
 pip install -r requirements.txt
 ```
 
 4. Set up environment variables:
+
 ```bash
 # Copy the example file
 cp .env.example .env
@@ -52,6 +56,7 @@ FLASK_DEBUG=True
 ```
 
 5. Run the service:
+
 ```bash
 python app.py
 ```
@@ -61,47 +66,56 @@ The service will start on `http://localhost:5001`
 ## API Endpoints
 
 ### Health Check
+
 - **GET** `/health` - Check if the service is running
 
 ### Topic Recommendations
+
 - **POST** `/api/recommend/topics`
   - Body: `{ "userId": "user-id", "limit": 10 }`
   - Returns: Recommended topics with scores
 
 ### User Recommendations
+
 - **POST** `/api/recommend/users`
   - Body: `{ "userId": "user-id", "limit": 10 }`
   - Returns: Recommended users to follow
 
 ### Trending Topics
+
 - **GET** `/api/trending/topics?limit=20&timeWindow=168`
   - Returns: Trending topics with ML scores
 
 ### Trending Posts
+
 - **GET** `/api/trending/posts?limit=20&timeWindow=72`
   - Returns: Trending posts with ML scores
 
 ## How It Works
 
 ### Topic Recommendations
+
 - Analyzes user's current topic interests
 - Examines user activity (views, likes, bookmarks, comments)
 - Uses content-based filtering with similarity scoring
 - Recommends topics with high relevance scores
 
 ### User Recommendations
+
 - Uses collaborative filtering (Jaccard similarity)
 - Compares user topic interests
 - Finds users with similar interests
 - Scores based on common topics
 
 ### Trending Topics
+
 - Considers engagement metrics (likes, comments, views)
 - Calculates velocity (growth rate)
 - Uses logarithmic scaling to prevent domination
 - Combines engagement (60%) and velocity (40%)
 
 ### Trending Posts
+
 - Analyzes engagement metrics
 - Applies time decay (newer posts get higher scores)
 - Calculates velocity (engagement per hour)
@@ -118,9 +132,11 @@ AI_SERVICE_URL=http://localhost:5001
 ## Development
 
 ### Running in Development Mode
+
 Set `FLASK_DEBUG=True` in your `.env` file for automatic reloading on code changes.
 
 ### Testing
+
 You can test the endpoints using curl or Postman:
 
 ```bash
@@ -144,9 +160,8 @@ curl -X POST http://localhost:5001/api/recommend/topics \
 
 ## Future Enhancements
 
-- Add caching layer (Redis) for better performance
+- Add caching layer (Redis) for better performance and scalability
 - Implement batch processing for trending calculations
 - Add more sophisticated ML models (neural networks)
 - Support for real-time recommendation updates
 - A/B testing framework for recommendation algorithms
-

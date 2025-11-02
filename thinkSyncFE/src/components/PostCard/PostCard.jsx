@@ -135,7 +135,6 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
             {post.mentions?.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-1">
                 {post.mentions.map((m, idx) => (
-                  
                   <Link
                     key={idx}
                     to={`/profile/${m.user.username}`}

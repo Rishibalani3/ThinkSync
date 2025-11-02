@@ -7,12 +7,7 @@ import PostCard from "./PostCard/PostCard";
 import { useAuth } from "../contexts/AuthContext";
 import useLike from "../hooks/useLike";
 import useBookmark from "../hooks/useBookmark";
-import {
-  cardVariants,
-  staggerContainer,
-  pageVariants,
-} from "../utils/animations";
-import useViewTracker from "../hooks/useViewTracker";
+import { staggerContainer, pageVariants } from "../utils/animations";
 import PostTrackerWrapper from "./PostCard/PostTrackerWrapper";
 
 const Home = () => {
@@ -23,7 +18,7 @@ const Home = () => {
 
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
-  const [limit] = useState(12); // Reduced to 12 posts per page for better performance
+  const [limit] = useState(10); // Reduced to 10 posts per page for better performance
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
 
@@ -152,6 +147,7 @@ const Home = () => {
         initial="initial"
         animate="animate"
       >
+        {console.log(posts)}
         {memoizedPosts.map((post) => (
           <PostTrackerWrapper
             key={post.id}

@@ -14,6 +14,7 @@ import PostCard from "./PostCard/PostCard";
 import { useAuth } from "../contexts/AuthContext";
 import useAIRecommendations from "../hooks/useAIRecommendations";
 import useTopics from "../hooks/useTopics";
+import PostTrackerWrapper from "./PostCard/PostTrackerWrapper";
 
 const Explore = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -52,8 +53,8 @@ const Explore = () => {
 
       setLoading(true);
       try {
-        let posts = await getAITrendingPosts(20);
-        
+        let posts = await getAITrendingPosts(10);
+
         if (!posts || posts.length === 0) {
           posts = await getTrendingPosts();
         }
@@ -70,6 +71,7 @@ const Explore = () => {
     fetchPosts();
   }, [activeFilter, getAITrendingPosts, getTrendingPosts]);
 
+  console.log("Trending Posts:", trendingPosts);
   const handleBookmark = (postId) => {
     if (!isAuthenticated) {
       alert("Please log in first to bookmark a post.");
@@ -178,7 +180,7 @@ const Explore = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1, duration: 0.5 }}
                     >
-                      <PostCard
+                      <PostTrackerWrapper
                         post={post}
                         onBookmark={() => handleBookmark(post.id)}
                         onClick={() => handlePostClick(post.id)}

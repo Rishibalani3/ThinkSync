@@ -7,10 +7,13 @@ const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "http://localhost:5001";
  */
 export const getTopicRecommendations = async (userId, limit = 10) => {
   try {
-    const response = await axios.post(`${AI_SERVICE_URL}/api/recommend/topics`, {
-      userId,
-      limit,
-    });
+    const response = await axios.post(
+      `${AI_SERVICE_URL}/api/recommend/topics`,
+      {
+        userId,
+        limit,
+      }
+    );
     return response.data.recommendations || [];
   } catch (error) {
     console.error("AI Topic Recommendations Error:", error.message);
@@ -43,6 +46,7 @@ export const getTrendingTopics = async (limit = 20, timeWindow = 168) => {
     const response = await axios.get(`${AI_SERVICE_URL}/api/trending/topics`, {
       params: { limit, timeWindow },
     });
+
     return response.data.trending_topics || [];
   } catch (error) {
     console.error("AI Trending Topics Error:", error.message);
@@ -76,4 +80,3 @@ export const checkAIServiceHealth = async () => {
     return false;
   }
 };
-
