@@ -356,7 +356,7 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden p-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-all duration-300"
+                className="lg:hidden p-2.5 text-center rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-all duration-300"
               >
                 <motion.div
                   animate={{ rotate: isMobileMenuOpen ? 180 : 0 }}
@@ -382,9 +382,9 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -20 }}
             transition={{ duration: 0.2 }}
-            className="lg:hidden fixed top-24 left-1/2 transform -translate-x-1/2 w-[95%] max-w-md z-40"
+            className="lg:hidden fixed top-24 left-1/2 px-4 w-full max-w-md"
           >
-            <div className="backdrop-blur-xl bg-white/90 dark:bg-gray-900/90 border border-gray-200/50 dark:border-gray-700/50 rounded-2xl shadow-2xl p-4">
+            <div className="backdrop-blur-xl w-full bg-white/90 dark:bg-gray-900/90 border border-gray-200/50 dark:border-gray-700/50 rounded-2xl shadow-2xl p-8">
               <div className="space-y-1">
                 {navItems.map((item, index) => {
                   const Icon = item.icon;

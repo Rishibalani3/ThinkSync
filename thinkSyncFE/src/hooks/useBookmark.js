@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import api from "../utils/axios";
+import { showToast } from "../utils/toast";
 
 export default function useBookmark() {
   const navigate = useNavigate();
@@ -8,7 +9,7 @@ export default function useBookmark() {
 
   const toggleBookmark = async (postId) => {
     if (!isAuthenticated) {
-      alert("Please log in first to bookmark a post.");
+      showToast.error("Please log in first to bookmark a post.");
       navigate("/login");
       return { error: "unauthenticated" };
     }
@@ -20,12 +21,21 @@ export default function useBookmark() {
       const action = message.toLowerCase().includes("unbookmarked")
         ? "unbookmark"
         : "bookmark";
-      return { action };
+      
+      // Show toast notification
+      if (action === "bookmark") {
+        showToast.success("Post bookmarked! 🔖");
+      } else {
+        showToast.info("Post removed from bookmarks");
+      }
+      
+      return { action, data: res?.data?.data };
     } catch (err) {
       console.error(
         "Failed to toggle bookmark:",
         err.response?.data || err.message
       );
+      showToast.error("Failed to bookmark post. Please try again.");
       return { error: err };
     }
   };

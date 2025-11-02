@@ -14,7 +14,9 @@ const createComment = async (req, res) => {
 
     // if parentId provided, ensure parent exists and belongs to same post
     if (parentId) {
-      const parent = await prisma.comment.findUnique({ where: { id: parentId } });
+      const parent = await prisma.comment.findUnique({
+        where: { id: parentId },
+      });
       if (!parent || parent.postId !== postId) {
         return res
           .status(400)
@@ -30,21 +32,43 @@ const createComment = async (req, res) => {
         parentId: parentId || null,
       },
       include: {
-        author: { select: { id: true, username: true, displayName: true, details: { select: { avatar: true } } } },
+        author: {
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+            details: { select: { avatar: true } },
+          },
+        },
         likes: true,
       },
     });
 
+    //-----------------------Traking comment activity(For Ai Training) --------------------//
+
+    await prisma.userActivity.create({
+      data: {
+        userId: req.user.id,
+        postId: postId,
+        activityType: "comment",
+      },
+    });
+
+    //----------------------------Sending Notification -----------------//
     // Notify post author (don't notify self)
     const post = await prisma.post.findUnique({ where: { id: postId } });
     if (post && req.user.id !== post.authorId) {
-      await sendNotification({
-        receiverId: post.authorId,
-        content: "commented on your post",
-        senderId: req.user.id,
-        postId,
-        commentId: comment.id
-      }, io, userSocketMap);
+      await sendNotification(
+        {
+          receiverId: post.authorId,
+          content: "commented on your post",
+          senderId: req.user.id,
+          postId,
+          commentId: comment.id,
+        },
+        io,
+        userSocketMap
+      );
     }
 
     const shaped = {
@@ -108,7 +132,14 @@ const getComments = async (req, res) => {
     const comments = await prisma.comment.findMany({
       where: { postId },
       include: {
-        author: { select: { id: true, username: true, displayName: true, details: { select: { avatar: true } } } },
+        author: {
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+            details: { select: { avatar: true } },
+          },
+        },
         likes: userId ? { where: { userId } } : false,
         _count: { select: { likes: true, replies: true } },
       },
@@ -153,8 +184,11 @@ const getComments = async (req, res) => {
 const toggleCommentLike = async (req, res) => {
   const { commentId } = req.params;
   try {
-    const comment = await prisma.comment.findUnique({ where: { id: commentId } });
-    if (!comment) return res.status(404).json(new ApiError(404, "Comment not found"));
+    const comment = await prisma.comment.findUnique({
+      where: { id: commentId },
+    });
+    if (!comment)
+      return res.status(404).json(new ApiError(404, "Comment not found"));
 
     const existing = await prisma.commentLike.findFirst({
       where: { commentId, userId: req.user.id },
@@ -162,22 +196,39 @@ const toggleCommentLike = async (req, res) => {
 
     if (existing) {
       await prisma.commentLike.delete({ where: { id: existing.id } });
-      return res.status(200).json(new ApiResponse(200, null, "Comment unliked"));
+      return res
+        .status(200)
+        .json(new ApiResponse(200, null, "Comment unliked"));
     }
 
     const like = await prisma.commentLike.create({
       data: { commentId, userId: req.user.id },
     });
 
+    //-----------------------Traking comment activity(For Ai Training) --------------------//
+    await prisma.userActivity.create({
+      data: {
+        userId: req.user.id,
+        postId: comment.postId,
+        activityType: "comment_like",
+        metadata: { commentId: commentId },
+      },
+    });
+
+    //----------------------------Sending Notification -----------------//
     // Notify comment author (don't notify self)
     if (req.user.id !== comment.authorId) {
-      await sendNotification({
-        receiverId: comment.authorId,
-        content: "liked your comment",
-        senderId: req.user.id,
-        postId: comment.postId,
-        commentId: commentId
-      }, io, userSocketMap);
+      await sendNotification(
+        {
+          receiverId: comment.authorId,
+          content: "liked your comment",
+          senderId: req.user.id,
+          postId: comment.postId,
+          commentId: commentId,
+        },
+        io,
+        userSocketMap
+      );
     }
     return res.status(201).json(new ApiResponse(201, like, "Comment liked"));
   } catch (error) {

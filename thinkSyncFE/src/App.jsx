@@ -1,8 +1,4 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Home from "./components/Home";
 import Login from "./components/Login";
@@ -24,6 +20,17 @@ import { pageVariants } from "./utils/animations";
 import Topics from "./components/Topics";
 import FloatingChatButton from "./components/Messages/FloatingButton";
 import { NotificationProvider } from "./contexts/NotificationContext";
+import TopicSelector from "./components/UtilComponents/InterestPopUp";
+import { Toaster } from "react-hot-toast";
+import AdminLayout from "./components/Admin/AdminLayout";
+import AdminDashboard from "./components/Admin/Dashboard";
+import AdminReports from "./components/Admin/Reports";
+import AdminUsers from "./components/Admin/Users";
+import AdminAnnouncements from "./components/Admin/Announcements";
+import AdminGuidelines from "./components/Admin/Guidelines";
+import AdminStaticContent from "./components/Admin/StaticContent";
+import AdminAuditLogs from "./components/Admin/AuditLogs";
+import ProtectedAdminRoute from "./utils/ProtectedAdminRoute";
 
 function App() {
   const { isAuthenticated, loading, setIsAuthenticated } = useAuth();
@@ -43,78 +50,174 @@ function App() {
     { path: "/connections", element: <Connections /> },
     { path: "/notifications", element: <Notifications /> },
     { path: "/bookmarks", element: <Bookmarks /> },
-    { path: "/topics/:selectedTopic", element: <Topics /> },
+    { path: "/topic/:selectedTopic", element: <Topics /> },
   ];
 
   return (
     <>
-    <NotificationProvider>
-      <Router>
-        <AnimatePresence mode="wait">
-          <Routes>
-            <Route
-              path="/login"
-              element={
-                <motion.div
-                  variants={pageVariants}
-                  initial="initial"
-                  animate="in"
-                  exit="out"
-                  style={{ willChange: "transform, opacity" }}
-                >
-                  <Login
-                    isAuthenticated={isAuthenticated}
-                    setIsAuthenticated={setIsAuthenticated}
-                  />
-                </motion.div>
-              }
-            />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-
-            <Route element={<MainLayout />}>
-              {publicRoutes.map(({ path, element }) => (
-                <Route
-                  key={path}
-                  path={path}
-                  element={
-                    <motion.div
-                      variants={pageVariants}
-                      initial="initial"
-                      animate="in"
-                      exit="out"
-                      style={{ willChange: "transform, opacity" }}
-                    >
-                      {element}
-                    </motion.div>
-                  }
-                />
-              ))}
-
-              {protectedRoutes.map(({ path, element }) => (
-                <Route
-                  key={path}
-                  path={path}
-                  element={
-                    <ProtectedRoute
+      <NotificationProvider>
+        <Router>
+          <AnimatePresence mode="wait">
+            <Routes>
+              <Route
+                path="/login"
+                element={
+                  <motion.div
+                    variants={pageVariants}
+                    initial="initial"
+                    animate="in"
+                    exit="out"
+                    style={{ willChange: "transform, opacity" }}
+                  >
+                    <Login
                       isAuthenticated={isAuthenticated}
                       setIsAuthenticated={setIsAuthenticated}
-                      redirectTo="/login"
-                    >
-                      {element}
-                    </ProtectedRoute>
-                  }
-                />
-              ))}
+                    />
+                  </motion.div>
+                }
+              />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
 
-              <Route path="/*" element={<NotFound />} />
-            </Route>
-          </Routes>
-        </AnimatePresence>
-      </Router>
+              <Route element={<MainLayout />}>
+                {publicRoutes.map(({ path, element }) => (
+                  <Route
+                    key={path}
+                    path={path}
+                    element={
+                      <motion.div
+                        variants={pageVariants}
+                        initial="initial"
+                        animate="in"
+                        exit="out"
+                        style={{ willChange: "transform, opacity" }}
+                      >
+                        {element}
+                      </motion.div>
+                    }
+                  />
+                ))}
 
-      {isAuthenticated && <FloatingChatButton />}
-    </NotificationProvider>
+                {protectedRoutes.map(({ path, element }) => (
+                  <Route
+                    key={path}
+                    path={path}
+                    element={
+                      <ProtectedRoute
+                        isAuthenticated={isAuthenticated}
+                        setIsAuthenticated={setIsAuthenticated}
+                        redirectTo="/login"
+                      >
+                        {element}
+                      </ProtectedRoute>
+                    }
+                  />
+                ))}
+
+                <Route path="/*" element={<NotFound />} />
+              </Route>
+
+              {/* Admin Routes */}
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminLayout>
+                      <AdminDashboard />
+                    </AdminLayout>
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/reports"
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminLayout>
+                      <AdminReports />
+                    </AdminLayout>
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/users"
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminLayout>
+                      <AdminUsers />
+                    </AdminLayout>
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/announcements"
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminLayout>
+                      <AdminAnnouncements />
+                    </AdminLayout>
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/guidelines"
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminLayout>
+                      <AdminGuidelines />
+                    </AdminLayout>
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/content"
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminLayout>
+                      <AdminStaticContent />
+                    </AdminLayout>
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/audit"
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminLayout>
+                      <AdminAuditLogs />
+                    </AdminLayout>
+                  </ProtectedAdminRoute>
+                }
+              />
+            </Routes>
+          </AnimatePresence>
+        </Router>
+
+        {isAuthenticated && <FloatingChatButton />}
+        <Toaster
+          position="bottom-right"
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: "#363636",
+              color: "#fff",
+            },
+            success: {
+              duration: 3000,
+              iconTheme: {
+                primary: "#10b981",
+                secondary: "#fff",
+              },
+            },
+            error: {
+              duration: 4000,
+              iconTheme: {
+                primary: "#ef4444",
+                secondary: "#fff",
+              },
+            },
+          }}
+        />
+      </NotificationProvider>
     </>
   );
 }
