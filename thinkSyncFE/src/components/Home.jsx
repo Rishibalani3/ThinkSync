@@ -50,12 +50,17 @@ const Home = () => {
 
   // Handle liking a post
   const handleLike = async (postId) => {
+    // Optimistic update
+    const prevPost = posts.find(p => p.id === postId);
+    const prevLiked = prevPost?.isLiked || false;
+    const prevLikesCount = prevPost?.likesCount || 0;
+    
     setPosts((prev) =>
       prev.map((post) =>
         post.id === postId
           ? {
               ...post,
-              likes: (post.likes || 0) + (post.isLiked ? -1 : 1),
+              likesCount: (post.likesCount || 0) + (post.isLiked ? -1 : 1),
               isLiked: !post.isLiked,
             }
           : post
@@ -64,14 +69,27 @@ const Home = () => {
 
     const result = await toggleLike(postId);
     if (result?.error) {
-      // rollback if error
+      // Rollback if error
       setPosts((prev) =>
         prev.map((post) =>
           post.id === postId
             ? {
                 ...post,
-                likes: (post.likes || 0) + (post.isLiked ? -1 : 1),
-                isLiked: !post.isLiked,
+                likesCount: prevLikesCount,
+                isLiked: prevLiked,
+              }
+            : post
+        )
+      );
+    } else if (result?.data) {
+      // Update with server response if available
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                likesCount: result.data?.likesCount ?? post.likesCount,
+                isLiked: result.action === "like",
               }
             : post
         )
@@ -81,6 +99,10 @@ const Home = () => {
 
   // Handle bookmarking a post
   const handleBookmark = async (postId) => {
+    // Optimistic update
+    const prevPost = posts.find(p => p.id === postId);
+    const prevBookmarked = prevPost?.isBookmarked || false;
+    
     setPosts((prev) =>
       prev.map((post) =>
         post.id === postId
@@ -89,10 +111,16 @@ const Home = () => {
       )
     );
 
-    try {
-      await toggleBookmark(postId);
-    } catch (err) {
-      console.error("Error bookmarking post:", err);
+    const result = await toggleBookmark(postId);
+    if (result?.error) {
+      // Rollback if error
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId
+            ? { ...post, isBookmarked: prevBookmarked }
+            : post
+        )
+      );
     }
   };
 

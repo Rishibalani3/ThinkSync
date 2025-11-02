@@ -31,7 +31,7 @@ const SidebarLeft = () => {
       try {
         // Try AI-powered trending topics first, fallback to regular
         let topics = await getAITrendingTopics(5); // Limit to top 5
-        
+
         // If AI returns empty, use regular trending
         if (!topics || topics.length === 0) {
           topics = await getTrendingTopics();
@@ -61,7 +61,7 @@ const SidebarLeft = () => {
       alert("Please log in to access this feature.");
       navigate("/login");
     } else {
-      navigate(`/topics/${selectedTopic}`);
+      navigate(`/topic/${selectedTopic}`);
     }
   };
 

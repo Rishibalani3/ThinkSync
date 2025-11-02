@@ -21,6 +21,16 @@ import Topics from "./components/Topics";
 import FloatingChatButton from "./components/Messages/FloatingButton";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import TopicSelector from "./components/UtilComponents/InterestPopUp";
+import { Toaster } from "react-hot-toast";
+import AdminLayout from "./components/Admin/AdminLayout";
+import AdminDashboard from "./components/Admin/Dashboard";
+import AdminReports from "./components/Admin/Reports";
+import AdminUsers from "./components/Admin/Users";
+import AdminAnnouncements from "./components/Admin/Announcements";
+import AdminGuidelines from "./components/Admin/Guidelines";
+import AdminStaticContent from "./components/Admin/StaticContent";
+import AdminAuditLogs from "./components/Admin/AuditLogs";
+import ProtectedAdminRoute from "./utils/ProtectedAdminRoute";
 
 function App() {
   const { isAuthenticated, loading, setIsAuthenticated } = useAuth();
@@ -40,12 +50,12 @@ function App() {
     { path: "/connections", element: <Connections /> },
     { path: "/notifications", element: <Notifications /> },
     { path: "/bookmarks", element: <Bookmarks /> },
-    { path: "/topics/:selectedTopic", element: <Topics /> },
+    { path: "/topic/:selectedTopic", element: <Topics /> },
   ];
 
   return (
     <>
-      <NotificationProvider>  
+      <NotificationProvider>
         <Router>
           <AnimatePresence mode="wait">
             <Routes>
@@ -106,11 +116,107 @@ function App() {
 
                 <Route path="/*" element={<NotFound />} />
               </Route>
+
+              {/* Admin Routes */}
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminLayout>
+                      <AdminDashboard />
+                    </AdminLayout>
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/reports"
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminLayout>
+                      <AdminReports />
+                    </AdminLayout>
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/users"
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminLayout>
+                      <AdminUsers />
+                    </AdminLayout>
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/announcements"
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminLayout>
+                      <AdminAnnouncements />
+                    </AdminLayout>
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/guidelines"
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminLayout>
+                      <AdminGuidelines />
+                    </AdminLayout>
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/content"
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminLayout>
+                      <AdminStaticContent />
+                    </AdminLayout>
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/audit"
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminLayout>
+                      <AdminAuditLogs />
+                    </AdminLayout>
+                  </ProtectedAdminRoute>
+                }
+              />
             </Routes>
           </AnimatePresence>
         </Router>
 
         {isAuthenticated && <FloatingChatButton />}
+        <Toaster
+          position="bottom-right"
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: "#363636",
+              color: "#fff",
+            },
+            success: {
+              duration: 3000,
+              iconTheme: {
+                primary: "#10b981",
+                secondary: "#fff",
+              },
+            },
+            error: {
+              duration: 4000,
+              iconTheme: {
+                primary: "#ef4444",
+                secondary: "#fff",
+              },
+            },
+          }}
+        />
       </NotificationProvider>
     </>
   );

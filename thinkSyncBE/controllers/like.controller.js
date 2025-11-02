@@ -31,7 +31,7 @@ const likePost = async (req, res) => {
         data: {
           userId: req.user.id,
           postId: postId,
-          activityType: "like",
+          type: "like",
         },
       });
 

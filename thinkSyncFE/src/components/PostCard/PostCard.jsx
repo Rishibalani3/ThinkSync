@@ -32,7 +32,7 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
   useEffect(() => {
     setLocalLiked(post.isLiked);
     setLocalLikesCount(post.likesCount || 0);
-  }, [post.id, post.isLiked, post.likesCount]);
+  }, [post.id]);
 
   useEffect(() => {
     const handleKey = (e) => {
@@ -59,13 +59,22 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
       return;
     }
     const prevLiked = localLiked;
+    const prevLikesCount = localLikesCount;
     const delta = prevLiked ? -1 : 1;
+    
+    // Optimistic update
     setLocalLiked(!prevLiked);
     setLocalLikesCount((c) => (c || 0) + delta);
+    
     const result = await toggleLike(post.id);
     if (result?.error) {
+      // Rollback on error
       setLocalLiked(prevLiked);
-      setLocalLikesCount((c) => (c || 0) - delta);
+      setLocalLikesCount(prevLikesCount);
+    } else if (result?.data) {
+      // Update with server response if available
+      setLocalLikesCount(result.data?.likesCount ?? localLikesCount);
+      setLocalLiked(result.action === "like");
     }
   };
 
