@@ -3,7 +3,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { prisma } from "../config/db.js";
 import { uploadOnCloudinary } from "../utils/Cloudinary.js";
 import { timeAgo } from "../utils/HelperFunction.js";
-import { analyzeContentModeration } from "../services/aiRecommendation.service.js";
+import { scheduleModerationCheck } from "../services/backgroundModeration.service.js";
 
 const createPost = async (req, res) => {
   try {
@@ -11,37 +11,6 @@ const createPost = async (req, res) => {
 
     if (!content || !type) {
       return res.status(400).json(new ApiError(400, "Missing fields"));
-    }
-
-    // AI Content Moderation - Check for inappropriate content
-    const moderationResult = await analyzeContentModeration(content, "post");
-    if (moderationResult) {
-      // Block content if high confidence of inappropriate material
-      if (moderationResult.action === "block") {
-        return res.status(400).json(
-          new ApiError(
-            400,
-            "Content flagged as inappropriate: " + moderationResult.reasons.join(", "),
-            [],
-            {
-              moderation: {
-                flagged: moderationResult.flagged,
-                categories: moderationResult.categories,
-                severity: moderationResult.severity,
-              },
-            }
-          )
-        );
-      }
-      
-      // Log for review if medium confidence
-      if (moderationResult.action === "review") {
-        console.warn("Post flagged for review:", {
-          userId: req.user.id,
-          contentLength: content.length,
-          moderation: moderationResult,
-        });
-      }
     }
 
     // Parse optional JSON fields safely
@@ -64,11 +33,12 @@ const createPost = async (req, res) => {
       }
     }
 
-    // Create post
+    // Create post with default status "okay"
     const post = await prisma.post.create({
       data: {
         content,
         type,
+        status: "okay",
         authorId: req.user.id,
         media: { create: mediaData },
         links: {
@@ -105,6 +75,9 @@ const createPost = async (req, res) => {
         });
       }
     }
+
+    // Schedule AI moderation check for 1 minute later
+    scheduleModerationCheck(post.id, "post", 60000);
 
     const fullPost = await prisma.post.findUnique({
       where: { id: post.id },

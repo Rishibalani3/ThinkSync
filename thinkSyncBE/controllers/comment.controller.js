@@ -3,7 +3,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { prisma } from "../config/db.js";
 import { sendNotification } from "../utils/notification.js";
 import { io, userSocketMap } from "../app.js";
-import { analyzeContentModeration } from "../services/aiRecommendation.service.js";
+import { scheduleModerationCheck } from "../services/backgroundModeration.service.js";
 
 const createComment = async (req, res) => {
   const { content, postId, parentId } = req.body;
@@ -11,37 +11,6 @@ const createComment = async (req, res) => {
   try {
     if (!content || !postId) {
       return res.status(400).json(new ApiError(400, "Missing fields"));
-    }
-
-    // AI Content Moderation - Check for inappropriate content
-    const moderationResult = await analyzeContentModeration(content, "comment");
-    if (moderationResult) {
-      // Block content if high confidence of inappropriate material
-      if (moderationResult.action === "block") {
-        return res.status(400).json(
-          new ApiError(
-            400,
-            "Comment flagged as inappropriate: " + moderationResult.reasons.join(", "),
-            [],
-            {
-              moderation: {
-                flagged: moderationResult.flagged,
-                categories: moderationResult.categories,
-                severity: moderationResult.severity,
-              },
-            }
-          )
-        );
-      }
-      
-      // Log for review if medium confidence
-      if (moderationResult.action === "review") {
-        console.warn("Comment flagged for review:", {
-          userId: req.user.id,
-          contentLength: content.length,
-          moderation: moderationResult,
-        });
-      }
     }
 
     // if parentId provided, ensure parent exists and belongs to same post
@@ -59,6 +28,7 @@ const createComment = async (req, res) => {
     const comment = await prisma.comment.create({
       data: {
         content,
+        status: "okay",
         authorId: req.user.id,
         postId,
         parentId: parentId || null,
@@ -102,6 +72,9 @@ const createComment = async (req, res) => {
         userSocketMap
       );
     }
+
+    // Schedule AI moderation check for 1 minute later
+    scheduleModerationCheck(comment.id, "comment", 60000);
 
     const shaped = {
       id: comment.id,
