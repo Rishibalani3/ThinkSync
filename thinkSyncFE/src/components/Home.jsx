@@ -9,6 +9,7 @@ import useLike from "../hooks/useLike";
 import useBookmark from "../hooks/useBookmark";
 import { staggerContainer, pageVariants } from "../utils/animations";
 import PostTrackerWrapper from "./PostCard/PostTrackerWrapper";
+import io from "socket.io-client";
 
 const Home = () => {
   const { user, isAuthenticated } = useAuth();
@@ -48,13 +49,52 @@ const Home = () => {
     fetchPosts(1);
   }, []);
 
+  // Socket.IO real-time updates
+  useEffect(() => {
+    const socket = io("http://localhost:3000", { withCredentials: true });
+
+    // Listen for new posts
+    socket.on("newPost", (newPost) => {
+      // Transform the post to match our format
+      const transformedPost = {
+        ...newPost,
+        author: newPost.author || {
+          displayName: newPost.author?.displayName || "User",
+          username: newPost.author?.username || "@user",
+          avatar: newPost.author?.details?.avatar,
+        },
+        isLiked: false,
+        isBookmarked: false,
+        likesCount: 0,
+        commentsCount: 0,
+      };
+      
+      setPosts((prev) => {
+        // Avoid duplicates
+        if (prev.some((p) => p.id === transformedPost.id)) {
+          return prev;
+        }
+        return [transformedPost, ...prev];
+      });
+    });
+
+    // Listen for flagged posts to remove them
+    socket.on("postFlagged", ({ postId }) => {
+      setPosts((prev) => prev.filter((post) => post.id !== postId));
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
   // Handle liking a post
   const handleLike = async (postId) => {
     // Optimistic update
-    const prevPost = posts.find(p => p.id === postId);
+    const prevPost = posts.find((p) => p.id === postId);
     const prevLiked = prevPost?.isLiked || false;
     const prevLikesCount = prevPost?.likesCount || 0;
-    
+
     setPosts((prev) =>
       prev.map((post) =>
         post.id === postId
@@ -100,9 +140,9 @@ const Home = () => {
   // Handle bookmarking a post
   const handleBookmark = async (postId) => {
     // Optimistic update
-    const prevPost = posts.find(p => p.id === postId);
+    const prevPost = posts.find((p) => p.id === postId);
     const prevBookmarked = prevPost?.isBookmarked || false;
-    
+
     setPosts((prev) =>
       prev.map((post) =>
         post.id === postId
@@ -116,40 +156,21 @@ const Home = () => {
       // Rollback if error
       setPosts((prev) =>
         prev.map((post) =>
-          post.id === postId
-            ? { ...post, isBookmarked: prevBookmarked }
-            : post
+          post.id === postId ? { ...post, isBookmarked: prevBookmarked } : post
         )
       );
     }
   };
 
-  // Handle creating a new post
-  const handleNewPost = (newPost) => {
-    if (!isAuthenticated) {
-      alert("Please log in first to create a post.");
-      navigate("/login");
-      return;
-    }
+  // Handle creating a new post - refresh feed after creation
+  const handleNewPost = () => {
+    // Refresh the feed to get the newly created post
+    fetchPosts(1);
+  };
 
-    const post = {
-      id: Date.now(),
-      author: {
-        name: user?.name || "Anonymous",
-        avatar:
-          user?.avatar || "https://placehold.co/40x40/667eea/ffffff?text=JD",
-        username: user?.username || "@anonymous",
-      },
-      content: newPost.content,
-      type: newPost.type,
-      timestamp: "Just now",
-      likes: 0,
-      comments: 0,
-      shares: 0,
-      isLiked: false,
-      isBookmarked: false,
-    };
-    setPosts((prev) => [post, ...prev]);
+  // Handle post deletion
+  const handlePostDelete = (postId) => {
+    setPosts((prev) => prev.filter((post) => post.id !== postId));
   };
 
   // Load more posts
@@ -175,7 +196,6 @@ const Home = () => {
         initial="initial"
         animate="animate"
       >
-        {console.log(posts)}
         {memoizedPosts.map((post) => (
           <PostTrackerWrapper
             key={post.id}
@@ -184,6 +204,7 @@ const Home = () => {
             onBookmark={() => handleBookmark(post.id)}
             onClick={() => !isAuthenticated && navigate("/login")}
             userId={user?.id}
+            extraClass={{ onDelete: handlePostDelete }}
           />
         ))}
       </motion.div>

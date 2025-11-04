@@ -17,9 +17,11 @@ const likePost = async (req, res) => {
         userId: req.user.id,
       },
     });
+    
+    let action;
     if (existingLike) {
       await prisma.like.delete({ where: { id: existingLike.id } });
-      return res.status(200).json({ message: "Post unliked" });
+      action = "unlike";
     } else {
       const newLike = await prisma.like.create({
         data: { postId, userId: req.user.id },
@@ -49,8 +51,18 @@ const likePost = async (req, res) => {
           userSocketMap
         );
       }
-      return res.status(201).json({ message: "Post liked", like: newLike });
+      action = "like";
     }
+    
+    // Get updated likes count
+    const likesCount = await prisma.like.count({
+      where: { postId },
+    });
+    
+    return res.status(action === "like" ? 201 : 200).json({ 
+      message: action === "like" ? "Post liked" : "Post unliked",
+      data: { likesCount, action }
+    });
   } catch (err) {
     console.error("Error toggling like:", err);
     return res.status(500).json({ error: "Something went wrong" });

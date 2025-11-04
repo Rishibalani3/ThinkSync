@@ -5,7 +5,7 @@ import {
   FaLinkedin,
   FaOtter,
 } from "react-icons/fa";
-
+import { Link } from "react-router-dom";
 const Footer = () => {
   const year = new Date().getFullYear();
 
@@ -32,24 +32,30 @@ const Footer = () => {
               Quick Links
             </h3>
             <div className="flex flex-col gap-3 text-sm">
-              <a
-                href="/about"
+              <Link
+                to="/about"
                 className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 hover:translate-x-1 inline-block"
               >
                 → About Us
-              </a>
-              <a
-                href="/contact"
+              </Link>
+              <Link
+                to="/contact"
                 className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 hover:translate-x-1 inline-block"
               >
                 → Contact
-              </a>
-              <a
-                href="/privacy"
+              </Link>
+              <Link
+                to="/privacy"
                 className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 hover:translate-x-1 inline-block"
               >
                 → Privacy Policy
-              </a>
+              </Link>
+              <Link
+                to="/guidelines"
+                className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 hover:translate-x-1 inline-block"
+              >
+                → Guidelines
+              </Link>
             </div>
           </div>
 

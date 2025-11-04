@@ -1,10 +1,18 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { FaBookmark, FaHistory, FaStar } from "react-icons/fa";
+import {
+  FaBookmark,
+  FaHistory,
+  FaStar,
+  FaHeart,
+  FaComment,
+  FaEye,
+} from "react-icons/fa";
 import useTopics from "../hooks/useTopics";
 import useAIRecommendations from "../hooks/useAIRecommendations";
+import api from "../utils/axios";
 
 const SidebarLeft = () => {
   const { isAuthenticated } = useAuth();
@@ -13,16 +21,46 @@ const SidebarLeft = () => {
   const { getAITrendingTopics } = useAIRecommendations();
   const [trendingTopics, setTrendingTopics] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [recentInteractions, setRecentInteractions] = useState([]);
+  const [loadingInteractions, setLoadingInteractions] = useState(true);
 
   const quickActions = [
     {
       label: "Bookmarks",
       icon: FaBookmark,
-
       redirection: "/bookmarks",
     },
-    { label: "Recent", icon: FaHistory },
   ];
+
+  const getInteractionIcon = (type) => {
+    switch (type) {
+      case "like":
+        return FaHeart;
+      case "comment":
+        return FaComment;
+      case "view_post":
+        return FaEye;
+      case "bookmark":
+        return FaBookmark;
+      default:
+        return FaHistory;
+    }
+  };
+
+  const getInteractionLabel = (type) => {
+    switch (type) {
+      case "like":
+        return "Liked";
+      case "comment":
+        return "Commented";
+      case "view_post":
+        return "Viewed";
+      case "bookmark":
+        return "Bookmarked";
+      default:
+        return "Interacted";
+    }
+  };
 
   // Fetch trending topics on component mount
   useEffect(() => {
@@ -55,6 +93,29 @@ const SidebarLeft = () => {
 
     fetchTrendingTopics();
   }, [getAITrendingTopics, getTrendingTopics]);
+
+  // Fetch recent interactions
+  useEffect(() => {
+    const fetchRecentInteractions = async () => {
+      if (!isAuthenticated) {
+        setLoadingInteractions(false);
+        return;
+      }
+
+      setLoadingInteractions(true);
+      try {
+        const res = await api.get("/user/recent-interactions?limit=2");
+        setRecentInteractions(res.data.data || []);
+      } catch (error) {
+        console.error("Error fetching recent interactions:", error);
+        setRecentInteractions([]);
+      } finally {
+        setLoadingInteractions(false);
+      }
+    };
+
+    fetchRecentInteractions();
+  }, [isAuthenticated]);
 
   const handleTopicClick = (selectedTopic) => {
     if (!isAuthenticated) {
@@ -97,6 +158,63 @@ const SidebarLeft = () => {
           })}
         </div>
       </motion.div>
+
+      {/* Recent Interactions */}
+      {isAuthenticated && (
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.15, duration: 0.5 }}
+          className="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700"
+        >
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+            Recent Activity
+          </h3>
+          <div className="space-y-2">
+            {loadingInteractions ? (
+              <div className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+                Loading...
+              </div>
+            ) : recentInteractions.length === 0 ? (
+              <div className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+                No recent activity
+              </div>
+            ) : (
+              recentInteractions.map((interaction) => {
+                const Icon = getInteractionIcon(interaction.type);
+                return (
+                  <Link
+                    key={interaction.id}
+                    to={`/post/${interaction.post.id}`}
+                    className="block"
+                  >
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      className="flex items-start gap-2 p-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                    >
+                      <Icon
+                        className="text-blue-500 mt-1 flex-shrink-0"
+                        size={16}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                          {getInteractionLabel(interaction.type)}
+                        </p>
+                        <p className="text-sm text-gray-900 dark:text-gray-100 truncate">
+                          {interaction.post.content}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {interaction.timestamp}
+                        </p>
+                      </div>
+                    </motion.div>
+                  </Link>
+                );
+              })
+            )}
+          </div>
+        </motion.div>
+      )}
 
       {/* Trending Topics */}
       <motion.div

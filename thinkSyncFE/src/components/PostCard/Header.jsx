@@ -3,6 +3,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FaEllipsisH } from "react-icons/fa";
 import ReportPost from "./ReportPost";
 import { useState } from "react";
+import { useAuth } from "../../contexts/AuthContext";
+import api from "../../utils/axios";
+import { showToast } from "../../utils/toast";
 
 const Header = ({
   post,
@@ -10,16 +13,39 @@ const Header = ({
   setShowOptions,
   getTypeColor,
   optionsRef,
+  onDelete,
 }) => {
+  const { user } = useAuth();
+  const isOwnPost = user?.id === post.author?.id || user?.id === post.authorId;
+  const [showReportModal, setShowReportModal] = useState(false);
+
   const handleCopyLink = () => {
     const postLink = `${window.location.origin}/post/${post.id}`;
     navigator.clipboard.writeText(postLink).then(() => {
-      alert("Post link copied to clipboard!");
+      showToast.success("Post link copied to clipboard!");
       setShowOptions(false);
     });
   };
 
-  const [showReportModal, setShowReportModal] = useState(false);
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete this post?")) {
+      setShowOptions(false);
+      return;
+    }
+
+    try {
+      await api.post(`/posts/delete/${post.id}`);
+      showToast.success("Post deleted successfully");
+      setShowOptions(false);
+      if (typeof onDelete === "function") {
+        onDelete(post.id);
+      }
+    } catch (err) {
+      console.error("Failed to delete post:", err);
+      showToast.error("Failed to delete post. Please try again.");
+      setShowOptions(false);
+    }
+  };
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-1 min-w-0 flex-1">
@@ -80,15 +106,25 @@ const Header = ({
               exit={{ opacity: 0, scale: 0.95, y: -10 }}
               className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg py-2 z-20 min-w-[180px]"
             >
-              <motion.button
-                onClick={() => {
-                  setShowReportModal(true);
-                  setShowOptions(false);
-                }}
-                className="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              >
-                Report post
-              </motion.button>
+              {isOwnPost && (
+                <motion.button
+                  onClick={handleDelete}
+                  className="w-full text-left px-4 py-3 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                >
+                  Delete post
+                </motion.button>
+              )}
+              {!isOwnPost && (
+                <motion.button
+                  onClick={() => {
+                    setShowReportModal(true);
+                    setShowOptions(false);
+                  }}
+                  className="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                >
+                  Report post
+                </motion.button>
+              )}
               <motion.button
                 onClick={handleCopyLink}
                 className="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"

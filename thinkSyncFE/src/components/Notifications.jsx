@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import useNotifications from '../hooks/useNotifications';
 import { useNavigate } from "react-router-dom";
+import api from "../utils/axios";
 import {
   FaBell,
   FaHeart,
@@ -9,11 +10,23 @@ import {
   FaUserCheck,
   FaCheck,
   FaTrash,
+  FaBullhorn,
+  FaInfoCircle,
+  FaExclamationTriangle,
+  FaWrench,
+  FaStar,
+  FaTimes,
 } from "react-icons/fa";
 import { timeAgo } from "../utils/FormatTime";
 
 const Notifications = () => {
   const [activeFilter, setActiveFilter] = useState("all");
+  const [announcements, setAnnouncements] = useState([]);
+  const [dismissedAnnouncements, setDismissedAnnouncements] = useState(() => {
+    // Load from localStorage
+    const saved = localStorage.getItem("dismissedAnnouncements");
+    return saved ? JSON.parse(saved) : [];
+  });
   const navigate = useNavigate();
   const {
     notifications,
@@ -22,6 +35,57 @@ const Notifications = () => {
     markAllAsRead,
     deleteNotification
   } = useNotifications();
+
+  // Fetch announcements
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      try {
+        const res = await api.get("/announcements/active");
+        const active = res.data.data || [];
+        // Filter out dismissed announcements
+        const filtered = active.filter(
+          (ann) => !dismissedAnnouncements.includes(ann.id)
+        );
+        setAnnouncements(filtered);
+      } catch (error) {
+        console.error("Failed to fetch announcements:", error);
+      }
+    };
+    fetchAnnouncements();
+  }, [dismissedAnnouncements]);
+
+  const handleDismissAnnouncement = (announcementId) => {
+    const updated = [...dismissedAnnouncements, announcementId];
+    setDismissedAnnouncements(updated);
+    localStorage.setItem("dismissedAnnouncements", JSON.stringify(updated));
+    setAnnouncements((prev) => prev.filter((a) => a.id !== announcementId));
+  };
+
+  const getAnnouncementIcon = (type) => {
+    switch (type) {
+      case "warning":
+        return <FaExclamationTriangle className="text-yellow-500" />;
+      case "maintenance":
+        return <FaWrench className="text-orange-500" />;
+      case "feature":
+        return <FaStar className="text-purple-500" />;
+      default:
+        return <FaInfoCircle className="text-blue-500" />;
+    }
+  };
+
+  const getAnnouncementColor = (type) => {
+    switch (type) {
+      case "warning":
+        return "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800";
+      case "maintenance":
+        return "bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800";
+      case "feature":
+        return "bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800";
+      default:
+        return "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800";
+    }
+  };
 
   const getNotifType = (notif) => {
     if (notif.content?.includes("like")) return "like";
@@ -72,6 +136,52 @@ const Notifications = () => {
   return (
     <div className="max-w-4xl mx-auto">
       <motion.div initial={{ opacity: 0}} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+        {/* Announcements Section */}
+        {announcements.length > 0 && (
+          <div className="mb-6 space-y-3">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <FaBullhorn className="text-blue-500" />
+              Announcements
+            </h2>
+            {announcements.map((announcement) => (
+              <motion.div
+                key={announcement.id}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`${getAnnouncementColor(announcement.type)} rounded-lg border p-4 relative`}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 mt-1">
+                    {getAnnouncementIcon(announcement.type)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                          {announcement.title}
+                        </h3>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                          {announcement.content}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                          {timeAgo(new Date(announcement.createdAt))}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => handleDismissAnnouncement(announcement.id)}
+                        className="flex-shrink-0 p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition"
+                        title="Dismiss"
+                      >
+                        <FaTimes className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" size={14} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+
         <div className="flex items-center justify-between mb-8">
           
         </div>

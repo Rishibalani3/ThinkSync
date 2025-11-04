@@ -45,11 +45,11 @@ const followUser = async (req, res) => {
       await prisma.userActivity.create({
         data: {
           userId: req.user.id,
-          activityType: "follow",
+          type: "follow",
           metadata: { followedUserId: userId },
         },
       });
-      
+
       //----------------------------Sending Notification -----------------//
       // Send notification to user you followed (not yourself)
       if (req.user.id !== userId) {
@@ -108,4 +108,76 @@ const getFollowing = async (req, res) => {
   }
 };
 
-export { followUser, getFollowers, getFollowing };
+const getUserFollowers = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const followers = await prisma.follows.findMany({
+      where: { followingId: userId },
+      include: {
+        follower: {
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+            details: {
+              select: {
+                avatar: true,
+                bio: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        followers.map((f) => f.follower),
+        "Followers fetched"
+      )
+    );
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(new ApiError(500, error.message));
+  }
+};
+
+const getUserFollowing = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const following = await prisma.follows.findMany({
+      where: { followerId: userId },
+      include: {
+        following: {
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+            details: {
+              select: {
+                avatar: true,
+                bio: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        following.map((f) => f.following),
+        "Following fetched"
+      )
+    );
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(new ApiError(500, error.message));
+  }
+};
+
+export { followUser, getFollowers, getFollowing, getUserFollowers, getUserFollowing };

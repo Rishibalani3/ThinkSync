@@ -294,6 +294,7 @@ export const getAITrendingPosts = async (req, res) => {
             { likes: { some: {} } }, // Has at least one like
             { comments: { some: {} } }, // Has at least one comment
           ],
+          status: { not: "flagged" }, // Filter out flagged posts
           createdAt: {
             gte: new Date(Date.now() - 72 * 60 * 60 * 1000), // Last 72 hours
           },
@@ -371,7 +372,10 @@ export const getAITrendingPosts = async (req, res) => {
     // Fetch full post details
     const postIds = aiTrending.map((p) => p.post_id);
     const posts = await prisma.post.findMany({
-      where: { id: { in: postIds } },
+      where: { 
+        id: { in: postIds },
+        status: { not: "flagged" }, // Filter out flagged posts
+      },
       include: {
         author: {
           select: {

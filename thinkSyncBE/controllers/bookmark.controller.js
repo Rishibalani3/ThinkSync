@@ -32,7 +32,7 @@ const bookmarkPost = async (req, res) => {
         data: {
           userId: req.user.id,
           postId: postId,
-          activityType: "bookmark",
+          type: "bookmark",
         },
       });
 

@@ -5,7 +5,9 @@ import {
   getUserPosts,
   getProfile,
   updateImages,
+  getModerationHistory,
 } from "../controllers/user.controller.js";
+import { getRecentInteractions } from "../controllers/userActivity.controller.js";
 import { ensureAuth } from "../middleware/ensureAuth.middleware.js";
 import { upload } from "../middleware/multer.middleware.js";
 const router = Router();
@@ -25,6 +27,8 @@ router.patch(
   updateImages
 );
 router.get("/me", ensureAuth, me);
+router.get("/recent-interactions", ensureAuth, getRecentInteractions);
+router.get("/moderation-history", ensureAuth, getModerationHistory);
 router.get("/:userId/posts", ensureAuth, getUserPosts);
 router.get("/profile", ensureAuth, getProfile); // Current user's profile
 router.get("/profile/:username", ensureAuth, getProfile); // Other user's profile
