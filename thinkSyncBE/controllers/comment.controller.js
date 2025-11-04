@@ -38,7 +38,7 @@ const createComment = async (req, res) => {
       if (moderationResult.action === "review") {
         console.warn("Comment flagged for review:", {
           userId: req.user.id,
-          content: content.substring(0, 100),
+          contentLength: content.length,
           moderation: moderationResult,
         });
       }

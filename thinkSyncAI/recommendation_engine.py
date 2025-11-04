@@ -1,6 +1,7 @@
 import numpy as np
 from datetime import datetime, timedelta
 import math
+import re
 
 class RecommendationEngine:
     def __init__(self):
@@ -413,14 +414,20 @@ class RecommendationEngine:
             'viagra', 'casino', 'lottery', 'winner', 'prize', 'claim now'
         ]
 
+        # Helper function to check for word boundaries to avoid false positives
+        def contains_word(text, word):
+            """Check if word exists with word boundaries to avoid partial matches"""
+            pattern = r'\b' + re.escape(word) + r'\b'
+            return bool(re.search(pattern, text, re.IGNORECASE))
+
         # Check for profanity
-        profanity_count = sum(1 for word in profanity_keywords if word in content_lower)
+        profanity_count = sum(1 for word in profanity_keywords if contains_word(content_lower, word))
         if profanity_count > 0:
             flags.append('profanity')
             severity_score += profanity_count * 0.3
             reasons.append(f'Contains {profanity_count} profane word(s)')
 
-        # Check for hate speech
+        # Check for hate speech (phrases can use simple substring matching)
         hate_count = sum(1 for phrase in hate_speech_keywords if phrase in content_lower)
         if hate_count > 0:
             flags.append('hate_speech')
@@ -428,13 +435,13 @@ class RecommendationEngine:
             reasons.append(f'Contains {hate_count} hate speech pattern(s)')
 
         # Check for violent content
-        violent_count = sum(1 for word in violent_keywords if word in content_lower)
+        violent_count = sum(1 for word in violent_keywords if contains_word(content_lower, word))
         if violent_count > 2:  # Only flag if multiple violent words
             flags.append('violence')
             severity_score += violent_count * 0.4
             reasons.append(f'Contains {violent_count} violent term(s)')
 
-        # Check for spam
+        # Check for spam (phrases can use simple substring matching)
         spam_count = sum(1 for phrase in spam_patterns if phrase in content_lower)
         if spam_count > 1:  # Require multiple spam indicators
             flags.append('spam')
@@ -450,7 +457,6 @@ class RecommendationEngine:
                 reasons.append('Excessive capitalization detected')
 
         # Check for repetitive characters (spam indicator)
-        import re
         repetitive_pattern = re.findall(r'(.)\1{4,}', content)
         if repetitive_pattern:
             flags.append('repetitive_content')
