@@ -281,7 +281,7 @@ def analyze_content():
 
     except Exception as e:
         print(f"Error in analyze_content: {e}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'An error occurred during content analysis'}), 500
 
 # ---------------------------
 # Start Service
