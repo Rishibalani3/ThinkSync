@@ -50,13 +50,16 @@ I've successfully implemented a comprehensive AI-powered system for ThinkSync wi
 ### 5. **Content Moderation (Censorship)** 🛡️
 - **Location**: `thinkSyncAI/recommendation_engine.py` → `analyze_content_moderation()`
 - **Algorithm**: Multi-pattern detection with confidence scoring
+- **Mode**: **Asynchronous background processing** (1 minute after content creation)
 - **Features**:
   - Detects profanity, hate speech, spam, violence
   - Analyzes excessive caps and repetitive patterns
   - Calculates confidence scores (0.0-1.0)
-  - Three-tier action system: allow, review, block
+  - Content created immediately, moderated in background
+  - Warning system with email and notification alerts
+  - Content archival for high severity violations
 - **API Endpoint**: `POST /api/moderation/analyze`
-- **Integration**: Integrated in post and comment controllers
+- **Integration**: Background service in post and comment creation
 - **Categories Detected**:
   - Profanity (offensive language)
   - Hate Speech (discriminatory content)
@@ -64,10 +67,15 @@ I've successfully implemented a comprehensive AI-powered system for ThinkSync wi
   - Spam (commercial/scam patterns)
   - Excessive Caps (shouting indicators)
   - Repetitive Content (spam patterns)
-- **Action Levels**:
-  - **Block** (confidence ≥0.7): Content rejected
-  - **Review** (confidence ≥0.4): Content allowed but flagged
-  - **Allow** (confidence <0.4): Content accepted
+- **Status Workflow**:
+  - **"okay"** (default): Content created, pending moderation
+  - **"flagged"** (confidence ≥0.4): Warning sent, content visible
+  - **"achieved"** (confidence ≥0.7): Archived for logs
+- **User Impact**:
+  - Warning record created
+  - Notification sent in-app
+  - Email sent (if enabled)
+  - Warning count incremented
 
 ## 📁 File Structure
 
@@ -89,12 +97,17 @@ thinkSyncAI/
 ```
 thinkSyncBE/
 ├── services/
-│   └── aiRecommendation.service.js    # Service layer for AI API calls
+│   ├── aiRecommendation.service.js     # Service layer for AI API calls
+│   └── backgroundModeration.service.js # Background moderation scheduler
 ├── controllers/
-│   └── aiRecommendation.controller.js # Controllers for AI endpoints
+│   ├── aiRecommendation.controller.js  # Controllers for AI endpoints
+│   ├── post.controller.js              # Post creation with moderation scheduling
+│   └── comment.controller.js           # Comment creation with moderation scheduling
 ├── routes/
-│   └── aiRecommendation.routes.js     # Route definitions
-└── app.js                              # Updated with AI routes
+│   └── aiRecommendation.routes.js      # Route definitions
+├── prisma/
+│   └── schema.prisma                    # Updated with status fields and ModerationWarning model
+└── app.js                               # Updated with AI routes
 ```
 
 ### Updated Files
