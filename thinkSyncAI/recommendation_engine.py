@@ -379,7 +379,8 @@ class RecommendationEngine:
                 'confidence': 0.0,
                 'categories': [],
                 'reasons': [],
-                'severity': 'none'
+                'severity': 'none',
+                'action': 'allow'
             }
 
         content_lower = content.lower()
