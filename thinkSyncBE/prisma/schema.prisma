@@ -327,14 +327,3 @@ model CommunityGuideline {
   updatedAt DateTime @updatedAt
   updatedBy String // Admin user ID
 }
-
-model StaticContent {
-  id        String   @id @default(uuid())
-  key       String   @unique // "about", "privacy_policy", "terms", etc.
-  title     String?
-  content   String
-  type      String   @default("text") // "text", "html", "markdown"
-  metadata  Json? // Additional structured data
-  updatedAt DateTime @updatedAt
-  updatedBy String // Admin user ID
-}

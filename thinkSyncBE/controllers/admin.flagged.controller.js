@@ -3,71 +3,74 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { prisma } from "../config/db.js";
 import { timeAgo } from "../utils/HelperFunction.js";
 
-/**
- * Get all flagged content (posts and comments)
- */
-export const getFlaggedContent = async (req, res) => {
+const getFlaggedContent = async (req, res) => {
   try {
     const { type, page = 1, limit = 20 } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
     // Fetch flagged posts
-    const flaggedPosts = type === "comment" ? [] : await prisma.post.findMany({
-      where: {
-        status: "flagged",
-      },
-      include: {
-        author: {
-          select: {
-            id: true,
-            username: true,
-            displayName: true,
-            details: { select: { avatar: true } },
-          },
-        },
-        _count: {
-          select: {
-            likes: true,
-            comments: true,
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-      skip: skip,
-      take: parseInt(limit),
-    });
-
-    // Fetch flagged comments
-    const flaggedComments = type === "post" ? [] : await prisma.comment.findMany({
-      where: {
-        status: "flagged",
-      },
-      include: {
-        author: {
-          select: {
-            id: true,
-            username: true,
-            displayName: true,
-            details: { select: { avatar: true } },
-          },
-        },
-        post: {
-          select: {
-            id: true,
-            content: true,
-            author: {
-              select: {
-                username: true,
-                displayName: true,
+    const flaggedPosts =
+      type === "comment"
+        ? []
+        : await prisma.post.findMany({
+            where: {
+              status: "flagged",
+            },
+            include: {
+              author: {
+                select: {
+                  id: true,
+                  username: true,
+                  displayName: true,
+                  details: { select: { avatar: true } },
+                },
+              },
+              _count: {
+                select: {
+                  likes: true,
+                  comments: true,
+                },
               },
             },
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-      skip: skip,
-      take: parseInt(limit),
-    });
+            orderBy: { createdAt: "desc" },
+            skip: skip,
+            take: parseInt(limit),
+          });
+
+    // Fetch flagged comments
+    const flaggedComments =
+      type === "post"
+        ? []
+        : await prisma.comment.findMany({
+            where: {
+              status: "flagged",
+            },
+            include: {
+              author: {
+                select: {
+                  id: true,
+                  username: true,
+                  displayName: true,
+                  details: { select: { avatar: true } },
+                },
+              },
+              post: {
+                select: {
+                  id: true,
+                  content: true,
+                  author: {
+                    select: {
+                      username: true,
+                      displayName: true,
+                    },
+                  },
+                },
+              },
+            },
+            orderBy: { createdAt: "desc" },
+            skip: skip,
+            take: parseInt(limit),
+          });
 
     // Combine and format
     const flaggedContent = [
@@ -132,15 +135,14 @@ export const getFlaggedContent = async (req, res) => {
   }
 };
 
-/**
- * Unflag content (post or comment)
- */
-export const unflagContent = async (req, res) => {
+const unflagContent = async (req, res) => {
   try {
     const { contentId, contentType } = req.body;
 
     if (!contentId || !contentType) {
-      return res.status(400).json(new ApiError(400, "contentId and contentType are required"));
+      return res
+        .status(400)
+        .json(new ApiError(400, "contentId and contentType are required"));
     }
 
     if (contentType === "post") {
@@ -154,7 +156,11 @@ export const unflagContent = async (req, res) => {
         data: { status: "okay" },
       });
     } else {
-      return res.status(400).json(new ApiError(400, "Invalid contentType. Must be 'post' or 'comment'"));
+      return res
+        .status(400)
+        .json(
+          new ApiError(400, "Invalid contentType. Must be 'post' or 'comment'")
+        );
     }
 
     // Log action
@@ -167,24 +173,23 @@ export const unflagContent = async (req, res) => {
       },
     });
 
-    return res.status(200).json(
-      new ApiResponse(200, {}, `${contentType} unflagged successfully`)
-    );
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, `${contentType} unflagged successfully`));
   } catch (error) {
     console.error("Unflag content error:", error);
     return res.status(500).json(new ApiError(500, error.message));
   }
 };
 
-/**
- * Delete flagged content (post or comment)
- */
-export const deleteFlaggedContent = async (req, res) => {
+const deleteFlaggedContent = async (req, res) => {
   try {
     const { contentId, contentType } = req.body;
 
     if (!contentId || !contentType) {
-      return res.status(400).json(new ApiError(400, "contentId and contentType are required"));
+      return res
+        .status(400)
+        .json(new ApiError(400, "contentId and contentType are required"));
     }
 
     if (contentType === "post") {
@@ -197,7 +202,11 @@ export const deleteFlaggedContent = async (req, res) => {
         where: { id: contentId },
       });
     } else {
-      return res.status(400).json(new ApiError(400, "Invalid contentType. Must be 'post' or 'comment'"));
+      return res
+        .status(400)
+        .json(
+          new ApiError(400, "Invalid contentType. Must be 'post' or 'comment'")
+        );
     }
 
     // Log action
@@ -210,12 +219,13 @@ export const deleteFlaggedContent = async (req, res) => {
       },
     });
 
-    return res.status(200).json(
-      new ApiResponse(200, {}, `${contentType} deleted successfully`)
-    );
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, `${contentType} deleted successfully`));
   } catch (error) {
     console.error("Delete flagged content error:", error);
     return res.status(500).json(new ApiError(500, error.message));
   }
 };
 
+export { getFlaggedContent, unflagContent, deleteFlaggedContent };

@@ -2,10 +2,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { prisma } from "../config/db.js";
 
-/**
- * Get all announcements
- */
-export const getAnnouncements = async (req, res) => {
+const getAnnouncements = async (req, res) => {
   try {
     const { isActive } = req.query;
     const where = {};
@@ -18,24 +15,28 @@ export const getAnnouncements = async (req, res) => {
       orderBy: [{ priority: "desc" }, { createdAt: "desc" }],
     });
 
-    return res.status(200).json(
-      new ApiResponse(200, announcements, "Announcements fetched successfully")
-    );
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          announcements,
+          "Announcements fetched successfully"
+        )
+      );
   } catch (error) {
     console.error("Get announcements error:", error);
     return res.status(500).json(new ApiError(500, error.message));
   }
 };
-
-/**
- * Create announcement
- */
-export const createAnnouncement = async (req, res) => {
+const createAnnouncement = async (req, res) => {
   try {
     const { title, content, type, priority, isActive } = req.body;
 
     if (!title || !content) {
-      return res.status(400).json(new ApiError(400, "Title and content are required"));
+      return res
+        .status(400)
+        .json(new ApiError(400, "Title and content are required"));
     }
 
     const announcement = await prisma.announcement.create({
@@ -59,19 +60,18 @@ export const createAnnouncement = async (req, res) => {
       },
     });
 
-    return res.status(201).json(
-      new ApiResponse(201, announcement, "Announcement created successfully")
-    );
+    return res
+      .status(201)
+      .json(
+        new ApiResponse(201, announcement, "Announcement created successfully")
+      );
   } catch (error) {
     console.error("Create announcement error:", error);
     return res.status(500).json(new ApiError(500, error.message));
   }
 };
 
-/**
- * Update announcement
- */
-export const updateAnnouncement = async (req, res) => {
+const updateAnnouncement = async (req, res) => {
   try {
     const { id } = req.params;
     const { title, content, type, priority, isActive } = req.body;
@@ -96,19 +96,17 @@ export const updateAnnouncement = async (req, res) => {
       },
     });
 
-    return res.status(200).json(
-      new ApiResponse(200, announcement, "Announcement updated successfully")
-    );
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, announcement, "Announcement updated successfully")
+      );
   } catch (error) {
     console.error("Update announcement error:", error);
     return res.status(500).json(new ApiError(500, error.message));
   }
 };
-
-/**
- * Delete announcement
- */
-export const deleteAnnouncement = async (req, res) => {
+const deleteAnnouncement = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -123,12 +121,18 @@ export const deleteAnnouncement = async (req, res) => {
       },
     });
 
-    return res.status(200).json(
-      new ApiResponse(200, {}, "Announcement deleted successfully")
-    );
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "Announcement deleted successfully"));
   } catch (error) {
     console.error("Delete announcement error:", error);
     return res.status(500).json(new ApiError(500, error.message));
   }
 };
 
+export {
+  getAnnouncements,
+  createAnnouncement,
+  updateAnnouncement,
+  deleteAnnouncement,
+};
