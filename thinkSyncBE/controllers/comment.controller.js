@@ -3,6 +3,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { prisma } from "../config/db.js";
 import { sendNotification } from "../utils/notification.js";
 import { io, userSocketMap } from "../app.js";
+import { scheduleModerationCheck } from "../services/backgroundModeration.service.js";
 
 const createComment = async (req, res) => {
   const { content, postId, parentId } = req.body;
@@ -27,6 +28,7 @@ const createComment = async (req, res) => {
     const comment = await prisma.comment.create({
       data: {
         content,
+        status: "okay",
         authorId: req.user.id,
         postId,
         parentId: parentId || null,
@@ -70,6 +72,9 @@ const createComment = async (req, res) => {
         userSocketMap
       );
     }
+
+    // Schedule AI moderation check for 1 minute later
+    scheduleModerationCheck(comment.id, "comment", 60000);
 
     const shaped = {
       id: comment.id,

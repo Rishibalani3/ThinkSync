@@ -42,6 +42,7 @@ model User {
   NotificationsReceived Notifications[] @relation("NotificationReceiver")
   commentLikes          CommentLike[]
   ContentreportReceived Contentreport[] @relation("ReportedUser")
+  moderationWarnings    ModerationWarning[] @relation("UserWarnings")
 }
 
 model UserDetails {
@@ -115,20 +116,22 @@ model Post {
   id        String   @id @default(uuid())
   content   String
   type      String
+  status    String   @default("okay") // "okay", "flagged", "achieved"
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  likes          Like[]
-  topics         PostTopic[]
-  media          Media[]
-  comments       Comment[]
-  mentions       Mention[]
-  links          Link[]
-  Bookmark       Bookmark[]
-  notifications  Notifications[] @relation("NotificationPost")
-  contentReports Contentreport[] @relation("ContentReportPost")
+  likes             Like[]
+  topics            PostTopic[]
+  media             Media[]
+  comments          Comment[]
+  mentions          Mention[]
+  links             Link[]
+  Bookmark          Bookmark[]
+  notifications     Notifications[]     @relation("NotificationPost")
+  contentReports    Contentreport[]     @relation("ContentReportPost")
+  moderationWarnings ModerationWarning[] @relation("PostWarnings")
 }
 
 model Link {
@@ -170,6 +173,7 @@ model Like {
 model Comment {
   id            String          @id @default(uuid())
   content       String
+  status        String          @default("okay") // "okay", "flagged", "achieved"
   author        User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId      String
   post          Post            @relation(fields: [postId], references: [id], onDelete: Cascade)
@@ -181,6 +185,7 @@ model Comment {
   createdAt     DateTime        @default(now())
   notifications Notifications[] @relation("NotificationComment")
   Contentreport Contentreport[] @relation("ContentReportComment")
+  moderationWarnings ModerationWarning[] @relation("CommentWarnings")
 }
 
 model CommentLike {
@@ -334,4 +339,23 @@ model StaticContent {
   metadata    Json?    // Additional structured data
   updatedAt   DateTime @updatedAt
   updatedBy   String   // Admin user ID
+}
+
+model ModerationWarning {
+  id              String   @id @default(uuid())
+  user            User     @relation("UserWarnings", fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  post            Post?    @relation("PostWarnings", fields: [postId], references: [id], onDelete: Cascade)
+  postId          String?
+  comment         Comment? @relation("CommentWarnings", fields: [commentId], references: [id], onDelete: Cascade)
+  commentId       String?
+  contentType     String   // "post" or "comment"
+  reason          String   // Why the content was flagged
+  categories      String[] // Array of flagged categories (e.g., ["profanity", "hate_speech"])
+  confidence      Float    // AI confidence score
+  severity        String   // "low", "medium", "high"
+  archivedContent String   // Copy of the original content for logs
+  emailSent       Boolean  @default(false)
+  notificationSent Boolean @default(false)
+  createdAt       DateTime @default(now())
 }

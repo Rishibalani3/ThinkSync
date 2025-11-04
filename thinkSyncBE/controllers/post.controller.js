@@ -3,6 +3,8 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { prisma } from "../config/db.js";
 import { uploadOnCloudinary } from "../utils/Cloudinary.js";
 import { timeAgo } from "../utils/HelperFunction.js";
+import { scheduleModerationCheck } from "../services/backgroundModeration.service.js";
+
 const createPost = async (req, res) => {
   try {
     const { content, type } = req.body;
@@ -31,11 +33,12 @@ const createPost = async (req, res) => {
       }
     }
 
-    // Create post
+    // Create post with default status "okay"
     const post = await prisma.post.create({
       data: {
         content,
         type,
+        status: "okay",
         authorId: req.user.id,
         media: { create: mediaData },
         links: {
@@ -72,6 +75,9 @@ const createPost = async (req, res) => {
         });
       }
     }
+
+    // Schedule AI moderation check for 1 minute later
+    scheduleModerationCheck(post.id, "post", 60000);
 
     const fullPost = await prisma.post.findUnique({
       where: { id: post.id },
