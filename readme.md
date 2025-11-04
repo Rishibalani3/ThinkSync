@@ -6,6 +6,7 @@
 
 ## 🚀 Overview
 
+- description
 **ThinkSync** is a full-stack AI-driven ecosystem designed for seamless interaction between users, data, and machine intelligence.
 
 It’s composed of three powerful layers:
