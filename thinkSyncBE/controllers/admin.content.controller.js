@@ -2,10 +2,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { prisma } from "../config/db.js";
 
-/**
- * Get all static content or by key
- */
-export const getStaticContent = async (req, res) => {
+const getStaticContent = async (req, res) => {
   try {
     const { key } = req.query;
 
@@ -25,24 +22,25 @@ export const getStaticContent = async (req, res) => {
       orderBy: { updatedAt: "desc" },
     });
 
-    return res.status(200).json(
-      new ApiResponse(200, contents, "Static content fetched successfully")
-    );
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, contents, "Static content fetched successfully")
+      );
   } catch (error) {
     console.error("Get static content error:", error);
     return res.status(500).json(new ApiError(500, error.message));
   }
 };
 
-/**
- * Create or update static content
- */
-export const upsertStaticContent = async (req, res) => {
+const upsertStaticContent = async (req, res) => {
   try {
     const { key, title, content, type, metadata } = req.body;
 
     if (!key || !content) {
-      return res.status(400).json(new ApiError(400, "Key and content are required"));
+      return res
+        .status(400)
+        .json(new ApiError(400, "Key and content are required"));
     }
 
     const staticContent = await prisma.staticContent.upsert({
@@ -74,19 +72,18 @@ export const upsertStaticContent = async (req, res) => {
       },
     });
 
-    return res.status(200).json(
-      new ApiResponse(200, staticContent, "Static content saved successfully")
-    );
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, staticContent, "Static content saved successfully")
+      );
   } catch (error) {
     console.error("Upsert static content error:", error);
     return res.status(500).json(new ApiError(500, error.message));
   }
 };
 
-/**
- * Delete static content
- */
-export const deleteStaticContent = async (req, res) => {
+const deleteStaticContent = async (req, res) => {
   try {
     const { key } = req.params;
 
@@ -101,12 +98,13 @@ export const deleteStaticContent = async (req, res) => {
       },
     });
 
-    return res.status(200).json(
-      new ApiResponse(200, {}, "Static content deleted successfully")
-    );
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "Static content deleted successfully"));
   } catch (error) {
     console.error("Delete static content error:", error);
     return res.status(500).json(new ApiError(500, error.message));
   }
 };
 
+export { getStaticContent, upsertStaticContent, deleteStaticContent };

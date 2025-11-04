@@ -15,8 +15,6 @@ const getDashboardStats = async (req, res) => {
     const last7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const last30Days = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-    // Total counts
-    // Get basic counts
     const [
       totalUsers,
       totalPosts,
@@ -268,7 +266,6 @@ const resolveReport = async (req, res) => {
     let status = "resolved";
     let userAction = null;
 
-    // Determine status and take action on user if needed
     switch (action) {
       case "dismiss":
         status = "dismissed";
@@ -289,7 +286,7 @@ const resolveReport = async (req, res) => {
         status = "suspended";
         if (report.reportedUserId) {
           const suspendUntil = new Date();
-          suspendUntil.setDate(suspendUntil.getDate() + 7); // 7 days suspension
+          suspendUntil.setDate(suspendUntil.getDate() + 7);
           await prisma.userDetails.update({
             where: { userId: report.reportedUserId },
             data: {
@@ -311,7 +308,6 @@ const resolveReport = async (req, res) => {
               banReason: note || "Severe violation of community guidelines",
             },
           });
-          // Delete user's content if needed
           if (report.postId) {
             await prisma.post.delete({ where: { id: report.postId } });
           }
@@ -369,7 +365,6 @@ const resolveReport = async (req, res) => {
         userSocketMap
       );
 
-      // Send email notification
       const user = await prisma.user.findUnique({
         where: { id: report.reportedUserId },
         select: { email: true, displayName: true },
@@ -412,9 +407,6 @@ const resolveReport = async (req, res) => {
   }
 };
 
-/**
- * Get all users with filtering and pagination
- */
 const getUsers = async (req, res) => {
   try {
     const { search, role, status, page = 1, limit = 20 } = req.query;

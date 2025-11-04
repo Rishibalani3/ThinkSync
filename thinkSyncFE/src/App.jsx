@@ -28,9 +28,13 @@ import AdminReports from "./components/Admin/Reports";
 import AdminUsers from "./components/Admin/Users";
 import AdminAnnouncements from "./components/Admin/Announcements";
 import AdminGuidelines from "./components/Admin/Guidelines";
-import AdminStaticContent from "./components/Admin/StaticContent";
+import AdminFlaggedContent from "./components/Admin/FlaggedContent";
 import AdminAuditLogs from "./components/Admin/AuditLogs";
 import ProtectedAdminRoute from "./utils/ProtectedAdminRoute";
+import About from "./components/StaticPages/About";
+import Contact from "./components/StaticPages/Contact";
+import Privacy from "./components/StaticPages/Privacy";
+import Guidelines from "./components/StaticPages/Guidelines";
 
 function App() {
   const { isAuthenticated, loading, setIsAuthenticated } = useAuth();
@@ -78,6 +82,12 @@ function App() {
               />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
+
+              {/* Static Pages */}
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/guidelines" element={<Guidelines />} />
 
               <Route element={<MainLayout />}>
                 {publicRoutes.map(({ path, element }) => (
@@ -169,11 +179,11 @@ function App() {
                 }
               />
               <Route
-                path="/admin/content"
+                path="/admin/flagged"
                 element={
                   <ProtectedAdminRoute>
                     <AdminLayout>
-                      <AdminStaticContent />
+                      <AdminFlaggedContent />
                     </AdminLayout>
                   </ProtectedAdminRoute>
                 }

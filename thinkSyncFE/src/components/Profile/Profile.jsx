@@ -4,6 +4,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import ProfileHeader from "./Header";
 import Tabs from "./ProfileTabs";
 import PostCard from "./PostCard";
+import FollowersModal from "./FollowersModal";
 import api from "../../utils/axios";
 import NotFound from "../UtilComponents/NotFound";
 import useLike from "../../hooks/useLike";
@@ -22,6 +23,10 @@ const Profile = () => {
     questions: [],
     thoughts: [],
   });
+  const [showFollowersModal, setShowFollowersModal] = useState(false);
+  const [showFollowingModal, setShowFollowingModal] = useState(false);
+  const [followersList, setFollowersList] = useState([]);
+  const [followingList, setFollowingList] = useState([]);
 
   const { toggleLike } = useLike();
   const { toggleBookmark } = useBookmark();
@@ -41,9 +46,67 @@ const Profile = () => {
           profileUser = res.data.profileUser;
           posts = res.data.posts || [];
           isFollowing = res.data.isFollowing;
+          const followersCount = res.data.followersCount || 0;
+          const followingCount = res.data.followingCount || 0;
+          
+          // Fetch followers and following lists
+          try {
+            const [followersRes, followingRes] = await Promise.all([
+              api.get(`/follower/${profileUser.id}/followers`),
+              api.get(`/follower/${profileUser.id}/following`),
+            ]);
+            setFollowersList(followersRes.data.data || []);
+            setFollowingList(followingRes.data.data || []);
+          } catch (err) {
+            console.error("Failed to fetch followers/following:", err);
+          }
+          
+          setProfileData({
+            profileUser,
+            posts,
+            isOwnProfile: false,
+            isFollowing,
+            followersCount,
+            followingCount,
+          });
         } else {
           const postsRes = await api.get(`/user/${currentUser.id}/posts`);
           posts = postsRes.data || [];
+          
+          // For own profile, fetch from profile endpoint to get counts
+          try {
+            const profileRes = await api.get(`/user/profile`);
+            profileUser = profileRes.data.profileUser || currentUser;
+            const followersCount = profileRes.data.followersCount || 0;
+            const followingCount = profileRes.data.followingCount || 0;
+            
+            const [followersRes, followingRes] = await Promise.all([
+              api.get(`/follower/${currentUser.id}/followers`),
+              api.get(`/follower/${currentUser.id}/following`),
+            ]);
+            setFollowersList(followersRes.data.data || []);
+            setFollowingList(followingRes.data.data || []);
+            
+            setProfileData({
+              profileUser,
+              posts,
+              isOwnProfile: true,
+              isFollowing: false,
+              followersCount,
+              followingCount,
+            });
+          } catch (err) {
+            console.error("Failed to fetch profile data:", err);
+            profileUser = currentUser;
+            setProfileData({
+              profileUser,
+              posts,
+              isOwnProfile: true,
+              isFollowing: false,
+              followersCount: 0,
+              followingCount: 0,
+            });
+          }
         }
 
         const ideas = posts.filter((p) => p.type === "idea");
@@ -51,13 +114,6 @@ const Profile = () => {
         const thoughts = posts.filter((p) => p.type === "thought");
 
         setPostTypes({ ideas, questions, thoughts });
-
-        setProfileData({
-          profileUser,
-          posts,
-          isOwnProfile: isOwn,
-          isFollowing,
-        });
       } catch (err) {
         console.error("Failed to fetch profile:", err);
         setProfileData(null);
@@ -72,7 +128,7 @@ const Profile = () => {
   if (loading) return <p className="text-center mt-20">Loading profile...</p>;
   if (!profileData) return <NotFound message="User not found 💀" />;
 
-  const { profileUser, posts, isOwnProfile, isFollowing } = profileData;
+  const { profileUser, posts, isOwnProfile, isFollowing, followersCount, followingCount } = profileData;
 
   const handleFollow = async () => {
     const prevFollowing = isFollowing;
@@ -212,6 +268,14 @@ const Profile = () => {
     }
   };
 
+  const handlePostDelete = (postId) => {
+    setProfileData((prev) => ({
+      ...prev,
+      posts: prev.posts.filter((post) => post.id !== postId),
+    }));
+    updatePostTypes(profileData.posts.filter((post) => post.id !== postId));
+  };
+
   const renderPosts = (list) =>
     list.length > 0 ? (
       list.map((post) => (
@@ -220,6 +284,7 @@ const Profile = () => {
           post={post}
           onLike={() => handleLike(post.id)}
           onBookmark={() => handleBookmark(post.id)}
+          onDelete={handlePostDelete}
         />
       ))
     ) : (
@@ -234,6 +299,23 @@ const Profile = () => {
           isOwnProfile={isOwnProfile}
           isFollowing={isFollowing}
           onFollow={handleFollow}
+          followersCount={followersCount}
+          followingCount={followingCount}
+          onShowFollowers={() => setShowFollowersModal(true)}
+          onShowFollowing={() => setShowFollowingModal(true)}
+        />
+
+        <FollowersModal
+          isOpen={showFollowersModal}
+          onClose={() => setShowFollowersModal(false)}
+          users={followersList}
+          title="Followers"
+        />
+        <FollowersModal
+          isOpen={showFollowingModal}
+          onClose={() => setShowFollowingModal(false)}
+          users={followingList}
+          title="Following"
         />
 
         <div className="bg-white/80 dark:bg-gray-800/90 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-xl sm:shadow-2xl shadow-blue-500/5 dark:shadow-blue-400/5 overflow-x-auto mb-6">

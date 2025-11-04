@@ -9,10 +9,7 @@ import {
 import { prisma } from "../config/db.js";
 import { timeAgo } from "../utils/HelperFunction.js";
 
-/**
- * Get recommended topics for the authenticated user
- */
-export const getRecommendedTopics = async (req, res) => {
+const getRecommendedTopics = async (req, res) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
@@ -20,7 +17,7 @@ export const getRecommendedTopics = async (req, res) => {
     }
 
     const limit = parseInt(req.query.limit) || 10;
-    
+
     // Get AI recommendations
     const aiRecommendations = await getTopicRecommendations(userId, limit);
 
@@ -43,19 +40,22 @@ export const getRecommendedTopics = async (req, res) => {
       reason: recommendationsMap[topic.id]?.reason || "Recommended for you",
     }));
 
-    return res.status(200).json(
-      new ApiResponse(200, { recommendations: enrichedTopics }, "Topic recommendations fetched")
-    );
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          { recommendations: enrichedTopics },
+          "Topic recommendations fetched"
+        )
+      );
   } catch (error) {
     console.error("Recommended topics error:", error);
     return res.status(500).json(new ApiError(500, error.message));
   }
 };
 
-/**
- * Get recommended users to follow
- */
-export const getRecommendedUsers = async (req, res) => {
+const getRecommendedUsers = async (req, res) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
@@ -67,9 +67,7 @@ export const getRecommendedUsers = async (req, res) => {
     // Get AI recommendations
     let aiRecommendations = await getUserRecommendations(userId, limit);
 
-    // If no AI recommendations, use fallback: find users with similar topics
     if (!aiRecommendations || aiRecommendations.length === 0) {
-      // Fallback: Find users who follow similar topics
       const userTopics = await prisma.userTopic.findMany({
         where: { userId },
         select: { topicId: true },
@@ -77,10 +75,10 @@ export const getRecommendedUsers = async (req, res) => {
 
       if (userTopics.length > 0) {
         const topicIds = userTopics.map((ut) => ut.topicId);
-        
+
         // Find other users who follow the same topics
         const similarUsers = await prisma.userTopic.groupBy({
-          by: ['userId'],
+          by: ["userId"],
           where: {
             topicId: { in: topicIds },
             userId: { not: userId },
@@ -90,7 +88,7 @@ export const getRecommendedUsers = async (req, res) => {
           },
           orderBy: {
             _count: {
-              userId: 'desc',
+              userId: "desc",
             },
           },
           take: limit,
@@ -108,20 +106,25 @@ export const getRecommendedUsers = async (req, res) => {
           .filter((su) => !followingSet.has(su.userId))
           .map((su) => ({
             user_id: su.userId,
-            score: su._count.userId / topicIds.length, // Normalize score
+            score: su._count.userId / topicIds.length,
             common_topics_count: su._count.userId,
             reason: `${su._count.userId} common interests`,
           }));
       }
     }
 
-    // Fetch full user details from database
     const userIds = aiRecommendations.map((rec) => rec.user_id);
-    
+
     if (userIds.length === 0) {
-      return res.status(200).json(
-        new ApiResponse(200, { recommendations: [] }, "No recommendations available")
-      );
+      return res
+        .status(200)
+        .json(
+          new ApiResponse(
+            200,
+            { recommendations: [] },
+            "No recommendations available"
+          )
+        );
     }
     const users = await prisma.user.findMany({
       where: { id: { in: userIds } },
@@ -144,7 +147,6 @@ export const getRecommendedUsers = async (req, res) => {
       },
     });
 
-    // Check if user is already following these users
     const following = await prisma.follows.findMany({
       where: {
         followerId: userId,
@@ -155,7 +157,6 @@ export const getRecommendedUsers = async (req, res) => {
 
     const followingSet = new Set(following.map((f) => f.followingId));
 
-    // Combine AI scores with user data
     const recommendationsMap = {};
     aiRecommendations.forEach((rec) => {
       recommendationsMap[rec.user_id] = rec;
@@ -167,7 +168,9 @@ export const getRecommendedUsers = async (req, res) => {
       displayName: user.displayName || user.username,
       avatar:
         user.details?.avatar ||
-        `https://placehold.co/40x40/667eea/ffffff?text=${user.username?.[0] || "U"}`,
+        `https://placehold.co/40x40/667eea/ffffff?text=${
+          user.username?.[0] || "U"
+        }`,
       bio: user.details?.bio || "",
       followersCount: user._count.followers || 0,
       followingCount: user._count.following || 0,
@@ -177,19 +180,22 @@ export const getRecommendedUsers = async (req, res) => {
       commonTopicsCount: recommendationsMap[user.id]?.common_topics_count || 0,
     }));
 
-    return res.status(200).json(
-      new ApiResponse(200, { recommendations: enrichedUsers }, "User recommendations fetched")
-    );
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          { recommendations: enrichedUsers },
+          "User recommendations fetched"
+        )
+      );
   } catch (error) {
     console.error("Recommended users error:", error);
     return res.status(500).json(new ApiError(500, error.message));
   }
 };
 
-/**
- * Get trending topics with AI scoring
- */
-export const getAITrendingTopics = async (req, res) => {
+const getAITrendingTopics = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 5; // Default to 5
     const timeWindow = parseInt(req.query.timeWindow) || 168; // 7 days
@@ -265,19 +271,22 @@ export const getAITrendingTopics = async (req, res) => {
     // Sort by score (maintain AI ranking)
     enrichedTopics.sort((a, b) => b.score - a.score);
 
-    return res.status(200).json(
-      new ApiResponse(200, { topics: enrichedTopics }, "Trending topics fetched")
-    );
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          { topics: enrichedTopics },
+          "Trending topics fetched"
+        )
+      );
   } catch (error) {
     console.error("Trending topics error:", error);
     return res.status(500).json(new ApiError(500, error.message));
   }
 };
 
-/**
- * Get trending posts with AI scoring
- */
-export const getAITrendingPosts = async (req, res) => {
+const getAITrendingPosts = async (req, res) => {
   try {
     const userId = req.user?.id || null;
     const limit = parseInt(req.query.limit) || 3; // Default to 3
@@ -294,6 +303,7 @@ export const getAITrendingPosts = async (req, res) => {
             { likes: { some: {} } }, // Has at least one like
             { comments: { some: {} } }, // Has at least one comment
           ],
+          status: { not: "flagged" }, // Filter out flagged posts
           createdAt: {
             gte: new Date(Date.now() - 72 * 60 * 60 * 1000), // Last 72 hours
           },
@@ -353,25 +363,35 @@ export const getAITrendingPosts = async (req, res) => {
         tags: post.topics.map((t) => t.topic.name),
         media: post.media,
         links: post.links,
-        mentions: post.mentions?.map((m) => ({
-          id: m.user.id,
-          name: m.user.displayName,
-          username: m.user.username,
-        })) || [],
+        mentions:
+          post.mentions?.map((m) => ({
+            id: m.user.id,
+            name: m.user.displayName,
+            username: m.user.username,
+          })) || [],
         isLiked: userId ? post.likes?.length > 0 : false,
         isBookmarked: userId ? post.Bookmark?.length > 0 : false,
         score: (post._count?.likes || 0) + (post._count?.comments || 0) * 1.5,
       }));
 
-      return res.status(200).json(
-        new ApiResponse(200, { posts: transformedPosts }, "Trending posts fetched (fallback)")
-      );
+      return res
+        .status(200)
+        .json(
+          new ApiResponse(
+            200,
+            { posts: transformedPosts },
+            "Trending posts fetched (fallback)"
+          )
+        );
     }
 
     // Fetch full post details
     const postIds = aiTrending.map((p) => p.post_id);
     const posts = await prisma.post.findMany({
-      where: { id: { in: postIds } },
+      where: {
+        id: { in: postIds },
+        status: { not: "flagged" }, // Filter out flagged posts
+      },
       include: {
         author: {
           select: {
@@ -444,12 +464,24 @@ export const getAITrendingPosts = async (req, res) => {
       .sort((a, b) => b.score - a.score) // Maintain AI ranking
       .slice(0, limit); // Take top N
 
-    return res.status(200).json(
-      new ApiResponse(200, { posts: transformedPosts }, "Trending posts fetched")
-    );
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          { posts: transformedPosts },
+          "Trending posts fetched"
+        )
+      );
   } catch (error) {
     console.error("Trending posts error:", error);
     return res.status(500).json(new ApiError(500, error.message));
   }
 };
 
+export {
+  getRecommendedTopics,
+  getRecommendedUsers,
+  getAITrendingTopics,
+  getAITrendingPosts,
+};

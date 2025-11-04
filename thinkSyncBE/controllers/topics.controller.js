@@ -93,7 +93,10 @@ const fetchTredingPosts = async (req, res) => {
       // Fetch full post details
       const postIds = aiTrending.map((p) => p.post_id);
       const posts = await prisma.post.findMany({
-        where: { id: { in: postIds } },
+        where: { 
+          id: { in: postIds },
+          status: { not: "flagged" }, // Filter out flagged posts
+        },
         include: {
           author: {
             select: {
@@ -170,6 +173,9 @@ const fetchTredingPosts = async (req, res) => {
 
     // Fallback to simple query if AI service fails
     const posts = await prisma.post.findMany({
+      where: {
+        status: { not: "flagged" }, // Filter out flagged posts
+      },
       orderBy: { createdAt: "desc" },
       take: limit,
       include: {

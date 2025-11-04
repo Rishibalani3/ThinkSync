@@ -54,7 +54,10 @@ const getUserPosts = async (req, res) => {
     const { userId } = req.params;
 
     const posts = await prisma.post.findMany({
-      where: { authorId: userId },
+      where: {
+        authorId: userId,
+        status: { not: "flagged" }, // Filter out flagged posts
+      },
       orderBy: { createdAt: "desc" },
       include: {
         author: {
@@ -93,12 +96,18 @@ const getUserPosts = async (req, res) => {
         },
       },
     });
+    const userIdForLike = req.user?.id || null;
     const feedWithState = posts.map((post) => ({
       ...post,
       timestamp: timeAgo(post.createdAt),
-      isLiked: userId ? post.likes?.length > 0 : false,
-      isBookmarked: userId ? post.Bookmark?.length > 0 : false,
-      likesCount: post.likes?.length || 0, // optional: total likes count
+      isLiked: userIdForLike
+        ? post.likes?.some((like) => like.userId === userIdForLike)
+        : false,
+      isBookmarked: userIdForLike
+        ? post.Bookmark?.some((b) => b.userId === userIdForLike)
+        : false,
+      likesCount: post.likes?.length || 0,
+      commentsCount: post.comments?.length || 0,
     }));
 
     res.json(feedWithState);
@@ -141,8 +150,39 @@ const getProfile = async (req, res) => {
         return res.status(404).json({ error: "User not found" });
     }
 
+    // Fetch full user details with public info
+    const fullProfileUser = await prisma.user.findUnique({
+      where: { id: profileUser.id },
+      include: {
+        details: {
+          select: {
+            avatar: true,
+            coverImage: true,
+            bio: true,
+            occupation: true,
+            location: true,
+            website: true,
+            dateOfBirth: true,
+            github: true,
+            linkedin: true,
+            twitter: true,
+            warningCount: profileUser.id === loggedInUserId, // Only show to own profile
+          },
+        },
+        _count: {
+          select: {
+            followers: true,
+            following: true,
+          },
+        },
+      },
+    });
+
     const posts = await prisma.post.findMany({
-      where: { authorId: profileUser.id },
+      where: {
+        authorId: profileUser.id,
+        status: { not: "flagged" }, // Filter out flagged posts
+      },
       include: {
         author: {
           select: {
@@ -152,6 +192,33 @@ const getProfile = async (req, res) => {
             details: { select: { avatar: true } },
           },
         },
+        media: true,
+        links: true,
+        likes: true,
+        Bookmark: true,
+        mentions: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                displayName: true,
+                details: { select: { avatar: true } },
+              },
+            },
+          },
+        },
+        topics: {
+          include: {
+            topic: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+        comments: true,
       },
       orderBy: { createdAt: "desc" },
     });
@@ -167,11 +234,42 @@ const getProfile = async (req, res) => {
       isFollowing = !!follow;
     }
 
+    // Transform posts with proper state
+    const transformedPosts = posts.map((post) => ({
+      ...post,
+      timestamp: timeAgo(post.createdAt),
+      isLiked: loggedInUserId
+        ? post.likes?.some((like) => like.userId === loggedInUserId)
+        : false,
+      isBookmarked: loggedInUserId
+        ? post.Bookmark?.some((b) => b.userId === loggedInUserId)
+        : false,
+      likesCount: post.likes?.length || 0,
+      commentsCount: post.comments?.length || 0,
+    }));
+
+    // Build social links object
+    const socialLinks = {};
+    if (fullProfileUser.details?.github)
+      socialLinks.github = fullProfileUser.details.github;
+    if (fullProfileUser.details?.linkedin)
+      socialLinks.linkedin = fullProfileUser.details.linkedin;
+    if (fullProfileUser.details?.twitter)
+      socialLinks.twitter = fullProfileUser.details.twitter;
+
     res.json({
-      profileUser,
-      posts,
+      profileUser: {
+        ...fullProfileUser,
+        details: {
+          ...fullProfileUser.details,
+          socialLinks,
+        },
+      },
+      posts: transformedPosts,
       isOwnProfile: profileUser.id === loggedInUserId,
       isFollowing,
+      followersCount: fullProfileUser._count.followers,
+      followingCount: fullProfileUser._count.following,
     });
   } catch (err) {
     console.error("Error fetching profile:", err);
@@ -230,4 +328,81 @@ const updateImages = async (req, res) => {
   }
 };
 
-export { me, updateDetails, getUserPosts, getProfile, updateImages };
+const getModerationHistory = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Get user's 
+    const userDetails = await prisma.userDetails.findUnique({
+      where: { userId },
+      select: { warningCount: true },
+    });
+
+    // Get flagged posts and comments by this user
+    const flaggedPosts = await prisma.post.findMany({
+      where: {
+        authorId: userId,
+        status: "flagged",
+      },
+      select: {
+        id: true,
+        content: true,
+        type: true,
+        createdAt: true,
+        status: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const flaggedComments = await prisma.comment.findMany({
+      where: {
+        authorId: userId,
+        status: "flagged",
+      },
+      select: {
+        id: true,
+        content: true,
+        createdAt: true,
+        status: true,
+        postId: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const history = [
+      ...flaggedPosts.map((post) => ({
+        id: post.id,
+        type: "post",
+        content: post.content.substring(0, 100),
+        reason: "Flagged by AI moderation",
+        timestamp: timeAgo(post.createdAt),
+        createdAt: post.createdAt,
+      })),
+      ...flaggedComments.map((comment) => ({
+        id: comment.id,
+        type: "comment",
+        content: comment.content.substring(0, 100),
+        reason: "Flagged by AI moderation",
+        timestamp: timeAgo(comment.createdAt),
+        createdAt: comment.createdAt,
+      })),
+    ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    res.json({
+      warningCount: userDetails?.warningCount || 0,
+      history,
+    });
+  } catch (error) {
+    console.error("Get moderation history error:", error);
+    res.status(500).json({ error: "Failed to fetch moderation history" });
+  }
+};
+
+export {
+  me,
+  updateDetails,
+  getUserPosts,
+  getProfile,
+  updateImages,
+  getModerationHistory,
+};

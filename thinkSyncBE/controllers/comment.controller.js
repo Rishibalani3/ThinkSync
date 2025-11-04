@@ -3,6 +3,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { prisma } from "../config/db.js";
 import { sendNotification } from "../utils/notification.js";
 import { io, userSocketMap } from "../app.js";
+import { scheduleModerationCheck } from "../services/backgroundModeration.service.js";
 
 const createComment = async (req, res) => {
   const { content, postId, parentId } = req.body;
@@ -29,6 +30,7 @@ const createComment = async (req, res) => {
         content,
         authorId: req.user.id,
         postId,
+        status: "under_review",
         parentId: parentId || null,
       },
       include: {
@@ -44,13 +46,17 @@ const createComment = async (req, res) => {
       },
     });
 
+    scheduleModerationCheck(comment.id, "comment", 60000);
+
+    //AI Review Integration
+
     //-----------------------Traking comment activity(For Ai Training) --------------------//
 
     await prisma.userActivity.create({
       data: {
         userId: req.user.id,
         postId: postId,
-        activityType: "comment",
+        type: "comment",
       },
     });
 

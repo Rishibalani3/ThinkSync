@@ -164,6 +164,10 @@ const PostCreator = ({ onNewPost }) => {
 
       if (res.status === 201) {
         toast.success("Post Created Successfully!");
+        // Trigger callback to refresh feed (Socket.IO will handle real-time update)
+        if (typeof onNewPost === "function") {
+          onNewPost();
+        }
       } else {
         toast.error(`Failed to create post! Internal Server Error`);
       }

@@ -24,10 +24,10 @@ import {
   deleteGuideline,
 } from "../controllers/admin.guidelines.controller.js";
 import {
-  getStaticContent,
-  upsertStaticContent,
-  deleteStaticContent,
-} from "../controllers/admin.content.controller.js";
+  getFlaggedContent,
+  unflagContent,
+  deleteFlaggedContent,
+} from "../controllers/admin.flagged.controller.js";
 
 const router = Router();
 
@@ -61,10 +61,9 @@ router.post("/guidelines", createGuideline);
 router.put("/guidelines/:id", updateGuideline);
 router.delete("/guidelines/:id", deleteGuideline);
 
-// Static Content
-router.get("/static-content", getStaticContent);
-router.post("/static-content", upsertStaticContent);
-router.put("/static-content/:key", upsertStaticContent);
-router.delete("/static-content/:key", deleteStaticContent);
+// Flagged Content Management
+router.get("/flagged", getFlaggedContent);
+router.post("/flagged/unflag", unflagContent);
+router.post("/flagged/delete", deleteFlaggedContent);
 
 export default router;

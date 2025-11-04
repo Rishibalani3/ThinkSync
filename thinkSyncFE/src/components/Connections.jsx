@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   FaSearch,
@@ -13,81 +13,79 @@ import {
   FaUserFriends,
 } from "react-icons/fa";
 import { BiMessage } from "react-icons/bi";
+import { useAuth } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import api from "../utils/axios";
+import useAIRecommendations from "../hooks/useAIRecommendations";
+import { showToast } from "../utils/toast";
+
 const Connections = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState("all");
-  const [sortBy, setSortBy] = useState("recent");
+  const [activeTab, setActiveTab] = useState("my");
+  const [connections, setConnections] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
+  const { getRecommendedUsers } = useAIRecommendations();
+
+  // Fetch connections and suggestions
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setLoading(false);
+      return;
+    }
+
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        // Fetch following (My Connections)
+        const followingRes = await api.get("/follower/following");
+        const following = followingRes.data?.data || [];
+        setConnections(following);
+
+        // Fetch suggested users
+        const recommended = await getRecommendedUsers(20);
+        setSuggestions(recommended);
+      } catch (err) {
+        console.error("Failed to fetch connections:", err);
+        showToast.error("Failed to load connections");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [isAuthenticated, getRecommendedUsers]);
 
   const tabs = [
-    { id: "my", label: "My Connections", count: 156 },
-    { id: "suggestions", label: "Suggestions", count: 45 },
+    { id: "my", label: "My Connections", count: connections.length },
+    { id: "suggestions", label: "Suggestions", count: suggestions.length },
   ];
 
-  const connections = [
-    {
-      id: 1,
-      name: "Sarah Chen",
-      avatar: "https://placehold.co/60x60/667eea/ffffff?text=SC",
-      username: "@sarahchen",
-      bio: "AI Researcher at Stanford",
-      location: "San Francisco, CA",
-      company: "Stanford University",
-      mutualConnections: 12,
-      isConnected: true,
-      isPending: false,
-      lastActive: "2 hours ago",
-    },
-    {
-      id: 2,
-      name: "Marcus Rodriguez",
-      avatar: "https://placehold.co/60x60/667eea/ffffff?text=MR",
-      username: "@marcusrod",
-      bio: "Product Designer at Figma",
-      location: "New York, NY",
-      company: "Figma",
-      mutualConnections: 8,
-      isConnected: true,
-      isPending: false,
-      lastActive: "1 day ago",
-    },
-    {
-      id: 3,
-      name: "Emma Thompson",
-      avatar: "https://placehold.co/60x60/667eea/ffffff?text=ET",
-      username: "@emmathompson",
-      bio: "Data Scientist at Google",
-      location: "Mountain View, CA",
-      company: "Google",
-      mutualConnections: 15,
-      isConnected: false,
-      isPending: true,
-      lastActive: "3 hours ago",
-    },
-    {
-      id: 4,
-      name: "David Kim",
-      avatar: "https://placehold.co/60x60/667eea/ffffff?text=DK",
-      username: "@davidkim",
-      bio: "Startup Founder",
-      location: "Austin, TX",
-      company: "TechStart Inc.",
-      mutualConnections: 5,
-      isConnected: false,
-      isPending: false,
-      lastActive: "5 hours ago",
-    },
-  ];
-
-  const handleConnect = (userId) => {
-    console.log("Connect with user:", userId);
+  const handleConnect = async (userId) => {
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
+    try {
+      await api.post(`/follower/follow/${userId}`);
+      showToast.success("User followed successfully!");
+      // Refresh suggestions
+      const recommended = await getRecommendedUsers(20);
+      setSuggestions(recommended);
+    } catch (err) {
+      console.error("Failed to follow user:", err);
+      showToast.error("Failed to follow user");
+    }
   };
 
   const handleMessage = (userId) => {
-    console.log("Message user:", userId);
-  };
-
-  const handleRemove = (userId) => {
-    console.log("Remove connection:", userId);
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
+    navigate(`/messages/${userId}`);
   };
 
   return (
@@ -136,76 +134,117 @@ const Connections = () => {
           </div>
 
           {/* Connections Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {connections.map((connection, index) => (
-              <motion.div
-                key={connection.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
-                className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-shadow"
+          {loading ? (
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              Loading connections...
+            </div>
+          ) : !isAuthenticated ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500 dark:text-gray-400 mb-4">
+                Please log in to view connections
+              </p>
+              <button
+                onClick={() => navigate("/login")}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
-                {/* Connection Header */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={connection.avatar}
-                      alt={connection.name}
-                      className="w-10 h-10 rounded-full"
-                    />
+                Log In
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {(activeTab === "my" ? connections : suggestions)
+                .filter((conn) => {
+                  if (!searchQuery) return true;
+                  const query = searchQuery.toLowerCase();
+                  return (
+                    conn.displayName?.toLowerCase().includes(query) ||
+                    conn.username?.toLowerCase().includes(query) ||
+                    conn.details?.bio?.toLowerCase().includes(query)
+                  );
+                })
+                .map((connection, index) => (
+                  <motion.div
+                    key={connection.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1, duration: 0.5 }}
+                    className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-shadow"
+                  >
+                    {/* Connection Header */}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={
+                            connection.details?.avatar ||
+                            `https://placehold.co/60x60/667eea/ffffff?text=${
+                              connection.displayName?.[0] || "U"
+                            }`
+                          }
+                          alt={connection.displayName}
+                          className="w-10 h-10 rounded-full"
+                        />
+                        <div>
+                          <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                            {connection.displayName || connection.username}
+                          </h3>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            @{connection.username}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Connection Info */}
+                    <div className="mb-4">
+                      {connection.details?.bio && (
+                        <p className="text-gray-700 dark:text-gray-300 text-sm mb-3 line-clamp-2">
+                          {connection.details.bio}
+                        </p>
+                      )}
+                      {connection.details?.company && (
+                        <div className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
+                          <div className="flex items-center gap-2">
+                            <FaBriefcase className="text-blue-500" />
+                            {connection.details.company}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
                     <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                        {connection.name}
-                      </h3>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {connection.username}
-                      </p>
+                      {activeTab === "my" ? (
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => handleMessage(connection.id)}
+                          className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                        >
+                          <BiMessage />
+                          Message
+                        </motion.button>
+                      ) : (
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => handleConnect(connection.user_id || connection.id)}
+                          className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                        >
+                          <FaUserPlus />
+                          Follow
+                        </motion.button>
+                      )}
                     </div>
-                  </div>
-                  <div className="relative">
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
-                    >
-                      <FaEllipsisH />
-                    </motion.button>
-                  </div>
+                  </motion.div>
+                ))}
+              {(activeTab === "my" ? connections : suggestions).length === 0 && (
+                <div className="col-span-2 text-center py-8 text-gray-500 dark:text-gray-400">
+                  {activeTab === "my"
+                    ? "No connections yet. Start following users to build your network!"
+                    : "No suggestions available at the moment."}
                 </div>
-
-                {/* Connection Info */}
-                <div className="mb-4">
-                  <p className="text-gray-700 dark:text-gray-300 text-sm mb-3 line-clamp-2">
-                    {connection.bio}
-                  </p>
-                  <div className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
-                    <div className="flex items-center gap-2">
-                      <FaBriefcase className="text-blue-500" />
-                      {connection.company}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <FaMapMarkerAlt className="text-green-500" />
-                      {connection.location}
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <div>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => handleMessage(connection.id)}
-                      className="w-full flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
-                    >
-                      <BiMessage />
-                      Message
-                    </motion.button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+              )}
+            </div>
+          )}
 
           {/* (Optional) Footer spacing */}
         </motion.div>

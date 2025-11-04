@@ -14,6 +14,8 @@ import PostCard from "./PostCard/PostCard";
 import { useAuth } from "../contexts/AuthContext";
 import useAIRecommendations from "../hooks/useAIRecommendations";
 import useTopics from "../hooks/useTopics";
+import useLike from "../hooks/useLike";
+import useBookmark from "../hooks/useBookmark";
 import PostTrackerWrapper from "./PostCard/PostTrackerWrapper";
 
 const Explore = () => {
@@ -23,10 +25,12 @@ const Explore = () => {
   const [trendingPosts, setTrendingPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const { getAITrendingPosts } = useAIRecommendations();
   const { getTrendingPosts } = useTopics();
+  const { toggleLike } = useLike();
+  const { toggleBookmark } = useBookmark();
 
   const filters = [
     { id: "trending", label: "Trending", icon: FaFire },
@@ -34,14 +38,31 @@ const Explore = () => {
     { id: "top", label: "Top", icon: FaStar },
   ];
 
-  const categories = [
-    { id: "all", label: "All", count: 1250 },
-    { id: "ai", label: "AI", count: 234 },
-    { id: "sustainability", label: "Sustainability", count: 156 },
-    { id: "innovation", label: "Innovation", count: 189 },
-    { id: "technology", label: "Technology", count: 445 },
-    { id: "future", label: "Future", count: 123 },
-  ];
+  const [trendingTopics, setTrendingTopics] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const { getTrendingTopics } = useTopics();
+
+  // Fetch trending topics for categories
+  useEffect(() => {
+    const fetchTopics = async () => {
+      try {
+        const topics = await getTrendingTopics();
+        const topicCategories = topics.map((topic, idx) => ({
+          id: topic.name?.toLowerCase() || `topic-${idx}`,
+          label: topic.name || "Topic",
+          count: topic._count?.posts || 0,
+        }));
+        setTrendingTopics(topics);
+        setCategories([
+          { id: "all", label: "All", count: topics.reduce((sum, t) => sum + (t._count?.posts || 0), 0) },
+          ...topicCategories.slice(0, 5),
+        ]);
+      } catch (err) {
+        console.error("Failed to fetch trending topics:", err);
+      }
+    };
+    fetchTopics();
+  }, [getTrendingTopics]);
 
   // Fetch trending posts when filter is set to trending
   useEffect(() => {
@@ -72,13 +93,86 @@ const Explore = () => {
   }, [activeFilter, getAITrendingPosts, getTrendingPosts]);
 
   console.log("Trending Posts:", trendingPosts);
-  const handleBookmark = (postId) => {
+  const handleBookmark = async (postId) => {
     if (!isAuthenticated) {
       alert("Please log in first to bookmark a post.");
       navigate("/login");
       return;
     }
-    console.log("Bookmarked post:", postId);
+    const prevPost = trendingPosts.find((p) => p.id === postId);
+    const prevBookmarked = prevPost?.isBookmarked || false;
+    
+    // Optimistic update
+    setTrendingPosts((prev) =>
+      prev.map((post) =>
+        post.id === postId
+          ? { ...post, isBookmarked: !post.isBookmarked }
+          : post
+      )
+    );
+    
+    const result = await toggleBookmark(postId);
+    if (result?.error) {
+      // Rollback on error
+      setTrendingPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId ? { ...post, isBookmarked: prevBookmarked } : post
+        )
+      );
+    }
+  };
+
+  const handleLike = async (postId) => {
+    if (!isAuthenticated) {
+      alert("Please log in first to like a post.");
+      navigate("/login");
+      return;
+    }
+    const prevPost = trendingPosts.find((p) => p.id === postId);
+    const prevLiked = prevPost?.isLiked || false;
+    const prevLikesCount = prevPost?.likesCount || 0;
+    
+    // Optimistic update
+    setTrendingPosts((prev) =>
+      prev.map((post) =>
+        post.id === postId
+          ? {
+              ...post,
+              likesCount: (post.likesCount || 0) + (post.isLiked ? -1 : 1),
+              isLiked: !post.isLiked,
+            }
+          : post
+      )
+    );
+    
+    const result = await toggleLike(postId);
+    if (result?.error) {
+      // Rollback on error
+      setTrendingPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                likesCount: prevLikesCount,
+                isLiked: prevLiked,
+              }
+            : post
+        )
+      );
+    } else if (result?.data) {
+      // Update with server response
+      setTrendingPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                likesCount: result.data?.likesCount ?? post.likesCount,
+                isLiked: result.action === "like",
+              }
+            : post
+        )
+      );
+    }
   };
 
   const handlePostClick = (postId) => {
@@ -182,8 +276,10 @@ const Explore = () => {
                     >
                       <PostTrackerWrapper
                         post={post}
+                        onLike={() => handleLike(post.id)}
                         onBookmark={() => handleBookmark(post.id)}
                         onClick={() => handlePostClick(post.id)}
+                        userId={user?.id}
                       />
                     </motion.div>
                   ))
@@ -208,26 +304,29 @@ const Explore = () => {
                 </h3>
               </div>
               <div className="space-y-3">
-                {[
-                  "AI",
-                  "Sustainability",
-                  "Innovation",
-                  "Technology",
-                  "Future",
-                ].map((tag, i) => (
-                  <div
-                    key={tag}
-                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors cursor-pointer"
-                    onClick={() => !isAuthenticated && navigate("/login")}
-                  >
-                    <div className="flex items-center gap-2">
-                      <FaHashtag className="text-blue-500" />
-                      <span className="font-medium text-gray-900 dark:text-gray-100">
-                        {tag}
+                {trendingTopics.length > 0 ? (
+                  trendingTopics.slice(0, 5).map((topic) => (
+                    <div
+                      key={topic.id}
+                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors cursor-pointer"
+                      onClick={() => navigate(`/topic/${topic.name}`)}
+                    >
+                      <div className="flex items-center gap-2">
+                        <FaHashtag className="text-blue-500" />
+                        <span className="font-medium text-gray-900 dark:text-gray-100">
+                          {topic.name}
+                        </span>
+                      </div>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        {topic._count?.posts || 0} posts
                       </span>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-center text-gray-500 dark:text-gray-400 py-4">
+                    No trending topics available
+                  </p>
+                )}
               </div>
             </motion.div>
 
@@ -245,26 +344,20 @@ const Explore = () => {
                 </h3>
               </div>
               <div className="space-y-3">
-                {["Sarah Chen", "Marcus Rodriguez", "Emma Thompson"].map(
-                  (thinker, i) => (
-                    <div
-                      key={thinker}
-                      className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors cursor-pointer"
-                      onClick={() => !isAuthenticated && navigate("/login")}
+                {isAuthenticated ? (
+                  <p className="text-center text-gray-500 dark:text-gray-400 py-4">
+                    User recommendations coming soon
+                  </p>
+                ) : (
+                  <p className="text-center text-gray-500 dark:text-gray-400 py-4">
+                    <button
+                      onClick={() => navigate("/login")}
+                      className="text-blue-500 hover:underline"
                     >
-                      <div className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm font-bold">
-                        {thinker
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-gray-900 dark:text-gray-100 truncate">
-                          {thinker}
-                        </h4>
-                      </div>
-                    </div>
-                  )
+                      Log in
+                    </button>{" "}
+                    to see recommended users
+                  </p>
                 )}
               </div>
             </motion.div>

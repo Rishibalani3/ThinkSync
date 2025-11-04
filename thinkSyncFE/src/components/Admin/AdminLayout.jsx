@@ -29,9 +29,9 @@ const AdminLayout = ({ children }) => {
     { path: "/admin", icon: FaChartLine, label: "Dashboard" },
     { path: "/admin/reports", icon: FaExclamationTriangle, label: "Reports" },
     { path: "/admin/users", icon: FaUsers, label: "Users" },
+    { path: "/admin/flagged", icon: FaExclamationTriangle, label: "Flagged Content" },
     { path: "/admin/announcements", icon: FaBullhorn, label: "Announcements" },
     { path: "/admin/guidelines", icon: FaGavel, label: "Guidelines" },
-    { path: "/admin/content", icon: FaFileAlt, label: "Static Content" },
     { path: "/admin/audit", icon: FaCog, label: "Audit Logs" },
   ];
 

@@ -6,7 +6,7 @@ import { cardVariants } from "../../utils/animations";
 import useViewTracker from "../../hooks/useViewTracker";
 
 
-const PostTrackerWrapper = ({ post, onLike, onBookmark, onClick, userId }) => {
+const PostTrackerWrapper = ({ post, onLike, onBookmark, onClick, userId, extraClass }) => {
   const postRef = useRef(null);
   useViewTracker(post.id, postRef, userId);
 
@@ -25,6 +25,7 @@ const PostTrackerWrapper = ({ post, onLike, onBookmark, onClick, userId }) => {
         onLike={onLike}
         onBookmark={onBookmark}
         onClick={onClick}
+        extraClass={extraClass}
       />
     </motion.div>
   );

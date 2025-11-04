@@ -90,6 +90,7 @@ model Follows {
   followingId String
 
   createdAt DateTime @default(now())
+
   @@unique([followerId, followingId])
 }
 
@@ -100,7 +101,7 @@ model Topic {
   posts          PostTopic[]
   TrendingTopics TrendingTopics[]
 }
- 
+
 model UserTopic {
   id      String @id @default(uuid())
   user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -115,6 +116,7 @@ model Post {
   id        String   @id @default(uuid())
   content   String
   type      String
+  status    String   @default("okay") // "okay", "under_review", "removed"
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId  String
   createdAt DateTime @default(now())
@@ -176,6 +178,7 @@ model Comment {
   postId        String
   parent        Comment?        @relation("CommentToReplies", fields: [parentId], references: [id], onDelete: Cascade)
   parentId      String?
+  status        String          @default("okay") // "okay", "under_review", "removed"
   replies       Comment[]       @relation("CommentToReplies")
   likes         CommentLike[]
   createdAt     DateTime        @default(now())
@@ -238,19 +241,19 @@ model Notifications {
 }
 
 model Contentreport {
-  id             String   @id @default(uuid())
+  id             String    @id @default(uuid())
   type           String // "post", "comment", "user"
   reason         String
   postId         String?
-  post           Post?    @relation("ContentReportPost", fields: [postId], references: [id], onDelete: Cascade)
+  post           Post?     @relation("ContentReportPost", fields: [postId], references: [id], onDelete: Cascade)
   commentId      String?
-  comment        Comment? @relation("ContentReportComment", fields: [commentId], references: [id], onDelete: Cascade)
+  comment        Comment?  @relation("ContentReportComment", fields: [commentId], references: [id], onDelete: Cascade)
   reportedUserId String?
-  reportedUser   User?    @relation("ReportedUser", fields: [reportedUserId], references: [id], onDelete: Cascade)
-  reporter       User?    @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  reportedUser   User?     @relation("ReportedUser", fields: [reportedUserId], references: [id], onDelete: Cascade)
+  reporter       User?     @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
   reporterId     String
-  createdAt      DateTime @default(now())
-  status         String   @default("pending") // "pending", "resolved", "dismissed", "warned", "suspended", "banned"
+  createdAt      DateTime  @default(now())
+  status         String    @default("pending") // "pending", "resolved", "dismissed", "warned", "suspended", "banned"
   resolvedAt     DateTime?
   resolvedBy     String?
   resolutionNote String?
@@ -302,36 +305,25 @@ model user_sessions {
 }
 
 model Announcement {
-  id          String   @id @default(uuid())
-  title       String
-  content     String
-  type        String   @default("info") // "info", "warning", "maintenance", "feature"
-  isActive    Boolean  @default(true)
-  priority    Int      @default(0) // Higher = more prominent
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  createdBy   String   // Admin user ID
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  type      String   @default("info") // "info", "warning", "maintenance", "feature"
+  isActive  Boolean  @default(true)
+  priority  Int      @default(0) // Higher = more prominent
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String // Admin user ID
 }
 
 model CommunityGuideline {
-  id          String   @id @default(uuid())
-  title       String
-  content     String
-  category    String   // "content", "behavior", "privacy", "safety"
-  order       Int      @default(0)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  updatedBy   String   // Admin user ID
-}
-
-model StaticContent {
-  id          String   @id @default(uuid())
-  key         String   @unique // "about", "privacy_policy", "terms", etc.
-  title       String?
-  content     String
-  type        String   @default("text") // "text", "html", "markdown"
-  metadata    Json?    // Additional structured data
-  updatedAt   DateTime @updatedAt
-  updatedBy   String   // Admin user ID
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  category  String // "content", "behavior", "privacy", "safety"
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  updatedBy String // Admin user ID
 }

@@ -2,10 +2,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { prisma } from "../config/db.js";
 
-/**
- * Get audit logs
- */
-export const getAuditLogs = async (req, res) => {
+const getAuditLogs = async (req, res) => {
   try {
     const { page = 1, limit = 50, adminId, action } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -54,3 +51,4 @@ export const getAuditLogs = async (req, res) => {
   }
 };
 
+export { getAuditLogs };

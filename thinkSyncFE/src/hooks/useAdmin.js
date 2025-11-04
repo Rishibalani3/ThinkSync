@@ -160,34 +160,34 @@ const useAdmin = () => {
     }
   }, []);
 
-  // Static Content
-  const getStaticContent = useCallback(async (key) => {
+  // Flagged Content
+  const getFlaggedContent = useCallback(async (params = {}) => {
     try {
-      const queryParams = key ? `?key=${key}` : "";
-      const res = await api.get(`/admin/static-content${queryParams}`);
+      const queryParams = new URLSearchParams(params).toString();
+      const res = await api.get(`/admin/flagged?${queryParams}`);
       return res.data.data || null;
     } catch (err) {
-      console.error("Failed to fetch static content", err);
+      console.error("Failed to fetch flagged content", err);
       throw err;
     }
   }, []);
 
-  const upsertStaticContent = useCallback(async (data) => {
+  const unflagContent = useCallback(async (contentId, contentType) => {
     try {
-      const res = await api.post("/admin/static-content", data);
+      const res = await api.post("/admin/flagged/unflag", { contentId, contentType });
       return res.data.data || null;
     } catch (err) {
-      console.error("Failed to save static content", err);
+      console.error("Failed to unflag content", err);
       throw err;
     }
   }, []);
 
-  const deleteStaticContent = useCallback(async (key) => {
+  const deleteFlaggedContent = useCallback(async (contentId, contentType) => {
     try {
-      const res = await api.delete(`/admin/static-content/${key}`);
-      return res.data || null;
+      const res = await api.post("/admin/flagged/delete", { contentId, contentType });
+      return res.data.data || null;
     } catch (err) {
-      console.error("Failed to delete static content", err);
+      console.error("Failed to delete flagged content", err);
       throw err;
     }
   }, []);
@@ -207,9 +207,9 @@ const useAdmin = () => {
     createGuideline,
     updateGuideline,
     deleteGuideline,
-    getStaticContent,
-    upsertStaticContent,
-    deleteStaticContent,
+    getFlaggedContent,
+    unflagContent,
+    deleteFlaggedContent,
   };
 };
 

@@ -2,10 +2,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { prisma } from "../config/db.js";
 
-/**
- * Get all guidelines
- */
-export const getGuidelines = async (req, res) => {
+const getGuidelines = async (req, res) => {
   try {
     const { isActive, category } = req.query;
     const where = {};
@@ -21,19 +18,18 @@ export const getGuidelines = async (req, res) => {
       orderBy: [{ order: "asc" }, { createdAt: "desc" }],
     });
 
-    return res.status(200).json(
-      new ApiResponse(200, guidelines, "Guidelines fetched successfully")
-    );
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, guidelines, "Guidelines fetched successfully")
+      );
   } catch (error) {
     console.error("Get guidelines error:", error);
     return res.status(500).json(new ApiError(500, error.message));
   }
 };
 
-/**
- * Create guideline
- */
-export const createGuideline = async (req, res) => {
+const createGuideline = async (req, res) => {
   try {
     const { title, content, category, order, isActive } = req.body;
 
@@ -63,19 +59,16 @@ export const createGuideline = async (req, res) => {
       },
     });
 
-    return res.status(201).json(
-      new ApiResponse(201, guideline, "Guideline created successfully")
-    );
+    return res
+      .status(201)
+      .json(new ApiResponse(201, guideline, "Guideline created successfully"));
   } catch (error) {
     console.error("Create guideline error:", error);
     return res.status(500).json(new ApiError(500, error.message));
   }
 };
 
-/**
- * Update guideline
- */
-export const updateGuideline = async (req, res) => {
+const updateGuideline = async (req, res) => {
   try {
     const { id } = req.params;
     const { title, content, category, order, isActive } = req.body;
@@ -101,19 +94,16 @@ export const updateGuideline = async (req, res) => {
       },
     });
 
-    return res.status(200).json(
-      new ApiResponse(200, guideline, "Guideline updated successfully")
-    );
+    return res
+      .status(200)
+      .json(new ApiResponse(200, guideline, "Guideline updated successfully"));
   } catch (error) {
     console.error("Update guideline error:", error);
     return res.status(500).json(new ApiError(500, error.message));
   }
 };
 
-/**
- * Delete guideline
- */
-export const deleteGuideline = async (req, res) => {
+const deleteGuideline = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -128,12 +118,13 @@ export const deleteGuideline = async (req, res) => {
       },
     });
 
-    return res.status(200).json(
-      new ApiResponse(200, {}, "Guideline deleted successfully")
-    );
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "Guideline deleted successfully"));
   } catch (error) {
     console.error("Delete guideline error:", error);
     return res.status(500).json(new ApiError(500, error.message));
   }
 };
 
+export { getGuidelines, createGuideline, updateGuideline, deleteGuideline };

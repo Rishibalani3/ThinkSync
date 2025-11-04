@@ -3,6 +3,8 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { prisma } from "../config/db.js";
 import { uploadOnCloudinary } from "../utils/Cloudinary.js";
 import { timeAgo } from "../utils/HelperFunction.js";
+import { scheduleModerationCheck } from "../services/backgroundModeration.service.js";
+import { io } from "../app.js";
 const createPost = async (req, res) => {
   try {
     const { content, type } = req.body;
@@ -36,6 +38,8 @@ const createPost = async (req, res) => {
       data: {
         content,
         type,
+
+        status: "under_review",
         authorId: req.user.id,
         media: { create: mediaData },
         links: {
@@ -82,6 +86,21 @@ const createPost = async (req, res) => {
         topics: { include: { topic: true } },
       },
     });
+
+    scheduleModerationCheck(post.id, "post", 60000);
+
+    // Transform post for real-time broadcast
+    const transformedPost = {
+      ...fullPost,
+      timestamp: timeAgo(fullPost.createdAt || new Date()),
+      isLiked: false,
+      isBookmarked: false,
+      likesCount: 0,
+      commentsCount: 0,
+    };
+
+    // Emit real-time update to all connected clients
+    io.emit("newPost", transformedPost);
 
     return res
       .status(201)
@@ -143,8 +162,11 @@ const getFeed = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const skip = (page - 1) * limit;
 
-    // Fetch posts with relations
+    // Fetch posts with relations - exclude flagged posts (unless admin/moderator)
     const feed = await prisma.post.findMany({
+      where: {
+        status: { not: "flagged" }, // Filter out flagged posts
+      },
       include: {
         author: {
           select: {
@@ -171,7 +193,11 @@ const getFeed = async (req, res) => {
       skip,
     });
 
-    const totalPosts = await prisma.post.count();
+    const totalPosts = await prisma.post.count({
+      where: {
+        status: { not: "flagged" }, // Exclude flagged posts from count
+      },
+    });
 
     const feedWithState = feed.map((post) => ({
       ...post,
@@ -336,4 +362,100 @@ const recordPostView = async (req, res) => {
     .status(204) // 204 No Content is ideal for a successful update without a body
     .send();
 };
-export { createPost, deletePost, getFeed, getSinglePost, recordPostView };
+const getPostStatistics = async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json(new ApiError(401, "Unauthorized"));
+    }
+
+    // Get post and verify ownership
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      select: {
+        id: true,
+        authorId: true,
+        _count: {
+          select: {
+            likes: true,
+            comments: true,
+            Bookmark: true,
+          },
+        },
+      },
+    });
+
+    if (!post) {
+      return res.status(404).json(new ApiError(404, "Post not found"));
+    }
+
+    if (post.authorId !== userId) {
+      return res.status(403).json(new ApiError(403, "Only post author can view statistics"));
+    }
+
+    // Get view count from UserActivity
+    const viewCount = await prisma.userActivity.count({
+      where: {
+        postId,
+        type: "view_post",
+      },
+    });
+
+    // Get engagement metrics
+    const likesCount = post._count.likes;
+    const commentsCount = post._count.comments;
+    const bookmarksCount = post._count.Bookmark;
+    const engagementScore = likesCount + (commentsCount * 1.5) + (bookmarksCount * 0.8) + (viewCount * 0.1);
+
+    // Get recent viewers (last 10, unique by userId)
+    const allViewers = await prisma.userActivity.findMany({
+      where: {
+        postId,
+        type: "view_post",
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+            details: { select: { avatar: true } },
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    // Get unique viewers (most recent view per user)
+    const uniqueViewersMap = new Map();
+    allViewers.forEach((view) => {
+      if (!uniqueViewersMap.has(view.userId)) {
+        uniqueViewersMap.set(view.userId, view.user);
+      }
+    });
+    const recentViewers = Array.from(uniqueViewersMap.values()).slice(0, 10);
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          postId,
+          views: viewCount,
+          likes: likesCount,
+          comments: commentsCount,
+          bookmarks: bookmarksCount,
+          engagementScore: Math.round(engagementScore * 10) / 10,
+          recentViewers,
+        },
+        "Post statistics fetched successfully"
+      )
+    );
+  } catch (error) {
+    console.error("Get post statistics error:", error);
+    return res.status(500).json(new ApiError(500, error.message));
+  }
+};
+
+export { createPost, deletePost, getFeed, getSinglePost, recordPostView, getPostStatistics };

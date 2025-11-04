@@ -1,7 +1,7 @@
 import numpy as np
 from datetime import datetime, timedelta
 import math
-
+import re
 class RecommendationEngine:
     def __init__(self):
         pass
@@ -213,14 +213,7 @@ class RecommendationEngine:
     # Personalized Feed
     # ---------------------------
     def generate_personalized_feed(self, user_id, user_topics, posts, user_activity=None, limit=50):
-        """
-        Generate personalized feed based on user's interest topics and activity.
-        Scores posts based on:
-        1. Topic relevance (how many of user's topics match post topics)
-        2. Engagement signals (likes, comments, views)
-        3. Recency (newer posts get boost)
-        4. User activity patterns (what types of posts user interacts with)
-        """
+       
         if not posts:
             return []
         
@@ -359,3 +352,120 @@ class RecommendationEngine:
             return 0.8
         words1, words2 = set(str1_lower.split()), set(str2_lower.split())
         return len(words1 & words2) / len(words1 | words2) if words1 and words2 else 0.0
+
+    def analyze_content_moderation(self, content):
+    
+        if not content or not isinstance(content, str):
+            return {
+                'flagged': False,
+                'confidence': 0.0,
+                'categories': [],
+                'reasons': [],
+                'severity': 'none',
+                'action': 'allow'
+            }
+
+        content_lower = content.lower()
+        flags = []
+        reasons = []
+        severity_score = 0.0
+
+        # Define inappropriate content patterns
+        profanity_keywords = [
+            'damn', 'hell', 'ass', 'crap', 'shit', 'fuck', 'bitch', 'bastard',
+            'piss', 'dick', 'cock', 'pussy', 'whore', 'slut', 'faggot', 'nigger',
+            'cunt', 'motherfucker', 'asshole'
+        ]
+
+        hate_speech_keywords = [
+            'hate', 'kill all', 'death to', 'inferior', 'subhuman', 'vermin',
+            'scum', 'trash', 'terrorist', 'nazi', 'fascist', 'racist',
+            'sexist', 'bigot', 'supremacy'
+        ]
+
+        violent_keywords = [
+            'kill', 'murder', 'torture', 'rape', 'assault', 'attack',
+            'bomb', 'shoot', 'stab', 'hurt', 'harm', 'destroy',
+            'violence', 'weapon', 'gun', 'knife'
+        ]
+
+        spam_patterns = [
+            'click here', 'buy now', 'limited time', 'act now', 'free money',
+            'earn $$$', 'make money fast', 'get rich', 'work from home',
+            'viagra', 'casino', 'lottery', 'winner', 'prize', 'claim now'
+        ]
+
+        # Helper function to check for word boundaries to avoid false positives
+        def contains_word(text, word):
+            """Check if word exists with word boundaries to avoid partial matches"""
+            pattern = r'\b' + re.escape(word) + r'\b'
+            return bool(re.search(pattern, text, re.IGNORECASE))
+
+        # Check for profanity
+        profanity_count = sum(1 for word in profanity_keywords if contains_word(content_lower, word))
+        if profanity_count > 0:
+            flags.append('profanity')
+            severity_score += profanity_count * 0.3
+            reasons.append(f'Contains {profanity_count} profane word(s)')
+
+        # Check for hate speech (phrases can use simple substring matching)
+        hate_count = sum(1 for phrase in hate_speech_keywords if phrase in content_lower)
+        if hate_count > 0:
+            flags.append('hate_speech')
+            severity_score += hate_count * 0.5
+            reasons.append(f'Contains {hate_count} hate speech pattern(s)')
+
+        # Check for violent content
+        violent_count = sum(1 for word in violent_keywords if contains_word(content_lower, word))
+        if violent_count > 2:  # Only flag if multiple violent words
+            flags.append('violence')
+            severity_score += violent_count * 0.4
+            reasons.append(f'Contains {violent_count} violent term(s)')
+
+        # Check for spam (phrases can use simple substring matching)
+        spam_count = sum(1 for phrase in spam_patterns if phrase in content_lower)
+        if spam_count > 1:  # Require multiple spam indicators
+            flags.append('spam')
+            severity_score += spam_count * 0.3
+            reasons.append(f'Contains {spam_count} spam pattern(s)')
+
+        # Check for excessive capitalization (potential shouting/spam)
+        if len(content) > 20:
+            caps_ratio = sum(1 for c in content if c.isupper()) / len(content)
+            if caps_ratio > 0.5:
+                flags.append('excessive_caps')
+                severity_score += 0.2
+                reasons.append('Excessive capitalization detected')
+
+        # Check for repetitive characters (spam indicator)
+        repetitive_pattern = re.findall(r'(.)\1{4,}', content)
+        if repetitive_pattern:
+            flags.append('repetitive_content')
+            severity_score += 0.2
+            reasons.append('Repetitive character patterns detected')
+
+        # Normalize severity score to 0-1 range
+        confidence = min(severity_score, 1.0)
+
+        # Determine overall severity level
+        if confidence >= 0.7:
+            severity = 'high'
+        elif confidence >= 0.4:
+            severity = 'medium'
+        elif confidence >= 0.2:
+            severity = 'low'
+        else:
+            severity = 'none'
+
+        # Determine if content should be flagged
+        flagged = len(flags) > 0 and confidence >= 0.2
+
+        return {
+            'flagged': flagged,
+            'confidence': round(confidence, 2),
+            'categories': list(set(flags)),
+            'reasons': reasons,
+            'severity': severity,
+            'action': 'block' if confidence >= 0.7 else ('review' if confidence >= 0.4 else 'allow')
+        }
+    
