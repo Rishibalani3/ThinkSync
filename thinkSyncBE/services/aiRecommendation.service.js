@@ -80,3 +80,20 @@ export const checkAIServiceHealth = async () => {
     return false;
   }
 };
+
+/**
+ * Analyze content for moderation/censorship
+ */
+export const analyzeContentModeration = async (content, contentType = "post") => {
+  try {
+    const response = await axios.post(`${AI_SERVICE_URL}/api/moderation/analyze`, {
+      content,
+      contentType,
+    });
+    return response.data.moderation || null;
+  } catch (error) {
+    console.error("AI Content Moderation Error:", error.message);
+    // Return null on error to allow content through (fail open)
+    return null;
+  }
+};

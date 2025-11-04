@@ -258,6 +258,32 @@ def get_personalized_feed():
         return jsonify({'error': str(e)}), 500
 
 # ---------------------------
+# Content Moderation / Censorship
+# ---------------------------
+@app.route('/api/moderation/analyze', methods=['POST'])
+def analyze_content():
+    try:
+        data = request.get_json()
+        content = data.get('content', '')
+        content_type = data.get('contentType', 'post')  # 'post' or 'comment'
+
+        if not content:
+            return jsonify({'error': 'content is required'}), 400
+
+        # Analyze content for inappropriate material
+        moderation_result = recommendation_engine.analyze_content_moderation(content)
+
+        return jsonify({
+            'success': True,
+            'moderation': moderation_result,
+            'contentType': content_type
+        })
+
+    except Exception as e:
+        print(f"Error in analyze_content: {e}")
+        return jsonify({'error': str(e)}), 500
+
+# ---------------------------
 # Start Service
 # ---------------------------
 if __name__ == '__main__':

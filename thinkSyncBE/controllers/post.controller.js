@@ -3,12 +3,45 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { prisma } from "../config/db.js";
 import { uploadOnCloudinary } from "../utils/Cloudinary.js";
 import { timeAgo } from "../utils/HelperFunction.js";
+import { analyzeContentModeration } from "../services/aiRecommendation.service.js";
+
 const createPost = async (req, res) => {
   try {
     const { content, type } = req.body;
 
     if (!content || !type) {
       return res.status(400).json(new ApiError(400, "Missing fields"));
+    }
+
+    // AI Content Moderation - Check for inappropriate content
+    const moderationResult = await analyzeContentModeration(content, "post");
+    if (moderationResult) {
+      // Block content if high confidence of inappropriate material
+      if (moderationResult.action === "block") {
+        return res.status(400).json(
+          new ApiError(
+            400,
+            "Content flagged as inappropriate: " + moderationResult.reasons.join(", "),
+            [],
+            {
+              moderation: {
+                flagged: moderationResult.flagged,
+                categories: moderationResult.categories,
+                severity: moderationResult.severity,
+              },
+            }
+          )
+        );
+      }
+      
+      // Log for review if medium confidence
+      if (moderationResult.action === "review") {
+        console.warn("Post flagged for review:", {
+          userId: req.user.id,
+          content: content.substring(0, 100),
+          moderation: moderationResult,
+        });
+      }
     }
 
     // Parse optional JSON fields safely
