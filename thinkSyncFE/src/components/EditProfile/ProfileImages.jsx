@@ -75,7 +75,7 @@ const ProfileImages = ({ userData, onUpload, isUploading }) => {
           {console.log("Avatar URL:", userData.avatar)}
           <img
             src={
-              `http://localhost:3000/proxy?url=${encodeURIComponent(
+              `${import.meta.env.VITE_API_URL}/proxy?url=${encodeURIComponent(
                 userData.avatar
               )}` || "/default-avatar.jpg"
             }

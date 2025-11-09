@@ -16,7 +16,10 @@ export function useNotifications() {
       const res = await api.get("/notifications");
       setNotifications(res.data.data || []);
     } catch (e) {
-      console.error("Error fetching notifications:", e.response?.data || e.message);
+      console.error(
+        "Error fetching notifications:",
+        e.response?.data || e.message
+      );
       setNotifications([]);
     }
     setLoading(false);
@@ -27,7 +30,9 @@ export function useNotifications() {
 
     if (socketRef.current) socketRef.current.disconnect();
 
-    socketRef.current = io("http://localhost:3000", { withCredentials: true });
+    socketRef.current = io(import.meta.env.BACKEND_URL, {
+      withCredentials: true,
+    });
     socketRef.current.emit("registerUser", user.id);
 
     socketRef.current.on("newNotification", (notif) => {
@@ -43,11 +48,17 @@ export function useNotifications() {
 
   const markAsRead = async (id) => {
     await api.post(`/notifications/${id}/read`);
-    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, seen: true } : n)));
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, seen: true } : n))
+    );
   };
 
   const markAllAsRead = async () => {
-    await Promise.all(notifications.filter((n) => !n.seen).map((n) => api.post(`/notifications/${n.id}/read`)));
+    await Promise.all(
+      notifications
+        .filter((n) => !n.seen)
+        .map((n) => api.post(`/notifications/${n.id}/read`))
+    );
     setNotifications((prev) => prev.map((n) => ({ ...n, seen: true })));
   };
 

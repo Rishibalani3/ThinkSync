@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import api from "../utils/axios";
 import { FaImage, FaLink, FaPalette, FaUser } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
@@ -62,14 +62,10 @@ const Settings = () => {
       const formDataObj = new FormData();
       formDataObj.append(type, file);
 
-      const res = await axios.patch(
-        "http://localhost:3000/api/v1/user/update-images",
-        formDataObj,
-        {
-          withCredentials: true,
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
+      const res = await api.patch(`/user/update-images`, formDataObj, {
+        withCredentials: true,
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
       const imageUrl = res.data.url;
 
@@ -111,11 +107,9 @@ const Settings = () => {
     try {
       setLoading(true);
 
-      const res = await axios.patch(
-        "http://localhost:3000/api/v1/user/update",
-        changes,
-        { withCredentials: true }
-      );
+      const res = await api.patch(`/user/update`, changes, {
+        withCredentials: true,
+      });
 
       if (res.status === 200) {
         setUser(res.data.data);
