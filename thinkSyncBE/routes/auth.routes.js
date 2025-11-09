@@ -63,33 +63,42 @@ router.get(
   })
 );
 
-router.get(
-  "/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login" }),
-  (req, res, next) => {
-    req.login(req.user, (err) => {
-      if (err) {
-        console.error("Google login serialization error:", err);
+router.get("/google/callback", (req, res, next) => {
+  passport.authenticate(
+    "google",
+    { failureRedirect: "/login" },
+    (err, user, info) => {
+      if (err) return next(err);
+      if (!user)
         return res.redirect(
-          process.env.CORS_ORIGIN + "/login?error=session_error"
+          console.log("Peforming redirect after Google OAuth login[no user]")(
+            process.env.CORS_ORIGIN || "http://localhost:5173"
+          ) + "/login?error=no_user"
         );
-      }
 
-      // Save session after login
-      req.session.save((err) => {
-        if (err) {
-          console.error("Session save error:", err);
-          return res.redirect(
-            process.env.CORS_ORIGIN + "/login?error=session_error"
-          );
-        }
+      // 🔥 serialize user into the session
+      req.login(user, (err) => {
+        if (err) return next(err);
+        console.log("User logged in via Google OAuth:", user.id);
+        // 🔥 save session to DB before redirecting
+        req.session.save((saveErr) => {
+          if (saveErr) {
+            console.log("Session save error after Google login:", saveErr);
+            console.error("Session save error after Google login:", saveErr);
+            return res.redirect(
+              console.log("Peforming redirect after Google OAuth login")(
+                process.env.CORS_ORIGIN || "http://localhost:5173"
+              ) + "/login?error=session_error"
+            );
+          }
 
-        // Redirect to frontend after fully serialized
-        const frontendUrl = process.env.CORS_ORIGIN;
-        res.redirect(frontendUrl);
+          const frontendUrl =
+            process.env.CORS_ORIGIN || "http://localhost:5173";
+          return res.redirect(frontendUrl);
+        });
       });
-    });
-  }
-);
+    }
+  )(req, res, next);
+});
 
 export default router;
