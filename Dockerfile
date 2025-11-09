@@ -15,21 +15,18 @@ COPY thinkSyncBE .
 RUN npx prisma generate
 
 # --- Stage 3: Combine Flask + Express ---
-# --- Stage 3: Combine Flask + Express ---
-FROM node:20-alpine
+FROM node:20-bullseye   # ✅ Debian variant, larger but stable for builds
 WORKDIR /app
 
 COPY --from=express /app .
 COPY --from=flask /flask /flask
 
-# ✅ Install Python runtime and Flask deps (fixed for PEP 668 + build tools)
-RUN apk add --no-cache \
-      python3 py3-pip \
-      build-base gfortran linux-headers \
-      && pip install --no-cache-dir --break-system-packages -r /flask/requirements.txt \
-      && apk del build-base gfortran linux-headers
+# ✅ Install Python + Flask dependencies
+RUN apt-get update && apt-get install -y python3 python3-pip && \
+    pip install --no-cache-dir -r /flask/requirements.txt && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 EXPOSE 3000 5000
-
 CMD ["sh", "-c", "python3 /flask/app.py & node server.js"]
+
 
