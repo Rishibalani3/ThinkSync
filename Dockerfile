@@ -18,13 +18,12 @@ RUN npx prisma generate
 FROM node:20-alpine
 WORKDIR /app
 
-# Copy Express + Flask builds
 COPY --from=express /app .
 COPY --from=flask /flask /flask
 
-# Install Python runtime and Flask dependencies
+# ✅ Install Python + Flask dependencies (fix for PEP 668)
 RUN apk add --no-cache python3 py3-pip && \
-    pip install --no-cache-dir -r /flask/requirements.txt
+    pip install --no-cache-dir --break-system-packages -r /flask/requirements.txt
 
 EXPOSE 3000 5000
 
