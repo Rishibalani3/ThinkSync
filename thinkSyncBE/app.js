@@ -193,7 +193,6 @@ app.use("/api/v1/ai", aiRecommendationRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/announcements", announcementRoutes);
 
-// Health check (for testing purposes)
 app.get("/health", (req, res) => {
   res.json({
     message: "Server is running",

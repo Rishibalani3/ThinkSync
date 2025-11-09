@@ -107,6 +107,7 @@ export default function setupPassport() {
               details: {
                 upsert: {
                   create: { avatar: profile.photos?.[0]?.value },
+                  update: { avatar: profile.photos?.[0]?.value },
                 },
               },
             };
