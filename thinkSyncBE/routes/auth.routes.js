@@ -19,66 +19,71 @@ router.post("/login", (req, res, next) => {
     if (!user)
       return res.status(401).json({ message: info.message || "Unauthorized" });
 
-    // Regenerate session to ensure clean session for login
-    req.session.regenerate((err) => {
+    console.log("Before req.login - user.id:", user.id);
+    console.log("Before req.login - sessionID:", req.sessionID);
+    console.log("Before req.login - session exists:", !!req.session);
+
+    // Use req.login directly - it will handle session storage
+    // Don't regenerate - let req.login use the existing session
+    req.login(user, (err) => {
       if (err) {
-        console.error("Session regenerate error:", err);
+        console.error("req.login error:", err);
         return next(err);
       }
 
-      // Now login the user - this will store passport data in the new session
-      req.login(user, (err) => {
+      console.log("serializeUser should have been called by now");
+      
+      // Debug: Check if passport data is in session IMMEDIATELY after req.login
+      console.log(
+        "After req.login - session.passport:",
+        JSON.stringify(req.session.passport)
+      );
+      console.log("After req.login - user.id:", user.id);
+      console.log(
+        "After req.login - session keys:",
+        Object.keys(req.session)
+      );
+      console.log("After req.login - full session:", JSON.stringify(req.session, null, 2));
+
+      // CRITICAL: Wait for session to be saved to database
+      // The session.save() ensures data is persisted to PostgreSQL
+      req.session.save((err) => {
         if (err) {
-          console.error("req.login error:", err);
-          return next(err);
+          console.error("Session save error in login:", err);
+          return res.status(500).json({ message: "Failed to save session" });
         }
 
-        // Debug: Check if passport data is in session
+        console.log("Session saved to database");
+        
+        // Debug: Verify passport data is still in session after save
         console.log(
-          "After req.login - session.passport:",
-          req.session.passport
+          "After session.save - session.passport:",
+          JSON.stringify(req.session.passport)
         );
-        console.log("After req.login - user.id:", user.id);
         console.log(
-          "After req.login - session keys:",
-          Object.keys(req.session)
+          "After session.save - isAuthenticated:",
+          req.isAuthenticated()
         );
+        console.log(
+          "After session.save - req.user:",
+          req.user ? "present" : "missing"
+        );
+        console.log("After session.save - sessionID:", req.sessionID);
 
-        // Ensure session is saved before sending response
-        req.session.save((err) => {
-          if (err) {
-            console.error("Session save error in login:", err);
-            return res.status(500).json({ message: "Failed to save session" });
-          }
+        // Return user object without sensitive fields
+        const {
+          password,
+          googleAccessToken,
+          googleRefreshToken,
+          googleId,
+          ...safeUser
+        } = user;
 
-          // Debug: Verify passport data is still in session after save
-          console.log(
-            "After session.save - session.passport:",
-            req.session.passport
-          );
-          console.log(
-            "After session.save - isAuthenticated:",
-            req.isAuthenticated()
-          );
-          console.log(
-            "After session.save - req.user:",
-            req.user ? "present" : "missing"
-          );
+        // Log session info for debugging
+        console.log("Login successful - Session ID:", req.sessionID);
+        console.log("Response being sent with user data");
 
-          // Return user object without sensitive fields
-          const {
-            password,
-            googleAccessToken,
-            googleRefreshToken,
-            googleId,
-            ...safeUser
-          } = user;
-
-          // Log session info for debugging
-          console.log("Login successful - Session ID:", req.sessionID);
-
-          return res.json({ user: safeUser });
-        });
+        return res.json({ user: safeUser });
       });
     });
   })(req, res, next);

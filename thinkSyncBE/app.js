@@ -221,10 +221,13 @@ app.get("/api/v1/test-session", (req, res) => {
     res.json({
       sessionId: req.sessionID,
       session: req.session,
+      sessionPassport: req.session.passport,
       cookies: req.cookies,
       protocol: req.protocol,
       secure: req.secure,
       nodeEnv: process.env.NODE_ENV,
+      isAuthenticated: req.isAuthenticated(),
+      user: req.user ? "present" : "missing",
       setCookieHeaders: Array.isArray(setCookieHeaders)
         ? setCookieHeaders
         : [setCookieHeaders],
@@ -235,6 +238,50 @@ app.get("/api/v1/test-session", (req, res) => {
       },
     });
   });
+});
+
+// Check session in database directly
+app.get("/api/v1/check-db-session", async (req, res) => {
+  try {
+    const { pgPool } = await import("./config/db.js");
+    const sessionId = req.sessionID;
+    
+    const result = await pgPool.query(
+      'SELECT * FROM user_sessions WHERE sid = $1',
+      [sessionId]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.json({ 
+        found: false, 
+        sessionId,
+        message: "Session not found in database" 
+      });
+    }
+    
+    const sessionData = result.rows[0];
+    let sessData = null;
+    try {
+      sessData = typeof sessionData.sess === 'string' 
+        ? JSON.parse(sessionData.sess) 
+        : sessionData.sess;
+    } catch (e) {
+      sessData = sessionData.sess;
+    }
+    
+    res.json({
+      found: true,
+      sessionId,
+      sessionData: {
+        sid: sessionData.sid,
+        expire: sessionData.expire,
+        sess: sessData,
+        passport: sessData?.passport,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message, stack: err.stack });
+  }
 });
 
 export { app, server, io, userSocketMap };

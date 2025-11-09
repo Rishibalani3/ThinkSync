@@ -81,7 +81,7 @@ const Login = ({ setIsAuthenticated }) => {
           }
 
           // Refresh auth state to ensure session is working
-          // Wait a bit for session to be fully saved
+          // Wait a bit for session to be fully saved to database
           setTimeout(async () => {
             const success = await refreshAuth();
             if (success) {
@@ -92,7 +92,7 @@ const Login = ({ setIsAuthenticated }) => {
                 "Login successful but session not established. Please try again."
               );
             }
-          }, 100);
+          }, 500); // Increased timeout to allow database write to complete
         }
       } catch (err) {
         console.log("Login failed:", err.response?.data || err.message);
