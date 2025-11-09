@@ -60,7 +60,7 @@ export default function setupPassport() {
           process.env.NODE_ENV === "production"
             ? "https://thinksync.up.railway.app/api/v1/auth/google/callback"
             : "http://localhost:3000/api/v1/auth/google/callback",
-        accessType: "offline", // Requesting offline access for refresh token (not return null now)
+        accessType: process.env.NODE_ENV === "production" ? "offline" : "", // Requesting offline access for refresh token (not return null now)
         prompt: "consent", //it always asks for consent from user like you want to log in with google for this app..
       },
       async (accessToken, refreshToken, profile, done) => {
@@ -107,7 +107,6 @@ export default function setupPassport() {
               details: {
                 upsert: {
                   create: { avatar: profile.photos?.[0]?.value },
-                  update: { avatar: profile.photos?.[0]?.value },
                 },
               },
             };
