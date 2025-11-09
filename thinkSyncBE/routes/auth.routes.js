@@ -22,8 +22,7 @@ router.post("/login", (req, res, next) => {
     if (!user)
       return res.status(401).json({ message: info?.message || "Unauthorized" });
 
-    // 🔥 Persist login to session
-    req.login(user, (err) => {
+    req.logIn(user, (err) => {
       if (err) return next(err);
 
       req.session.save((err) => {
@@ -77,7 +76,7 @@ router.get("/google/callback", (req, res, next) => {
         );
 
       // 🔥 serialize user into the session
-      req.login(user, (err) => {
+      req.logIn(user, (err) => {
         if (err) return next(err);
         console.log("User logged in via Google OAuth:", user.id);
         // 🔥 save session to DB before redirecting
