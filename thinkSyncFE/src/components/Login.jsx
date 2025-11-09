@@ -57,7 +57,9 @@ const Login = ({ setIsAuthenticated }) => {
           password: formData.password,
         });
         if (res.status === 201) {
-          window.location.href = "http://localhost:5173/login?success=true";
+          window.location.href = `${
+            import.meta.env.FRONTEND_URL || "http://localhost:5173"
+          }/login?success=true`;
         }
       } catch (err) {
         console.log("Registration failed:", err.response?.data || err.message);
@@ -66,7 +68,9 @@ const Login = ({ setIsAuthenticated }) => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:3000/api/v1/auth/google";
+    window.location.href =
+      `${import.meta.env.BACKEND_URL}/auth/google` ||
+      "http://localhost:3000/api/v1/auth/google";
   };
 
   return (
