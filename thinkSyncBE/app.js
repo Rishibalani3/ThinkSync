@@ -35,7 +35,10 @@ const server = createServer(app);
 // Socket.IO setup
 // Setting here origin to allow requests from frontend
 const io = new Server(server, {
-  cors: { origin: "http://localhost:5173", credentials: true },
+  cors: {
+    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+    credentials: true,
+  },
 });
 
 // ---- USER-SOCKETID MAPPING ----
@@ -66,7 +69,12 @@ io.on("connection", (socket) => {
 // Middleware
 // ---------------------
 app.use(express.json());
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+    credentials: true,
+  })
+);
 app.use(cookieParser());
 app.use(sessionMiddleware);
 
