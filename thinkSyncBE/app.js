@@ -93,7 +93,10 @@ if (process.env.NODE_ENV === "production") {
       if (name.toLowerCase() === "set-cookie") {
         const cookies = Array.isArray(value) ? value : [value];
         value = cookies.map((cookie) => {
-          if (cookie.includes("thinksync.sid") && !cookie.includes("Partitioned")) {
+          if (
+            cookie.includes("thinksync.sid") &&
+            !cookie.includes("Partitioned")
+          ) {
             return cookie + "; Partitioned";
           }
           return cookie;
@@ -111,7 +114,6 @@ setupPassport();
 
 app.use(passport.initialize());
 app.use(passport.session());
-
 
 // for proxying images to avoid CORS issues
 app.get("/proxy", async (req, res) => {
@@ -206,30 +208,31 @@ app.get("/api/v1/check-db-session", async (req, res) => {
   try {
     const { pgPool } = await import("./config/db.js");
     const sessionId = req.sessionID;
-    
+
     const result = await pgPool.query(
-      'SELECT * FROM user_sessions WHERE sid = $1',
+      "SELECT * FROM user_sessions WHERE sid = $1",
       [sessionId]
     );
-    
+
     if (result.rows.length === 0) {
-      return res.json({ 
-        found: false, 
+      return res.json({
+        found: false,
         sessionId,
-        message: "Session not found in database" 
+        message: "Session not found in database",
       });
     }
-    
+
     const sessionData = result.rows[0];
     let sessData = null;
     try {
-      sessData = typeof sessionData.sess === 'string' 
-        ? JSON.parse(sessionData.sess) 
-        : sessionData.sess;
+      sessData =
+        typeof sessionData.sess === "string"
+          ? JSON.parse(sessionData.sess)
+          : sessionData.sess;
     } catch (e) {
       sessData = sessionData.sess;
     }
-    
+
     res.json({
       found: true,
       sessionId,

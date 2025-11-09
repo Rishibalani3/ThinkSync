@@ -12,20 +12,23 @@ import forgotPasswordLimiter from "../utils/ForgotPasswordMiddleware.js";
 
 const router = Router();
 
+/* ---------------- LOCAL AUTH ---------------- */
+
 router.post("/signup", signup);
+
 router.post("/login", (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
     if (err) return next(err);
     if (!user)
-      return res.status(401).json({ message: info.message || "Unauthorized" });
+      return res.status(401).json({ message: info?.message || "Unauthorized" });
 
+    // 🔥 Persist login to session
     req.login(user, (err) => {
       if (err) return next(err);
 
       req.session.save((err) => {
-        if (err) {
+        if (err)
           return res.status(500).json({ message: "Failed to save session" });
-        }
 
         const {
           password,
@@ -42,31 +45,49 @@ router.post("/login", (req, res, next) => {
 });
 
 router.post("/logout", logout);
+
+/* ---------------- PASSWORD RESET ---------------- */
+
 router.post("/forgot-password", forgotPasswordLimiter, forgotPassword);
 router.post("/reset-password", resetPassword);
 router.get("/validate-reset-token", validateResetToken);
 
-// google
+/* ---------------- GOOGLE OAUTH ---------------- */
+
 router.get(
   "/google",
   passport.authenticate("google", {
     scope: ["profile", "email"],
     accessType: "offline",
-    prompt: "consent", //it always asks for consent from user like you want to log in with google for this app..
+    prompt: "consent",
   })
 );
+
 router.get(
   "/google/callback",
   passport.authenticate("google", { failureRedirect: "/login" }),
-  (req, res) => {
-    req.session.save((err) => {
+  (req, res, next) => {
+    req.login(req.user, (err) => {
       if (err) {
+        console.error("Google login serialization error:", err);
         return res.redirect(
-          (process.env.CORS_ORIGIN || "http://localhost:5173") + "/login?error=session_error"
+          process.env.CORS_ORIGIN + "/login?error=session_error"
         );
       }
-      const frontendUrl = process.env.CORS_ORIGIN || "http://localhost:5173";
-      res.redirect(frontendUrl);
+
+      // Save session after login
+      req.session.save((err) => {
+        if (err) {
+          console.error("Session save error:", err);
+          return res.redirect(
+            process.env.CORS_ORIGIN + "/login?error=session_error"
+          );
+        }
+
+        // Redirect to frontend after fully serialized
+        const frontendUrl = process.env.CORS_ORIGIN;
+        res.redirect(frontendUrl);
+      });
     });
   }
 );
