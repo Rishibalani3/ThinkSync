@@ -50,8 +50,21 @@ router.get(
 );
 router.get(
   "/google/callback",
-  passport.authenticate("google", { failureRedirect: "/" }),
-  (req, res) => res.redirect(process.env.CORS_ORIGIN || "http://localhost:5173")
+  passport.authenticate("google", { failureRedirect: "/login" }),
+  (req, res) => {
+    // Ensure session is saved before redirecting
+    req.session.save((err) => {
+      if (err) {
+        console.error("Session save error in OAuth callback:", err);
+        return res.redirect(
+          (process.env.CORS_ORIGIN?.split(',')[0]?.trim() || "http://localhost:5173") + "/login?error=session_error"
+        );
+      }
+      // Get the first origin if multiple are provided
+      const frontendUrl = process.env.CORS_ORIGIN?.split(',')[0]?.trim() || "http://localhost:5173";
+      res.redirect(frontendUrl);
+    });
+  }
 );
 
 export default router;

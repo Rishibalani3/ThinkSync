@@ -12,14 +12,16 @@ const sessionMiddleware = session({
   }),
   secret: process.env.SESSION_SECRET || "fallback-secret-key",
   resave: false,
-  saveUninitialized: true, 
+  saveUninitialized: false, // Only save sessions for authenticated users
   rolling: true,
+  name: 'thinksync.sid', // Session name - must be outside cookie config
   cookie: { 
     httpOnly: true, 
-    secure: true,
-    sameSite: "none",
+    secure: true, // Must be true when sameSite is "none" (required for cross-site cookies)
+    sameSite: "none", // Required for cross-site cookies (frontend on Vercel, backend on Railway)
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days 
-    name: 'thinksync.sid' //Session name
+    path: "/", // Ensure cookie is sent with all requests
+    // Don't set domain - let browser handle it for cross-site cookies
   },
 });
 

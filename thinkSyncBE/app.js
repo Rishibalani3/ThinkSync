@@ -36,8 +36,11 @@ const server = createServer(app);
 // Setting here origin to allow requests from frontend
 const io = new Server(server, {
   cors: {
-    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+    origin: process.env.CORS_ORIGIN 
+      ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
+      : "http://localhost:5173",
     credentials: true,
+    methods: ["GET", "POST"],
   },
   transports: ["websocket", "polling"],
 });
@@ -72,8 +75,13 @@ io.on("connection", (socket) => {
 app.use(express.json());
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+    origin: process.env.CORS_ORIGIN 
+      ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim()) // Support multiple origins
+      : "http://localhost:5173",
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    exposedHeaders: ["Set-Cookie"],
   })
 );
 app.use(cookieParser());
