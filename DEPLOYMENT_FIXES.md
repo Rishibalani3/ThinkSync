@@ -45,31 +45,42 @@ VITE_FRONTEND_URL=https://thinksync.me
 
 ## Key Changes Made
 
-### 1. Session Configuration (`thinkSyncBE/config/session.js`)
-- Moved `name` outside cookie config (required by express-session)
-- Set `sameSite: "none"` for cross-site cookies
-- Set `secure: true` (required when sameSite is "none")
-- Set `path: "/"` to ensure cookie is sent with all requests
-- Changed `saveUninitialized: false` to only save authenticated sessions
+### 1. Trust Proxy Configuration (`thinkSyncBE/app.js`)
+- Added `app.set('trust proxy', 1)` - **CRITICAL for Railway**
+- This ensures Express correctly detects HTTPS behind Railway's proxy
+- Without this, `req.secure` will be false and secure cookies won't be set
 
-### 2. CORS Configuration (`thinkSyncBE/app.js`)
+### 2. Session Configuration (`thinkSyncBE/config/session.js`)
+- Moved `name` outside cookie config (required by express-session)
+- Set `sameSite: "none"` for cross-site cookies in production
+- Set `secure: true` in production (required when sameSite is "none")
+- Set `path: "/"` to ensure cookie is sent with all requests
+- Set `saveUninitialized: true` to ensure session is created before authentication
+
+### 3. CORS Configuration (`thinkSyncBE/app.js`)
 - Updated to support multiple origins (comma-separated)
 - Added proper headers for credentials
 - Updated Socket.IO CORS to match
 
-### 3. OAuth Callback (`thinkSyncBE/routes/auth.routes.js`)
+### 4. Login Route (`thinkSyncBE/routes/auth.routes.js`)
+- Added explicit session save before sending response
+- Ensured session is properly created and saved
+- Added debugging logs (can be removed in production)
+
+### 5. OAuth Callback (`thinkSyncBE/routes/auth.routes.js`)
 - Added session save before redirect
 - Fixed redirect URL to handle multiple origins
 - Added error handling
 
-### 4. Vercel Configuration (`thinkSyncFE/vercel.json`)
+### 6. Vercel Configuration (`thinkSyncFE/vercel.json`)
 - Added rewrite rules for SPA routing
 - Added security headers
 
-### 5. Frontend Login (`thinkSyncFE/src/components/Login.jsx`)
+### 7. Frontend Login (`thinkSyncFE/src/components/Login.jsx`)
 - Added authentication check after OAuth callback
 - Fixed Google login URL construction
 - Added redirect if already authenticated
+- Added user data fetch after login to verify session
 
 ## Testing Checklist
 
@@ -87,15 +98,26 @@ After deploying, verify:
 ## Troubleshooting
 
 ### Cookies still not being set
-- Verify `CORS_ORIGIN` is set correctly in Railway
+- **CRITICAL**: Verify `app.set('trust proxy', 1)` is set in app.js (already done)
+- Verify `CORS_ORIGIN` is set correctly in Railway: `https://thinksync.me`
 - Check that backend URL uses HTTPS (required for Secure cookies)
 - Verify `SESSION_SECRET` is set
+- Verify `NODE_ENV=production` is set in Railway
 - Check browser console for cookie warnings
+- Test the `/api/v1/test-session` endpoint to see if sessions work
 
 ### 401 Errors after login
-- Verify cookies are being sent in requests (check Network tab)
+- Verify cookies are being sent in requests (check Network tab > Headers > Request Headers)
 - Check that `withCredentials: true` is set in axios config (already done)
 - Verify CORS allows credentials
+- Check browser DevTools > Application > Cookies to see if `thinksync.sid` is present
+- Verify the cookie has `SameSite=None; Secure` attributes
+
+### Session not persisting
+- Check Railway logs for "Session save error" messages
+- Verify database connection is working (sessions are stored in PostgreSQL)
+- Check that `user_sessions` table exists in database
+- Test with `/api/v1/test-session` endpoint
 
 ### Vercel 404 on refresh
 - Ensure `vercel.json` is in the frontend root directory
@@ -104,4 +126,11 @@ After deploying, verify:
 ### OAuth redirect issues
 - Verify Google OAuth callback URL in Google Console matches: `https://thinksync.up.railway.app/api/v1/auth/google/callback`
 - Check that `CORS_ORIGIN` is set to `https://thinksync.me` (without trailing slash)
+
+### Debugging Steps
+1. Check Railway logs after login attempt - look for "Login successful - Session ID:" message
+2. Check browser Network tab - verify `Set-Cookie` header is present in login response
+3. Check browser Application > Cookies - verify `thinksync.sid` cookie exists with correct attributes
+4. Test `/api/v1/test-session` endpoint to verify session creation works
+5. Check `/health` endpoint to verify environment variables are set correctly
 

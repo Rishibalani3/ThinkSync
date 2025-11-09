@@ -21,15 +21,30 @@ router.post("/login", (req, res, next) => {
 
     req.login(user, (err) => {
       if (err) return next(err);
-      // Return user object without sensitive fields
-      const {
-        password,
-        googleAccessToken,
-        googleRefreshToken,
-        googleId,
-        ...safeUser
-      } = user;
-      return res.json({ user: safeUser });
+      
+      // Ensure session is saved before sending response
+      // req.login() stores user.id in session, which triggers session creation
+      req.session.save((err) => {
+        if (err) {
+          console.error("Session save error in login:", err);
+          return res.status(500).json({ message: "Failed to save session" });
+        }
+        
+        // Return user object without sensitive fields
+        const {
+          password,
+          googleAccessToken,
+          googleRefreshToken,
+          googleId,
+          ...safeUser
+        } = user;
+        
+        // Log session info for debugging (remove in production)
+        console.log("Login successful - Session ID:", req.sessionID);
+        console.log("Session cookie will be set by express-session");
+        
+        return res.json({ user: safeUser });
+      });
     });
   })(req, res, next);
 });

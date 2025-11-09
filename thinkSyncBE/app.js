@@ -29,6 +29,10 @@ dotenv.config();
 // Create Express app
 const app = express();
 
+// Trust proxy - required for Railway and other hosting platforms behind a proxy
+// This ensures req.protocol and req.secure are correctly set for HTTPS
+app.set('trust proxy', 1);
+
 // Create HTTP server for Socket.IO
 const server = createServer(app);
 
@@ -148,6 +152,31 @@ app.get("/health", (req, res) => {
     message: "Server is running",
     sessionSecret: process.env.SESSION_SECRET ? "Set" : "Not set",
     databaseUrl: process.env.DATABASE_URL ? "Set" : "Not set",
+    corsOrigin: process.env.CORS_ORIGIN || "Not set",
+    nodeEnv: process.env.NODE_ENV || "Not set",
+    protocol: req.protocol,
+    secure: req.secure,
+  });
+});
+
+// Session test endpoint (for debugging)
+app.get("/api/v1/test-session", (req, res) => {
+  req.session.test = "Session is working";
+  req.session.save((err) => {
+    if (err) {
+      return res.status(500).json({ error: "Session save failed", details: err.message });
+    }
+    res.json({
+      sessionId: req.sessionID,
+      session: req.session,
+      cookies: req.cookies,
+      protocol: req.protocol,
+      secure: req.secure,
+      headers: {
+        origin: req.headers.origin,
+        referer: req.headers.referer,
+      },
+    });
   });
 });
 
