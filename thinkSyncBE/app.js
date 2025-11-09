@@ -169,7 +169,7 @@ app.get("/health", (req, res) => {
 });
 
 // Session test endpoint (for debugging)
-app.get("/api/v1/ ", (req, res) => {
+app.get("/api/v1/test-session", (req, res) => {
   req.session.test = "Session is working";
   req.session.save((err) => {
     if (err) {
