@@ -72,7 +72,6 @@ const ProfileImages = ({ userData, onUpload, isUploading }) => {
           whileHover={{ scale: 1.05 }}
           transition={{ duration: 0.3 }}
         >
-          {console.log("Avatar URL:", userData.avatar)}
           <img
             src={
               `${
