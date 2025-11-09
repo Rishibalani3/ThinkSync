@@ -20,8 +20,9 @@ const sessionMiddleware = session({
   cookie: {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
+    sameSite: "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
+    domain: isProduction ? ".thinksync.me" : undefined, // ✅ works for api. + main domain
   },
 });
 

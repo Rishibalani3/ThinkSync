@@ -20,6 +20,7 @@ import notificationRoutes from "./routes/notification.routes.js";
 import aiRecommendationRoutes from "./routes/aiRecommendation.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import announcementRoutes from "./routes/announcement.routes.js";
+import { pgPool } from "./config/db.js";
 
 import { createServer } from "http";
 import { Server } from "socket.io";
@@ -85,29 +86,6 @@ app.use(
 app.use(cookieParser());
 app.use(sessionMiddleware);
 
-// Add Partitioned attribute to cookies in production (required for cross-site cookies)
-if (process.env.NODE_ENV === "production") {
-  app.use((req, res, next) => {
-    const originalSetHeader = res.setHeader.bind(res);
-    res.setHeader = function (name, value) {
-      if (name.toLowerCase() === "set-cookie") {
-        const cookies = Array.isArray(value) ? value : [value];
-        value = cookies.map((cookie) => {
-          if (
-            cookie.includes("thinksync.sid") &&
-            !cookie.includes("Partitioned")
-          ) {
-            return cookie + "; Partitioned";
-          }
-          return cookie;
-        });
-      }
-      return originalSetHeader(name, value);
-    };
-    next();
-  });
-}
-
 // CRITICAL: setupPassport() must be called BEFORE passport.session()
 // This registers serializeUser and deserializeUser functions
 setupPassport();
@@ -159,6 +137,7 @@ app.use("/api/v1/announcements", announcementRoutes);
 app.get("/health", (req, res) => {
   res.json({
     message: "Server is running",
+
     sessionSecret: process.env.SESSION_SECRET ? "Set" : "Not set",
     databaseUrl: process.env.DATABASE_URL ? "Set" : "Not set",
     corsOrigin: process.env.CORS_ORIGIN || "Not set",
@@ -206,7 +185,6 @@ app.get("/api/v1/test-session", (req, res) => {
 // Check session in database directly
 app.get("/api/v1/check-db-session", async (req, res) => {
   try {
-    const { pgPool } = await import("./config/db.js");
     const sessionId = req.sessionID;
 
     const result = await pgPool.query(

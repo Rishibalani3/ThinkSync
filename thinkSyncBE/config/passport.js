@@ -58,7 +58,7 @@ export default function setupPassport() {
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         callbackURL:
           process.env.NODE_ENV === "production"
-            ? "https://thinksync.up.railway.app/api/v1/auth/google/callback"
+            ? "https://api.thinksync.me/api/v1/auth/google/callback"
             : "http://localhost:3000/api/v1/auth/google/callback",
         accessType: process.env.NODE_ENV === "production" ? "offline" : "", // Requesting offline access for refresh token (not return null now)
         prompt: "consent", //it always asks for consent from user like you want to log in with google for this app..
