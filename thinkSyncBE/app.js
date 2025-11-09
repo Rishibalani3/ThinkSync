@@ -39,6 +39,7 @@ const io = new Server(server, {
     origin: process.env.CORS_ORIGIN || "http://localhost:5173",
     credentials: true,
   },
+  transports: ["websocket", "polling"],
 });
 
 // ---- USER-SOCKETID MAPPING ----

@@ -51,7 +51,7 @@ router.get(
 router.get(
   "/google/callback",
   passport.authenticate("google", { failureRedirect: "/" }),
-  (req, res) => res.redirect("http://localhost:5173/")
+  (req, res) => res.redirect(process.env.CORS_ORIGIN || "http://localhost:5173")
 );
 
 export default router;
