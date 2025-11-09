@@ -79,7 +79,7 @@ const Login = ({ setIsAuthenticated }) => {
             setUser(res.data.user);
             setIsAuthenticated(true);
           }
-          
+
           // Refresh auth state to ensure session is working
           // Wait a bit for session to be fully saved
           setTimeout(async () => {
@@ -88,13 +88,17 @@ const Login = ({ setIsAuthenticated }) => {
               navigate("/");
             } else {
               console.error("Session not working after login");
-              setSuccessMessage("Login successful but session not established. Please try again.");
+              setSuccessMessage(
+                "Login successful but session not established. Please try again."
+              );
             }
           }, 100);
         }
       } catch (err) {
         console.log("Login failed:", err.response?.data || err.message);
-        setSuccessMessage(err.response?.data?.message || "Login failed. Please try again.");
+        setSuccessMessage(
+          err.response?.data?.message || "Login failed. Please try again."
+        );
       }
     } else {
       try {
@@ -105,7 +109,7 @@ const Login = ({ setIsAuthenticated }) => {
         });
         if (res.status === 201) {
           window.location.href = `${
-            import.meta.env.VITE_FRONTEND_URL || "http://localhost:5173"
+            import.meta.env.VITE_FRONTEND_URL
           }/login?success=true`;
         }
       } catch (err) {
@@ -115,7 +119,8 @@ const Login = ({ setIsAuthenticated }) => {
   };
 
   const handleGoogleLogin = () => {
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000/api/v1";
+    const backendUrl =
+      import.meta.env.VITE_BACKEND_URL || "http://localhost:3000/api/v1";
     window.location.href = `${backendUrl}/auth/google`;
   };
 

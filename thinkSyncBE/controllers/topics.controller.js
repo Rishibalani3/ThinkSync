@@ -2,7 +2,10 @@ import { prisma } from "../config/db.js";
 import Fuse from "fuse.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { timeAgo } from "../utils/HelperFunction.js";
-import { getTrendingTopics, getTrendingPosts } from "../services/aiRecommendation.service.js";
+import {
+  getTrendingTopics,
+  getTrendingPosts,
+} from "../services/aiRecommendation.service.js";
 
 const fetchPostsByTopic = async (req, res) => {
   const { topicName } = req.params;
@@ -85,15 +88,15 @@ const fetchTredingPosts = async (req, res) => {
   try {
     const userId = req.user?.id || null;
     const limit = parseInt(req.query.limit) || 20;
-    
+
     // Try to get AI-powered trending posts
     const aiTrending = await getTrendingPosts(limit * 2, 72); // 3 days window
-    
+
     if (aiTrending && aiTrending.length > 0) {
       // Fetch full post details
       const postIds = aiTrending.map((p) => p.post_id);
       const posts = await prisma.post.findMany({
-        where: { 
+        where: {
           id: { in: postIds },
           status: { not: "flagged" }, // Filter out flagged posts
         },
@@ -207,7 +210,7 @@ const fetchTredingPosts = async (req, res) => {
         _count: { select: { likes: true, comments: true } },
       },
     });
-    
+
     const transformedPosts = posts.map((post) => ({
       id: post.id,
       author: {
@@ -215,7 +218,9 @@ const fetchTredingPosts = async (req, res) => {
         username: post.author?.username,
         avatar:
           post.author?.details?.avatar ||
-          `https://placehold.co/40x40/667eea/ffffff?text=${post.author?.username?.[0] || "U"}`,
+          `https://placehold.co/40x40/667eea/ffffff?text=${
+            post.author?.username?.[0] || "U"
+          }`,
       },
       content: post.content,
       type: post.type || "idea",
@@ -234,7 +239,7 @@ const fetchTredingPosts = async (req, res) => {
       isBookmarked: userId ? post.Bookmark?.length > 0 : false,
       score: post._count?.likes || 0,
     }));
-    
+
     return res.status(200).json({ posts: transformedPosts });
   } catch (error) {
     console.error("Trending posts error:", error);
@@ -245,10 +250,10 @@ const fetchTredingPosts = async (req, res) => {
 const fetchTredingTopics = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 10;
-    
+
     // Try to get AI-powered trending topics
     const aiTrending = await getTrendingTopics(limit, 168); // 7 days window
-    
+
     if (aiTrending && aiTrending.length > 0) {
       // Fetch full topic details
       const topicIds = aiTrending.map((t) => t.topic_id);
@@ -278,14 +283,14 @@ const fetchTredingTopics = async (req, res) => {
     const topics = await prisma.topic.findMany({
       where: {
         posts: {
-          some: {}, // Only topics that have at least one post
+          some: {},
         },
       },
       orderBy: { _count: { posts: "desc" } },
       take: limit,
       include: { _count: { select: { posts: true } } },
     });
-    
+
     return res.status(200).json({ topics });
   } catch (error) {
     console.error("Trending topics error:", error);
@@ -298,7 +303,9 @@ const fetchTredingTopics = async (req, res) => {
       });
       return res.status(200).json({ topics });
     } catch (fallbackError) {
-      return res.status(500).json(new ApiResponse(500, "Internal Server Error"));
+      return res
+        .status(500)
+        .json(new ApiResponse(500, "Internal Server Error"));
     }
   }
 };
@@ -338,7 +345,7 @@ const getTopics = async (req, res) => {
 const updateUserTopics = async (req, res) => {
   try {
     const { topicIds } = req.body; // array of selected topic IDs
-    const userId = req.user?.id;  
+    const userId = req.user?.id;
     if (!userId || !Array.isArray(topicIds)) {
       return res
         .status(400)

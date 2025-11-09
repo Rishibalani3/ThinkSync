@@ -31,7 +31,7 @@ const app = express();
 
 // Trust proxy - required for Railway and other hosting platforms behind a proxy
 // This ensures req.protocol and req.secure are correctly set for HTTPS
-app.set('trust proxy', 1);
+app.set("trust proxy", 1);
 
 // Create HTTP server for Socket.IO
 const server = createServer(app);
@@ -40,9 +40,7 @@ const server = createServer(app);
 // Setting here origin to allow requests from frontend
 const io = new Server(server, {
   cors: {
-    origin: process.env.CORS_ORIGIN 
-      ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
-      : "http://localhost:5173",
+    origin: process.env.CORS_ORIGIN,
     credentials: true,
     methods: ["GET", "POST"],
   },
@@ -79,13 +77,9 @@ io.on("connection", (socket) => {
 app.use(express.json());
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN 
-      ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim()) // Support multiple origins
-      : "http://localhost:5173",
+    origin: process.env.CORS_ORIGIN,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-    exposedHeaders: ["Set-Cookie"],
   })
 );
 app.use(cookieParser());
@@ -100,31 +94,37 @@ app.use((req, res, next) => {
     const originalWriteHead = res.writeHead.bind(res);
     const originalEnd = res.end.bind(res);
     const originalSetHeader = res.setHeader.bind(res);
-    
+
     // Override setHeader to add Partitioned to session cookie
-    res.setHeader = function(name, value) {
-      if (name.toLowerCase() === 'set-cookie') {
+    res.setHeader = function (name, value) {
+      if (name.toLowerCase() === "set-cookie") {
         const cookies = Array.isArray(value) ? value : [value];
-        value = cookies.map(cookie => {
-          if (cookie.includes('thinksync.sid') && !cookie.includes('Partitioned')) {
+        value = cookies.map((cookie) => {
+          if (
+            cookie.includes("thinksync.sid") &&
+            !cookie.includes("Partitioned")
+          ) {
             // Add Partitioned attribute before any existing attributes
-            return cookie + '; Partitioned';
+            return cookie + "; Partitioned";
           }
           return cookie;
         });
       }
       return originalSetHeader(name, value);
     };
-    
+
     // Also intercept writeHead to modify headers
-    res.writeHead = function(statusCode, statusMessage, headers) {
-      if (headers && headers['set-cookie']) {
-        const cookies = Array.isArray(headers['set-cookie']) 
-          ? headers['set-cookie'] 
-          : [headers['set-cookie']];
-        headers['set-cookie'] = cookies.map(cookie => {
-          if (cookie.includes('thinksync.sid') && !cookie.includes('Partitioned')) {
-            return cookie + '; Partitioned';
+    res.writeHead = function (statusCode, statusMessage, headers) {
+      if (headers && headers["set-cookie"]) {
+        const cookies = Array.isArray(headers["set-cookie"])
+          ? headers["set-cookie"]
+          : [headers["set-cookie"]];
+        headers["set-cookie"] = cookies.map((cookie) => {
+          if (
+            cookie.includes("thinksync.sid") &&
+            !cookie.includes("Partitioned")
+          ) {
+            return cookie + "; Partitioned";
           }
           return cookie;
         });
@@ -211,12 +211,14 @@ app.get("/api/v1/test-session", (req, res) => {
   req.session.test = "Session is working";
   req.session.save((err) => {
     if (err) {
-      return res.status(500).json({ error: "Session save failed", details: err.message });
+      return res
+        .status(500)
+        .json({ error: "Session save failed", details: err.message });
     }
-    
+
     // Get Set-Cookie header to verify Partitioned attribute
-    const setCookieHeaders = res.getHeader('set-cookie') || [];
-    
+    const setCookieHeaders = res.getHeader("set-cookie") || [];
+
     res.json({
       sessionId: req.sessionID,
       session: req.session,
@@ -224,7 +226,9 @@ app.get("/api/v1/test-session", (req, res) => {
       protocol: req.protocol,
       secure: req.secure,
       nodeEnv: process.env.NODE_ENV,
-      setCookieHeaders: Array.isArray(setCookieHeaders) ? setCookieHeaders : [setCookieHeaders],
+      setCookieHeaders: Array.isArray(setCookieHeaders)
+        ? setCookieHeaders
+        : [setCookieHeaders],
       headers: {
         origin: req.headers.origin,
         referer: req.headers.referer,

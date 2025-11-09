@@ -59,7 +59,7 @@ export default function setupPassport() {
         callbackURL:
           process.env.NODE_ENV === "production"
             ? "https://thinksync.up.railway.app/api/v1/auth/google/callback"
-            : "http://localhost:5000/api/v1/auth/google/callback",
+            : "http://localhost:3000/api/v1/auth/google/callback",
         accessType: "offline", // Requesting offline access for refresh token (not return null now)
         prompt: "consent", //it always asks for consent from user like you want to log in with google for this app..
       },
@@ -135,12 +135,15 @@ export default function setupPassport() {
   );
 
   // Serialize user to session
-
-  passport.serializeUser((user, done) => done(null, user.id));
+  passport.serializeUser((user, done) => {
+    console.log("serializeUser called with user.id:", user.id);
+    done(null, user.id);
+  });
 
   // Deserialize user
   //returning the user from the session (req.user)
   passport.deserializeUser(async (id, done) => {
+    console.log("deserializeUser called with id:", id);
     try {
       const user = await prisma.user.findUnique({
         where: { id },
@@ -153,8 +156,14 @@ export default function setupPassport() {
         },
         include: { details: true },
       });
+      if (!user) {
+        console.error("deserializeUser: User not found for id:", id);
+        return done(new Error("User not found"));
+      }
+      console.log("deserializeUser: User found:", user.id);
       done(null, user);
     } catch (err) {
+      console.error("deserializeUser error:", err);
       done(err);
     }
   });

@@ -48,7 +48,7 @@ const forgotPassword = async (req, res) => {
     });
 
     const resetURL =
-      (process.env.CORS_ORIGIN || "http://localhost:5173") +
+      process.env.CORS_ORIGIN +
       "/reset-password?token=" +
       resetToken +
       "&id=" +
