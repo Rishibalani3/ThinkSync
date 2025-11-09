@@ -11,18 +11,21 @@ WORKDIR /app
 COPY thinkSyncBE/package*.json ./
 RUN npm install
 COPY thinkSyncBE .
+# Generate Prisma client
+RUN npx prisma generate
 
 # --- Stage 3: Combine Flask + Express ---
 FROM node:20-alpine
 WORKDIR /app
 
-# Copy Express and Flask builds
+# Copy Express + Flask builds
 COPY --from=express /app .
 COPY --from=flask /flask /flask
 
-RUN apk add --no-cache python3 py3-pip
+# Install Python runtime and Flask dependencies
+RUN apk add --no-cache python3 py3-pip && \
+    pip install --no-cache-dir -r /flask/requirements.txt
 
 EXPOSE 3000 5000
 
-# Start both servers using Railway's environment variables
 CMD ["sh", "-c", "python3 /flask/app.py & node server.js"]
