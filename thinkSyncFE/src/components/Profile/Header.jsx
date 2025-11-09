@@ -63,7 +63,7 @@ const ProfileHeader = ({
           <div className="relative self-center sm:self-auto">
             <img
               src={`${
-                import.meta.env.BACKEND_URL
+                import.meta.env.VITE_BACKEND_URL
               }/proxy?url=${encodeURIComponent(user.details.avatar)}`}
               alt="Profile"
               className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-2xl sm:rounded-3xl border-3 sm:border-4 border-white dark:border-gray-800 shadow-xl sm:shadow-2xl transition-transform duration-500 hover:scale-105"

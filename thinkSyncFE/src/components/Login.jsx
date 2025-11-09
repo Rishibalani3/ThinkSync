@@ -58,7 +58,7 @@ const Login = ({ setIsAuthenticated }) => {
         });
         if (res.status === 201) {
           window.location.href = `${
-            import.meta.env.FRONTEND_URL || "http://localhost:5173"
+            import.meta.env.VITE_FRONTEND_URL || "http://localhost:5173"
           }/login?success=true`;
         }
       } catch (err) {
@@ -69,7 +69,7 @@ const Login = ({ setIsAuthenticated }) => {
 
   const handleGoogleLogin = () => {
     window.location.href =
-      `${import.meta.env.BACKEND_URL}/auth/google` ||
+      `${import.meta.env.VITE_BACKEND_URL}/auth/google` ||
       "http://localhost:3000/api/v1/auth/google";
   };
 

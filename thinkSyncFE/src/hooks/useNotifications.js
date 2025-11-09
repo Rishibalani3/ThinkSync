@@ -30,7 +30,7 @@ export function useNotifications() {
 
     if (socketRef.current) socketRef.current.disconnect();
 
-    socketRef.current = io(import.meta.env.BACKEND_URL, {
+    socketRef.current = io(import.meta.env.VITE_BACKEND_URL, {
       withCredentials: true,
     });
     socketRef.current.emit("registerUser", user.id);

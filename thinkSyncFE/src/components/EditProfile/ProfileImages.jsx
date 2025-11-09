@@ -75,9 +75,10 @@ const ProfileImages = ({ userData, onUpload, isUploading }) => {
           {console.log("Avatar URL:", userData.avatar)}
           <img
             src={
-              `${import.meta.env.VITE_API_URL}/proxy?url=${encodeURIComponent(
-                userData.avatar
-              )}` || "/default-avatar.jpg"
+              `${
+                import.meta.env.VITE_BACKEND_URL
+              }/proxy?url=${encodeURIComponent(userData.avatar)}` ||
+              "/default-avatar.jpg"
             }
             alt="Profile"
             className="w-32 h-32 sm:w-40 sm:h-40 rounded-3xl border-4 border-white dark:border-gray-900 shadow-2xl"

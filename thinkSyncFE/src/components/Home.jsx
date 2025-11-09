@@ -51,7 +51,7 @@ const Home = () => {
 
   // Socket.IO real-time updates
   useEffect(() => {
-    const socket = io(import.meta.env.BACKEND_URL, {
+    const socket = io(import.meta.env.VITE_BACKEND_URL, {
       withCredentials: true,
     });
 
