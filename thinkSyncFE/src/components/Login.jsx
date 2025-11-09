@@ -74,25 +74,11 @@ const Login = ({ setIsAuthenticated }) => {
       try {
         const res = await api.post("/auth/login", formData);
         if (res.status === 200 && res.data) {
-          // Set user data from response immediately
           if (res.data.user) {
             setUser(res.data.user);
             setIsAuthenticated(true);
+            navigate("/");
           }
-
-          // Refresh auth state to ensure session is working
-          // Wait a bit for session to be fully saved to database
-          setTimeout(async () => {
-            const success = await refreshAuth();
-            if (success) {
-              navigate("/");
-            } else {
-              console.error("Session not working after login");
-              setSuccessMessage(
-                "Login successful but session not established. Please try again."
-              );
-            }
-          }, 500); // Increased timeout to allow database write to complete
         }
       } catch (err) {
         console.log("Login failed:", err.response?.data || err.message);

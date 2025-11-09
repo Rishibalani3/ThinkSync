@@ -85,26 +85,15 @@ app.use(
 app.use(cookieParser());
 app.use(sessionMiddleware);
 
-// Middleware to add Partitioned attribute to session cookie for cross-site cookies
-// This is required for modern browsers (Chrome 127+, Firefox) when using third-party cookies
-app.use((req, res, next) => {
-  // Only modify cookie in production (cross-site scenario)
-  if (process.env.NODE_ENV === "production") {
-    // Intercept the writeHead and end methods to modify Set-Cookie headers
-    const originalWriteHead = res.writeHead.bind(res);
-    const originalEnd = res.end.bind(res);
+// Add Partitioned attribute to cookies in production (required for cross-site cookies)
+if (process.env.NODE_ENV === "production") {
+  app.use((req, res, next) => {
     const originalSetHeader = res.setHeader.bind(res);
-
-    // Override setHeader to add Partitioned to session cookie
     res.setHeader = function (name, value) {
       if (name.toLowerCase() === "set-cookie") {
         const cookies = Array.isArray(value) ? value : [value];
         value = cookies.map((cookie) => {
-          if (
-            cookie.includes("thinksync.sid") &&
-            !cookie.includes("Partitioned")
-          ) {
-            // Add Partitioned attribute before any existing attributes
+          if (cookie.includes("thinksync.sid") && !cookie.includes("Partitioned")) {
             return cookie + "; Partitioned";
           }
           return cookie;
@@ -112,28 +101,9 @@ app.use((req, res, next) => {
       }
       return originalSetHeader(name, value);
     };
-
-    // Also intercept writeHead to modify headers
-    res.writeHead = function (statusCode, statusMessage, headers) {
-      if (headers && headers["set-cookie"]) {
-        const cookies = Array.isArray(headers["set-cookie"])
-          ? headers["set-cookie"]
-          : [headers["set-cookie"]];
-        headers["set-cookie"] = cookies.map((cookie) => {
-          if (
-            cookie.includes("thinksync.sid") &&
-            !cookie.includes("Partitioned")
-          ) {
-            return cookie + "; Partitioned";
-          }
-          return cookie;
-        });
-      }
-      return originalWriteHead(statusCode, statusMessage, headers);
-    };
-  }
-  next();
-});
+    next();
+  });
+}
 
 // CRITICAL: setupPassport() must be called BEFORE passport.session()
 // This registers serializeUser and deserializeUser functions
@@ -142,15 +112,6 @@ setupPassport();
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Ensure session is saved after authentication
-app.use((req, res, next) => {
-  if (req.isAuthenticated()) {
-    req.session.save((err) => {
-      if (err) console.error("Session save error:", err);
-    });
-  }
-  next();
-});
 
 // for proxying images to avoid CORS issues
 app.get("/proxy", async (req, res) => {

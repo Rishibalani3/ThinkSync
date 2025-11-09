@@ -135,19 +135,13 @@ export default function setupPassport() {
   );
 
   // Serialize user to session
-  passport.serializeUser((user, done) => {
-    console.log("serializeUser called with user.id:", user.id);
-    done(null, user.id);
-  });
+  passport.serializeUser((user, done) => done(null, user.id));
 
   // Deserialize user
-  //returning the user from the session (req.user)
   passport.deserializeUser(async (id, done) => {
-    console.log("deserializeUser called with id:", id);
     try {
       const user = await prisma.user.findUnique({
         where: { id },
-        //excluding sensitive data
         omit: {
           password: true,
           googleAccessToken: true,
@@ -156,14 +150,8 @@ export default function setupPassport() {
         },
         include: { details: true },
       });
-      if (!user) {
-        console.error("deserializeUser: User not found for id:", id);
-        return done(new Error("User not found"));
-      }
-      console.log("deserializeUser: User found:", user.id);
       done(null, user);
     } catch (err) {
-      console.error("deserializeUser error:", err);
       done(err);
     }
   });
