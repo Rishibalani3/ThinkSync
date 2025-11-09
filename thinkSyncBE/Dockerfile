@@ -1,10 +1,10 @@
 FROM node:20-bullseye
 WORKDIR /app
 
-COPY package*.json ./
+COPY thinkSyncBE/package*.json ./
 RUN npm install
 
-COPY . .
+COPY thinkSyncBE .
 RUN npx prisma generate
 
 EXPOSE 3000
