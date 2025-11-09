@@ -57,6 +57,12 @@ VITE_FRONTEND_URL=https://thinksync.me
 - Set `path: "/"` to ensure cookie is sent with all requests
 - Set `saveUninitialized: true` to ensure session is created before authentication
 
+### 2a. Partitioned Cookie Attribute (`thinkSyncBE/app.js`)
+- Added middleware to inject `Partitioned` attribute into session cookies
+- **CRITICAL**: Modern browsers (Chrome 127+, Firefox) require `Partitioned` for third-party cookies
+- Without this attribute, cookies will be rejected by the browser
+- The middleware intercepts Set-Cookie headers and adds `; Partitioned` to session cookies
+
 ### 3. CORS Configuration (`thinkSyncBE/app.js`)
 - Updated to support multiple origins (comma-separated)
 - Added proper headers for credentials

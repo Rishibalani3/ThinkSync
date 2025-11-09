@@ -1,13 +1,26 @@
 export const ensureAuth = (req, res, next) => {
-  // console.log("ensureAuth middleware called");
-  // console.log("req.isAuthenticated():", req.isAuthenticated());
-  // console.log("req.user:", req.user);
-  // console.log("req.session:", req.session);
+  // Debug logging (temporary - remove after fixing cookie issues)
+  console.log("ensureAuth - isAuthenticated:", req.isAuthenticated());
+  console.log("ensureAuth - sessionID:", req.sessionID);
+  console.log("ensureAuth - user:", req.user ? "present" : "missing");
+  console.log("ensureAuth - cookies:", req.cookies);
+  console.log("ensureAuth - session:", req.session ? "present" : "missing");
 
   if (req.isAuthenticated()) {
-    // console.log("User is authenticated, proceeding...");
     return next();
   }
-  // console.log("User is not authenticated, sending 401");
-  res.status(401).json({ error: "Unauthorized. Please log in." });
+  
+  // Provide more detailed error for debugging
+  const errorDetails = {
+    error: "Unauthorized. Please log in.",
+    debug: {
+      hasSession: !!req.session,
+      sessionID: req.sessionID,
+      hasCookies: !!req.cookies,
+      cookieKeys: req.cookies ? Object.keys(req.cookies) : [],
+      cookieHeader: req.headers.cookie || "no cookie header",
+    },
+  };
+  
+  res.status(401).json(errorDetails);
 };
