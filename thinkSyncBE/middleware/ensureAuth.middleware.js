@@ -5,6 +5,8 @@ export const ensureAuth = (req, res, next) => {
   console.log("ensureAuth - user:", req.user ? "present" : "missing");
   console.log("ensureAuth - cookies:", req.cookies);
   console.log("ensureAuth - session:", req.session ? "present" : "missing");
+  console.log("ensureAuth - session.passport:", req.session?.passport);
+  console.log("ensureAuth - session keys:", req.session ? Object.keys(req.session) : []);
 
   if (req.isAuthenticated()) {
     return next();

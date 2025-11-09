@@ -68,21 +68,30 @@ VITE_FRONTEND_URL=https://thinksync.me
 - Added proper headers for credentials
 - Updated Socket.IO CORS to match
 
-### 4. Login Route (`thinkSyncBE/routes/auth.routes.js`)
+### 4. Passport Middleware Order (`thinkSyncBE/app.js`)
+- **CRITICAL FIX**: Moved `setupPassport()` BEFORE `passport.session()` middleware
+- This ensures serializeUser/deserializeUser are registered before Passport tries to use them
+- Without this, sessions exist but `req.user` is never populated, causing 401 errors
+
+### 5. Login Route (`thinkSyncBE/routes/auth.routes.js`)
 - Added explicit session save before sending response
 - Ensured session is properly created and saved
-- Added debugging logs (can be removed in production)
+- Added debugging logs to track passport session data
 
-### 5. OAuth Callback (`thinkSyncBE/routes/auth.routes.js`)
+### 6. OAuth Callback (`thinkSyncBE/routes/auth.routes.js`)
 - Added session save before redirect
 - Fixed redirect URL to handle multiple origins
 - Added error handling
 
-### 6. Vercel Configuration (`thinkSyncFE/vercel.json`)
+### 7. Vercel Configuration (`thinkSyncFE/vercel.json`)
 - Added rewrite rules for SPA routing
 - Added security headers
 
-### 7. Frontend Login (`thinkSyncFE/src/components/Login.jsx`)
+### 8. Frontend Auth Context (`thinkSyncFE/src/contexts/AuthContext.jsx`)
+- Exposed `refreshAuth()` function to allow components to refresh auth state
+- Made `fetchUser` reusable so it can be called after login
+
+### 9. Frontend Login (`thinkSyncFE/src/components/Login.jsx`)
 - Added authentication check after OAuth callback
 - Fixed Google login URL construction
 - Added redirect if already authenticated

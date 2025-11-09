@@ -22,6 +22,10 @@ router.post("/login", (req, res, next) => {
     req.login(user, (err) => {
       if (err) return next(err);
       
+      // Debug: Check if passport data is in session
+      console.log("After req.login - session.passport:", req.session.passport);
+      console.log("After req.login - user.id:", user.id);
+      
       // Ensure session is saved before sending response
       // req.login() stores user.id in session, which triggers session creation
       req.session.save((err) => {
@@ -29,6 +33,11 @@ router.post("/login", (req, res, next) => {
           console.error("Session save error in login:", err);
           return res.status(500).json({ message: "Failed to save session" });
         }
+        
+        // Debug: Verify passport data is still in session after save
+        console.log("After session.save - session.passport:", req.session.passport);
+        console.log("After session.save - isAuthenticated:", req.isAuthenticated());
+        console.log("After session.save - req.user:", req.user ? "present" : "missing");
         
         // Return user object without sensitive fields
         const {

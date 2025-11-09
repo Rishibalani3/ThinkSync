@@ -18,7 +18,7 @@ const Login = ({ setIsAuthenticated }) => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, setUser } = useAuth();
+  const { isAuthenticated, setUser, refreshAuth } = useAuth();
 
   // Check if user is authenticated (e.g., after OAuth callback)
   useEffect(() => {
@@ -74,22 +74,23 @@ const Login = ({ setIsAuthenticated }) => {
       try {
         const res = await api.post("/auth/login", formData);
         if (res.status === 200 && res.data) {
-          // Set user data from response
+          // Set user data from response immediately
           if (res.data.user) {
             setUser(res.data.user);
             setIsAuthenticated(true);
           }
-          // Also fetch user to ensure session is working
-          try {
-            const userRes = await api.get("/user/me");
-            if (userRes.status === 200 && userRes.data) {
-              setUser(userRes.data);
-              setIsAuthenticated(true);
+          
+          // Refresh auth state to ensure session is working
+          // Wait a bit for session to be fully saved
+          setTimeout(async () => {
+            const success = await refreshAuth();
+            if (success) {
+              navigate("/");
+            } else {
+              console.error("Session not working after login");
+              setSuccessMessage("Login successful but session not established. Please try again.");
             }
-          } catch (userErr) {
-            console.error("Failed to fetch user after login:", userErr);
-          }
-          navigate("/");
+          }, 100);
         }
       } catch (err) {
         console.log("Login failed:", err.response?.data || err.message);

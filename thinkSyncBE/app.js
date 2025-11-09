@@ -135,9 +135,12 @@ app.use((req, res, next) => {
   next();
 });
 
+// CRITICAL: setupPassport() must be called BEFORE passport.session()
+// This registers serializeUser and deserializeUser functions
+setupPassport();
+
 app.use(passport.initialize());
 app.use(passport.session());
-setupPassport();
 
 // Ensure session is saved after authentication
 app.use((req, res, next) => {
