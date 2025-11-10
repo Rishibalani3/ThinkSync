@@ -4,6 +4,7 @@ import { sendNotification } from "../utils/notification.js";
 import { io, userSocketMap } from "../app.js";
 import nodemailer from "nodemailer";
 import { sendMailToUser } from "../utils/SendEmail.js";
+import { log } from "../utils/Logger.js";
 
 // In-memory queue for pending moderation jobs
 const moderationQueue = [];
@@ -30,12 +31,6 @@ export const scheduleModerationCheck = (
   setTimeout(() => {
     processModeration(contentId, contentType);
   }, delay);
-
-  console.log(
-    `Scheduled ${contentType} ${contentId} for moderation in ${
-      delay / 1000
-    } seconds`
-  );
 };
 
 /**
@@ -43,7 +38,7 @@ export const scheduleModerationCheck = (
  */
 const processModeration = async (contentId, contentType) => {
   try {
-    console.log(`Processing moderation for ${contentType} ${contentId}`);
+    log(`Processing moderation for ${contentType} ${contentId}`);
 
     // Fetch the content
     let content, userId;
@@ -54,15 +49,12 @@ const processModeration = async (contentId, contentType) => {
       });
 
       if (!post) {
-        console.log(`Post ${contentId} not found, skipping moderation`);
-        return;
+        log(`Post ${contentId} not found, skipping moderation`);
       }
 
       // Skip if already flagged or achieved
       if (post.status !== "okay" && post.status !== "under_review") {
-        console.log(
-          `Post ${contentId} already moderated with status: ${post.status}`
-        );
+        log(`Post ${contentId} already moderated with status: ${post.status}`);
         return;
       }
 
@@ -75,13 +67,13 @@ const processModeration = async (contentId, contentType) => {
       });
 
       if (!comment) {
-        console.log(`Comment ${contentId} not found, skipping moderation`);
+        log(`Comment ${contentId} not found, skipping moderation`);
         return;
       }
 
       // Skip if already flagged or achieved
       if (comment.status !== "okay" && comment.status !== "under_review") {
-        console.log(
+        log(
           `Comment ${contentId} already moderated with status: ${comment.status}`
         );
         return;
@@ -101,13 +93,11 @@ const processModeration = async (contentId, contentType) => {
     );
 
     if (!moderationResult) {
-      console.log(
-        `No moderation result for ${contentType} ${contentId}, marking as okay`
-      );
+      log(`No moderation result for ${contentType} ${contentId}, skipping`);
       return;
     }
 
-    console.log(`Moderation result for ${contentType} ${contentId}:`, {
+    log(`Moderation result for ${contentType} ${contentId}:`, {
       flagged: moderationResult.flagged,
       confidence: moderationResult.confidence,
       severity: moderationResult.severity,
@@ -124,7 +114,10 @@ const processModeration = async (contentId, contentType) => {
         });
 
         // Emit real-time update to remove post from feeds
-        io.emit("postFlagged", { postId: contentId, reason: moderationResult.reasons.join(", ") });
+        io.emit("postFlagged", {
+          postId: contentId,
+          reason: moderationResult.reasons.join(", "),
+        });
       } else {
         await prisma.comment.update({
           where: { id: contentId },
@@ -208,9 +201,7 @@ const processModeration = async (contentId, contentType) => {
             categories: moderationResult.categories,
           });
 
-          console.log(
-            `Email sent to ${user.email} for ${contentType} ${contentId}`
-          );
+          log(`Email sent to ${user.email} for ${contentType} ${contentId}`);
         }
       } catch (error) {
         console.error("Error sending email:", error);
@@ -230,8 +221,8 @@ const processModeration = async (contentId, contentType) => {
           });
         }
 
-        console.log(
-          `${contentType} ${contentId} marked as achieved (high severity)`
+        log(
+          `${contentType} ${contentId} marked as achieved due to high severity`
         );
       }
     } else {

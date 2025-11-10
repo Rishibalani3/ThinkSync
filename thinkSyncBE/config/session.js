@@ -4,22 +4,25 @@ import { pgPool } from "./db.js";
 
 const PgSession = pgSession(session);
 
+const isProduction = process.env.NODE_ENV === "production";
+
 const sessionMiddleware = session({
   store: new PgSession({
-    pool: pgPool,
+    pool: pgPool, // ✅ shared instance
     tableName: "user_sessions",
-    createTableIfMissing: true, //if there will be no table for user_session it will create itself
+    createTableIfMissing: true,
   }),
   secret: process.env.SESSION_SECRET || "fallback-secret-key",
   resave: false,
-  saveUninitialized: true, 
+  saveUninitialized: false, // ✅ should be false in production
   rolling: true,
-  cookie: { 
-    httpOnly: true, 
-    secure: process.env.NODE_ENV === 'production', // for the production (deployment)
+  name: "thinksync.sid",
+  cookie: {
+    httpOnly: true,
+    secure: isProduction,
     sameSite: "lax",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days 
-    name: 'thinksync.sid' //Session name
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
+    domain: isProduction ? ".thinksync.me" : undefined, // ✅ works for api. + main domain
   },
 });
 

@@ -8,26 +8,29 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await api.get("/user/me");
+  const fetchUser = async () => {
+    try {
+      const res = await api.get("/user/me");
 
-        if (res.status === 200 && res.data) {
-          setUser(res.data);
-          setIsAuthenticated(true);
-        } else {
-          setUser(null);
-          setIsAuthenticated(false);
-        }
-      } catch (err) {
+      if (res.status === 200 && res.data) {
+        setUser(res.data);
+        setIsAuthenticated(true);
+        return true; // Success
+      } else {
         setUser(null);
         setIsAuthenticated(false);
-      } finally {
-        setLoading(false);
+        return false;
       }
-    };
+    } catch (err) {
+      setUser(null);
+      setIsAuthenticated(false);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchUser();
   }, []);
 
@@ -52,6 +55,7 @@ export const AuthProvider = ({ children }) => {
         isAuthenticated,
         setIsAuthenticated,
         logout,
+        refreshAuth: fetchUser, // Expose fetchUser so components can refresh auth state
       }}
     >
       {children}

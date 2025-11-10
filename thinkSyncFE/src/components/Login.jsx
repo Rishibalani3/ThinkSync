@@ -4,6 +4,7 @@ import { FaBrain, FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate, useLocation } from "react-router-dom";
 import api from "../utils/axios";
+import { useAuth } from "../contexts/AuthContext";
 
 const Login = ({ setIsAuthenticated }) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -17,12 +18,42 @@ const Login = ({ setIsAuthenticated }) => {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAuthenticated, setUser, refreshAuth } = useAuth();
+
+  // Check if user is authenticated (e.g., after OAuth callback)
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await api.get("/user/me");
+        if (res.status === 200 && res.data) {
+          setUser(res.data);
+          setIsAuthenticated(true);
+          navigate("/");
+        }
+      } catch (err) {
+        // User is not authenticated, stay on login page
+      }
+    };
+
+    // Check auth status on mount and after OAuth callback
+    checkAuth();
+  }, [navigate, setIsAuthenticated, setUser]);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/");
+    }
+  }, [isAuthenticated, navigate]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get("success") === "true") {
       setSuccessMessage("Registration successful! Please log in.");
       setIsLogin(true);
+    }
+    if (params.get("error") === "session_error") {
+      setSuccessMessage("Session error. Please try logging in again.");
     }
   }, [location.search]);
 
@@ -43,11 +74,17 @@ const Login = ({ setIsAuthenticated }) => {
       try {
         const res = await api.post("/auth/login", formData);
         if (res.status === 200 && res.data) {
-          setIsAuthenticated(true);
-          navigate("/");
+          if (res.data.user) {
+            setUser(res.data.user);
+            setIsAuthenticated(true);
+            navigate("/");
+          }
         }
       } catch (err) {
         console.log("Login failed:", err.response?.data || err.message);
+        setSuccessMessage(
+          err.response?.data?.message || "Login failed. Please try again."
+        );
       }
     } else {
       try {
@@ -57,7 +94,9 @@ const Login = ({ setIsAuthenticated }) => {
           password: formData.password,
         });
         if (res.status === 201) {
-          window.location.href = "http://localhost:5173/login?success=true";
+          window.location.href = `${
+            import.meta.env.VITE_FRONTEND_URL
+          }/login?success=true`;
         }
       } catch (err) {
         console.log("Registration failed:", err.response?.data || err.message);
@@ -66,7 +105,9 @@ const Login = ({ setIsAuthenticated }) => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:3000/api/v1/auth/google";
+    const backendUrl =
+      import.meta.env.VITE_BACKEND_URL || "http://localhost:3000/api/v1";
+    window.location.href = `${backendUrl}/auth/google`;
   };
 
   return (

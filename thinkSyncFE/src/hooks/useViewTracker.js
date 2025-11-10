@@ -43,7 +43,7 @@ const useViewTracker = (postId, ref, userId, duration = 2000) => {
       {
         root: null, // viewport
         rootMargin: "0px",
-        threshold: 0.5, // 50% of the element must be visible
+        threshold: 0.8, // 80% of the element must be visible
       }
     );
 

@@ -4,6 +4,7 @@ import nodemailer from "nodemailer";
 import { prisma } from "../config/db.js";
 import { sendNotification } from "../utils/notification.js";
 import { sendMailToUser } from "../utils/SendEmail.js";
+import { log } from "../utils/Logger.js";
 
 const signup = async (req, res) => {
   const { username, email, password } = req.body;
@@ -48,7 +49,8 @@ const forgotPassword = async (req, res) => {
     });
 
     const resetURL =
-      "http://localhost:5173/reset-password?token=" +
+      process.env.CORS_ORIGIN +
+      "/reset-password?token=" +
       resetToken +
       "&id=" +
       user.id;
@@ -96,7 +98,7 @@ const forgotPassword = async (req, res) => {
         "If your email exists, you will receive an email with instructions to reset your password",
     });
   } catch (err) {
-    console.log(err);
+    log("ERROR AT FORGOT PASSWORD(Sending Email) : ", err);
     res.status(500).json({ error: "Something went wrong" });
   }
 };
@@ -152,7 +154,7 @@ const resetPassword = async (req, res) => {
 
     return res.json({ message: "Password reset successfully" });
   } catch (err) {
-    console.log(err);
+    log("ERROR AT RESET PASSWORD : ", err);
     res.status(500).json({ error: "Something went wrong" });
   }
 };

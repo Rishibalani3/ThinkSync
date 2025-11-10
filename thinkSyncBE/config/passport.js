@@ -10,7 +10,7 @@ import {
   colors,
   starWars,
 } from "unique-names-generator";
-
+import { log } from "../utils/Logger.js";
 //it should consist only 10 characters
 const uniqueName = {
   generate: () => {
@@ -56,17 +56,19 @@ export default function setupPassport() {
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: "/api/v1/auth/google/callback",
-        accessType: "offline", // Requesting offline access for refresh token (not return null now)
+        callbackURL:
+          process.env.NODE_ENV === "production"
+            ? "https://api.thinksync.me/api/v1/auth/google/callback"
+            : "http://localhost:3000/api/v1/auth/google/callback",
+        accessType: process.env.NODE_ENV === "production" ? "offline" : "", // Requesting offline access for refresh token (not return null now)
         prompt: "consent", //it always asks for consent from user like you want to log in with google for this app..
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
-          //debubbiing
-          // console.log('Google OAuth callback received:');
-          // console.log('Access Token:', accessToken ? 'Present' : 'Missing');
-          // console.log('Refresh Token:', refreshToken ? 'Present' : 'Missing');
-          // console.log('Profile ID:', profile.id);
+          log("Google OAuth callback received:");
+          log("Access Token:", accessToken ? "Present" : "Missing");
+          log("Refresh Token:", refreshToken ? "Present" : "Missing");
+          log("Profile ID:", profile.id);
 
           let user = await prisma.user.findUnique({
             where: { googleId: profile.id },
@@ -111,9 +113,9 @@ export default function setupPassport() {
 
             if (refreshToken) {
               updateData.googleRefreshToken = refreshToken;
-              console.log("Updating refresh token for existing user");
+              log("Refresh token received and updated");
             } else {
-              console.log("No refresh token received, keeping existing one");
+              log("No refresh token received, keeping existing one");
             }
 
             user = await prisma.user.update({
@@ -132,16 +134,13 @@ export default function setupPassport() {
   );
 
   // Serialize user to session
-
   passport.serializeUser((user, done) => done(null, user.id));
 
   // Deserialize user
-  //returning the user from the session (req.user)
   passport.deserializeUser(async (id, done) => {
     try {
       const user = await prisma.user.findUnique({
         where: { id },
-        //excluding sensitive data
         omit: {
           password: true,
           googleAccessToken: true,

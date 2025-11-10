@@ -20,7 +20,6 @@ import { pageVariants } from "./utils/animations";
 import Topics from "./components/Topics";
 import FloatingChatButton from "./components/Messages/FloatingButton";
 import { NotificationProvider } from "./contexts/NotificationContext";
-import TopicSelector from "./components/UtilComponents/InterestPopUp";
 import { Toaster } from "react-hot-toast";
 import AdminLayout from "./components/Admin/AdminLayout";
 import AdminDashboard from "./components/Admin/Dashboard";

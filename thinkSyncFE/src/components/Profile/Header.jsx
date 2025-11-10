@@ -62,9 +62,9 @@ const ProfileHeader = ({
           {/* Avatar */}
           <div className="relative self-center sm:self-auto">
             <img
-              src={`http://localhost:3000/proxy?url=${encodeURIComponent(
-                user.details.avatar
-              )}`}
+              src={`${
+                import.meta.env.VITE_BACKEND_URL
+              }/proxy?url=${encodeURIComponent(user.details.avatar)}`}
               alt="Profile"
               className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-2xl sm:rounded-3xl border-3 sm:border-4 border-white dark:border-gray-800 shadow-xl sm:shadow-2xl transition-transform duration-500 hover:scale-105"
             />
@@ -191,7 +191,8 @@ const ProfileHeader = ({
                         Warning Count: {user.details.warningCount}
                       </p>
                       <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-                        Some of your content has been flagged for review(please mail us if you think this is a mistake).
+                        Some of your content has been flagged for review(please
+                        mail us if you think this is a mistake).
                       </p>
                     </div>
                     <button

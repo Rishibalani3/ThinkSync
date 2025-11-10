@@ -92,7 +92,6 @@ const Explore = () => {
     fetchPosts();
   }, [activeFilter, getAITrendingPosts, getTrendingPosts]);
 
-  console.log("Trending Posts:", trendingPosts);
   const handleBookmark = async (postId) => {
     if (!isAuthenticated) {
       alert("Please log in first to bookmark a post.");

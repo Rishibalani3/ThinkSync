@@ -51,7 +51,9 @@ const Home = () => {
 
   // Socket.IO real-time updates
   useEffect(() => {
-    const socket = io("http://localhost:3000", { withCredentials: true });
+    const socket = io(import.meta.env.VITE_BACKEND_URL, {
+      withCredentials: true,
+    });
 
     // Listen for new posts
     socket.on("newPost", (newPost) => {
@@ -68,7 +70,7 @@ const Home = () => {
         likesCount: 0,
         commentsCount: 0,
       };
-      
+
       setPosts((prev) => {
         // Avoid duplicates
         if (prev.some((p) => p.id === transformedPost.id)) {

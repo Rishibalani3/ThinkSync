@@ -1,12 +1,19 @@
 import { PrismaClient } from "@prisma/client";
 import pkg from "pg";
 
-const prisma = new PrismaClient();
-
 const { Pool } = pkg;
 
-const pgPool = new Pool({
+const prisma = new PrismaClient();
+
+const isProduction = process.env.NODE_ENV === "production";
+
+const poolConfig = {
   connectionString: process.env.DATABASE_URL,
-});
+  ...(isProduction && {
+    ssl: { rejectUnauthorized: false },
+  }),
+};
+
+const pgPool = new Pool(poolConfig);
 
 export { prisma, pgPool };

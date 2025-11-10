@@ -20,6 +20,7 @@ import notificationRoutes from "./routes/notification.routes.js";
 import aiRecommendationRoutes from "./routes/aiRecommendation.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import announcementRoutes from "./routes/announcement.routes.js";
+import { pgPool } from "./config/db.js";
 
 import { createServer } from "http";
 import { Server } from "socket.io";
@@ -29,13 +30,22 @@ dotenv.config();
 // Create Express app
 const app = express();
 
+// Trust proxy - required for Railway and other hosting platforms behind a proxy
+// This ensures req.protocol and req.secure are correctly set for HTTPS
+app.set("trust proxy", 1);
+
 // Create HTTP server for Socket.IO
 const server = createServer(app);
 
 // Socket.IO setup
 // Setting here origin to allow requests from frontend
 const io = new Server(server, {
-  cors: { origin: "http://localhost:5173", credentials: true },
+  cors: {
+    origin: process.env.CORS_ORIGIN,
+    credentials: true,
+    methods: ["GET", "POST"],
+  },
+  transports: ["websocket", "polling"],
 });
 
 // ---- USER-SOCKETID MAPPING ----
@@ -66,23 +76,22 @@ io.on("connection", (socket) => {
 // Middleware
 // ---------------------
 app.use(express.json());
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  })
+);
 app.use(cookieParser());
 app.use(sessionMiddleware);
 
-app.use(passport.initialize());
-app.use(passport.session());
+// CRITICAL: setupPassport() must be called BEFORE passport.session()
+// This registers serializeUser and deserializeUser functions
 setupPassport();
 
-// Ensure session is saved after authentication
-app.use((req, res, next) => {
-  if (req.isAuthenticated()) {
-    req.session.save((err) => {
-      if (err) console.error("Session save error:", err);
-    });
-  }
-  next();
-});
+app.use(passport.initialize());
+app.use(passport.session());
 
 // for proxying images to avoid CORS issues
 app.get("/proxy", async (req, res) => {
@@ -125,13 +134,96 @@ app.use("/api/v1/ai", aiRecommendationRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/announcements", announcementRoutes);
 
-// Health check (for testing purposes)
 app.get("/health", (req, res) => {
   res.json({
     message: "Server is running",
+
     sessionSecret: process.env.SESSION_SECRET ? "Set" : "Not set",
     databaseUrl: process.env.DATABASE_URL ? "Set" : "Not set",
+    corsOrigin: process.env.CORS_ORIGIN || "Not set",
+    nodeEnv: process.env.NODE_ENV || "Not set",
+    protocol: req.protocol,
+    secure: req.secure,
   });
+});
+
+// Session test endpoint (for debugging)
+app.get("/api/v1/test-session", (req, res) => {
+  req.session.test = "Session is working";
+  req.session.save((err) => {
+    if (err) {
+      return res
+        .status(500)
+        .json({ error: "Session save failed", details: err.message });
+    }
+
+    // Get Set-Cookie header to verify Partitioned attribute
+    const setCookieHeaders = res.getHeader("set-cookie") || [];
+
+    res.json({
+      sessionId: req.sessionID,
+      session: req.session,
+      sessionPassport: req.session.passport,
+      cookies: req.cookies,
+      protocol: req.protocol,
+      secure: req.secure,
+      nodeEnv: process.env.NODE_ENV,
+      isAuthenticated: req.isAuthenticated(),
+      user: req.user ? "present" : "missing",
+      setCookieHeaders: Array.isArray(setCookieHeaders)
+        ? setCookieHeaders
+        : [setCookieHeaders],
+      headers: {
+        origin: req.headers.origin,
+        referer: req.headers.referer,
+        cookie: req.headers.cookie,
+      },
+    });
+  });
+});
+
+// Check session in database directly
+app.get("/api/v1/check-db-session", async (req, res) => {
+  try {
+    const sessionId = req.sessionID;
+
+    const result = await pgPool.query(
+      "SELECT * FROM user_sessions WHERE sid = $1",
+      [sessionId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.json({
+        found: false,
+        sessionId,
+        message: "Session not found in database",
+      });
+    }
+
+    const sessionData = result.rows[0];
+    let sessData = null;
+    try {
+      sessData =
+        typeof sessionData.sess === "string"
+          ? JSON.parse(sessionData.sess)
+          : sessionData.sess;
+    } catch (e) {
+      sessData = sessionData.sess;
+    }
+
+    res.json({
+      found: true,
+      sessionId,
+      sessionData: {
+        sid: sessionData.sid,
+        expire: sessionData.expire,
+        sess: sessData,
+        passport: sessData?.passport,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message, stack: err.stack });
+  }
 });
 
 export { app, server, io, userSocketMap };
