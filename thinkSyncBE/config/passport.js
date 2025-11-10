@@ -10,7 +10,7 @@ import {
   colors,
   starWars,
 } from "unique-names-generator";
-
+import { log } from "../utils/Logger";
 //it should consist only 10 characters
 const uniqueName = {
   generate: () => {
@@ -65,11 +65,10 @@ export default function setupPassport() {
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
-          //debubbiing
-          // console.log('Google OAuth callback received:');
-          // console.log('Access Token:', accessToken ? 'Present' : 'Missing');
-          // console.log('Refresh Token:', refreshToken ? 'Present' : 'Missing');
-          // console.log('Profile ID:', profile.id);
+          log("Google OAuth callback received:");
+          log("Access Token:", accessToken ? "Present" : "Missing");
+          log("Refresh Token:", refreshToken ? "Present" : "Missing");
+          log("Profile ID:", profile.id);
 
           let user = await prisma.user.findUnique({
             where: { googleId: profile.id },
@@ -114,9 +113,9 @@ export default function setupPassport() {
 
             if (refreshToken) {
               updateData.googleRefreshToken = refreshToken;
-              console.log("Updating refresh token for existing user");
+              log("Refresh token received and updated");
             } else {
-              console.log("No refresh token received, keeping existing one");
+              log("No refresh token received, keeping existing one");
             }
 
             user = await prisma.user.update({

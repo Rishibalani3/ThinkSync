@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-
+import { log } from "./Logger";
 export async function sendMailToUser({ to, subject, html, text }) {
   try {
     const transporter = nodemailer.createTransport({
@@ -20,8 +20,7 @@ export async function sendMailToUser({ to, subject, html, text }) {
       text,
       html,
     });
-
-    console.log(`✅ Email sent to ${to}`);
+    log("✅ Email sent successfully to", to);
   } catch (error) {
     console.error("❌ Error sending email:", error);
     throw new Error("Failed to send email");

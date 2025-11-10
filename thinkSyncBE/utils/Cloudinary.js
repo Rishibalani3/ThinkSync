@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
+import { log } from "../utils/Logger.js";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -9,7 +10,7 @@ cloudinary.config({
 
 const uploadOnCloudinary = async (localFile) => {
   if (!localFile || !localFile.path) return null;
-  
+
   const filePath = localFile.path;
 
   try {
@@ -17,7 +18,7 @@ const uploadOnCloudinary = async (localFile) => {
       resource_type: "auto",
     });
 
-    console.log("File uploaded on Cloudinary:", response.url);
+    log(`Image uploaded to Cloudinary: ${response.url}`);
 
     fs.unlinkSync(filePath);
 

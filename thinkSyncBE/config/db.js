@@ -3,15 +3,17 @@ import pkg from "pg";
 
 const { Pool } = pkg;
 
-// Prisma ORM instance
 const prisma = new PrismaClient();
 
-// Postgres connection pool for connect-pg-simple
-const pgPool = new Pool({
+const isProduction = process.env.NODE_ENV === "production";
+
+const poolConfig = {
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false, // ✅ required for Railway & most managed DBs
-  },
-});
+  ...(isProduction && {
+    ssl: { rejectUnauthorized: false },
+  }),
+};
+
+const pgPool = new Pool(poolConfig);
 
 export { prisma, pgPool };

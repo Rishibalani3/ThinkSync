@@ -70,24 +70,17 @@ router.get("/google/callback", (req, res, next) => {
       if (err) return next(err);
       if (!user)
         return res.redirect(
-          console.log("Peforming redirect after Google OAuth login[no user]")(
-            process.env.CORS_ORIGIN || "http://localhost:5173"
-          ) + "/login?error=no_user"
+          (process.env.CORS_ORIGIN || "http://localhost:5173") +
+            "/login?error=no_user"
         );
 
-      // 🔥 serialize user into the session
       req.logIn(user, (err) => {
         if (err) return next(err);
-        console.log("User logged in via Google OAuth:", user.id);
-        // 🔥 save session to DB before redirecting
         req.session.save((saveErr) => {
           if (saveErr) {
-            console.log("Session save error after Google login:", saveErr);
-            console.error("Session save error after Google login:", saveErr);
             return res.redirect(
-              console.log("Peforming redirect after Google OAuth login")(
-                process.env.CORS_ORIGIN || "http://localhost:5173"
-              ) + "/login?error=session_error"
+              (process.env.CORS_ORIGIN || "http://localhost:5173") +
+                "/login?error=session_error"
             );
           }
 
