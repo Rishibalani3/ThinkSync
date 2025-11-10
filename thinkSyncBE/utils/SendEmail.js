@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import { log } from "./Logger";
+import { log } from "./Logger.js";
 export async function sendMailToUser({ to, subject, html, text }) {
   try {
     const transporter = nodemailer.createTransport({

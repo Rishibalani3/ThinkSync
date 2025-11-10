@@ -10,7 +10,7 @@ import {
   colors,
   starWars,
 } from "unique-names-generator";
-import { log } from "../utils/Logger";
+import { log } from "../utils/Logger.js";
 //it should consist only 10 characters
 const uniqueName = {
   generate: () => {
