@@ -1,6 +1,5 @@
 import bcrypt from "bcrypt";
 import crypto from "crypto";
-import nodemailer from "nodemailer";
 import { prisma } from "../config/db.js";
 import { sendNotification } from "../utils/notification.js";
 import { sendMailToUser } from "../utils/SendEmail.js";
@@ -55,16 +54,8 @@ const forgotPassword = async (req, res) => {
       "&id=" +
       user.id;
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.SMTP_EMAIL,
-        pass: process.env.SMTP_PASSWORD,
-      },
-    });
-
-    //i will implement kafka queue here to stop sending mails directly from here
-    //doing this here also put more pressure on the server
+    //dropping plan of kafka queue and nodemailer here using the resend service(third party email service)
+    //it will have queue system so it doesnt get the load
     await sendMailToUser({
       to: user.email,
       subject: "Password Reset Request from ThinkSync",

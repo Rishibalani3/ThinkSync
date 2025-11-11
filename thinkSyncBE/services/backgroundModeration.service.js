@@ -2,7 +2,6 @@ import { prisma } from "../config/db.js";
 import { analyzeContentModeration } from "./aiRecommendation.service.js";
 import { sendNotification } from "../utils/notification.js";
 import { io, userSocketMap } from "../app.js";
-import nodemailer from "nodemailer";
 import { sendMailToUser } from "../utils/SendEmail.js";
 import { log } from "../utils/Logger.js";
 
