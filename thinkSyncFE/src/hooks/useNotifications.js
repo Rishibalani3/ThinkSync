@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import api from "../utils/axios";
 import { io } from "socket.io-client";
+import { log } from "../utils/Logger.js";
 
 export function useNotifications() {
   const { user } = useAuth();
@@ -33,26 +34,40 @@ export function useNotifications() {
     // Disconnect any existing socket
     if (socketRef.current) socketRef.current.disconnect();
 
-    // Create new socket
-    socketRef.current = io(import.meta.env.VITE_BACKEND_URL, {
+    // Create new socket with fallback to polling
+    const backendUrl =
+      import.meta.env.VITE_SOCKET_URL || "http://localhost:3000";
+    socketRef.current = io(backendUrl, {
       withCredentials: true,
-      transports: ["websocket"], // force WebSocket only
+      transports: ["websocket", "polling"], // Allow fallback to polling
       path: "/socket.io",
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      timeout: 20000,
     });
 
     // Wait until connected, then register user
     socketRef.current.on("connect", () => {
-      console.log("✅ Socket connected (Notifications):", socketRef.current.id);
+      log("✅ Socket connected (Notifications):", socketRef.current.id);
       socketRef.current.emit("registerUser", user.id);
     });
 
+    socketRef.current.on("connect_error", (error) => {
+      console.error("❌ Socket connection error (Notifications):", error);
+    });
+
     socketRef.current.on("newNotification", (notif) => {
-      console.log("🔔 New notification:", notif);
+      log("🔔 New notification:", notif);
       setNotifications((prev) => [notif, ...prev]);
     });
 
     socketRef.current.on("disconnect", (reason) => {
-      console.log("🔌 Socket disconnected (Notifications):", reason);
+      log("🔌 Socket disconnected (Notifications):", reason);
+    });
+
+    socketRef.current.on("error", (error) => {
+      console.error("❌ Socket error (Notifications):", error);
     });
 
     fetchNotifications();

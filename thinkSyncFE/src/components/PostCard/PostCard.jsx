@@ -147,19 +147,15 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
             {/* Mentions */}
             {post.mentions?.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-1">
-                {post.mentions.map(
-                  (m, idx) => (
-                    (
-                      <Link
-                        key={idx}
-                        to={`/profile/${m.username || "user"}`}
-                        className="text-blue-500 dark:text-blue-400 hover:underline text-[15px]"
-                      >
-                        @{m.name}
-                      </Link>
-                    )
-                  )
-                )}
+                {post.mentions.map((m, idx) => (
+                  <Link
+                    key={idx}
+                    to={`/profile/${m.username || m.user.username}`}
+                    className="text-blue-500 dark:text-blue-400 hover:underline text-[15px]"
+                  >
+                    @{m.name || m.user.displayName}
+                  </Link>
+                ))}
               </div>
             )}
 

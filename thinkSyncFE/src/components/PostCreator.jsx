@@ -36,7 +36,7 @@ const PostCreator = ({ onNewPost }) => {
   const fileInputRef = useRef(null);
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-
+  const [buttonState, setButtonState] = useState("idle");
   const updateState = (updates) =>
     setState((prev) => ({ ...prev, ...updates }));
 
@@ -96,18 +96,20 @@ const PostCreator = ({ onNewPost }) => {
   };
 
   const handleAddMention = () => {
-    if (state.mentionInput.trim()) {
-      updateState({
-        mentions: [
-          ...state.mentions,
-          {
-            username: state.mentionInput.trim(),
-          },
-        ],
-        mentionInput: "",
-        showMentionInput: false,
-      });
+    const username = state.mentionInput.trim();
+    if (!username) return;
+    if (state.mentions.some((m) => m.username === username)) {
+      toast.error("Already mentioned this user!");
+      return;
     }
+    updateState({
+      mentions: [
+        ...state.mentions,
+        { id: Date.now() + Math.random(), username },
+      ],
+      mentionInput: "",
+      showMentionInput: false,
+    });
   };
 
   const handleAddHashtag = () => {
@@ -468,7 +470,11 @@ const PostCreator = ({ onNewPost }) => {
                     className="inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-2.5 rounded-xl font-medium transition"
                   >
                     <FaPaperPlane size={14} />
-                    Share
+                    {buttonState === "idle" ? (
+                      <span>Post</span>
+                    ) : (
+                      <span>Posting...</span>
+                    )}
                   </button>
                 </div>
               </motion.div>

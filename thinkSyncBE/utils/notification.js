@@ -9,7 +9,7 @@ export async function sendNotification(
   const created = await prisma.notifications.create({
     data: {
       content,
-      senderId,
+      senderId: senderId || undefined,
       receiverId,
       postId: postId || undefined,
       commentId: commentId || undefined,

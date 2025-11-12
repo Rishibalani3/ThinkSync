@@ -44,7 +44,6 @@ const Topics = () => {
             {posts.map((post) => (
               <PostCard key={post.id} post={post} />
             ))}
-            {console.log(posts)}
           </div>
         )}
       </div>

@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
 import api from "../../utils/axios";
 import { useAuth } from "../../contexts/AuthContext";
+import { log } from "../../utils/Logger.js";
 import { IoArrowBack, IoSend } from "react-icons/io5";
 
 export default function ChatModal({ user, goBack, onMarkRead }) {
@@ -19,19 +20,24 @@ export default function ChatModal({ user, goBack, onMarkRead }) {
 
   // Setup socket and listeners
   useEffect(() => {
-    socketRef.current = io(import.meta.env.VITE_BACKEND_URL, {
+    const backendUrl =
+      import.meta.env.VITE_SOCKET_URL || "http://localhost:3000";
+    socketRef.current = io(backendUrl, {
       withCredentials: true,
-      transports: ["websocket"],
+      transports: ["websocket", "polling"], // Allow fallback to polling
       path: "/socket.io",
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
     });
 
     socketRef.current.on("connect", () => {
-      console.log("✅ Socket connected (Chat):", socketRef.current.id);
+      log("✅ Socket connected (Chat):", socketRef.current.id);
       socketRef.current.emit("joinRoom", roomId); // join after connect
     });
 
     const handleReceiveMessage = (message) => {
-      console.log("💬 Message received:", message);
+      log("💬 Message received:", message);
       setMessages((prev) =>
         prev.some((m) => m.id === message.id) ? prev : [...prev, message]
       );
@@ -40,7 +46,7 @@ export default function ChatModal({ user, goBack, onMarkRead }) {
     socketRef.current.on("receiveMessage", handleReceiveMessage);
 
     socketRef.current.on("disconnect", (reason) => {
-      console.log("🔌 Socket disconnected (Chat):", reason);
+      log("🔌 Socket disconnected (Chat):", reason);
     });
 
     // Cleanup
@@ -106,7 +112,7 @@ export default function ChatModal({ user, goBack, onMarkRead }) {
     });
 
   return (
-    <div className="fixed bottom-6 right-6 w-96 h-[600px] rounded-2xl shadow-2xl flex flex-col bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 z-[9999]">
+    <div className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 sm:w-96 sm:h-[600px] h-full w-full sm:rounded-2xl shadow-2xl flex flex-col bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 z-[10000]">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-t-2xl">
         <div className="flex items-center gap-3">

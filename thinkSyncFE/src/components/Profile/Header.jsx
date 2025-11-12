@@ -162,29 +162,31 @@ const ProfileHeader = ({
               </div>
             )}
 
-            {/* Followers/Following Count */}
+            {/* Followers/Following Count - Only show for own profile */}
+            {isOwnProfile && (
               <div className="flex flex-wrap justify-center sm:justify-start gap-4 sm:gap-6 mb-4 sm:mb-6">
-              <button
-                onClick={onShowFollowers}
-                className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition cursor-pointer"
-              >
-                <FaUsers size={16} />
-                <span className="font-semibold">{followersCount || 0}</span>
-                <span className="text-sm text-gray-500 dark:text-gray-400">
-                  Followers
-                </span>
-              </button>
-              <button
-                onClick={onShowFollowing}
-                className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition cursor-pointer"
-              >
-                <FaUserFriends size={16} />
-                <span className="font-semibold">{followingCount || 0}</span>
-                <span className="text-sm text-gray-500 dark:text-gray-400">
-                  Following
-                </span>
-              </button>
-            </div>
+                <button
+                  onClick={onShowFollowers}
+                  className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition cursor-pointer"
+                >
+                  <FaUsers size={16} />
+                  <span className="font-semibold">{followersCount || 0}</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    Followers
+                  </span>
+                </button>
+                <button
+                  onClick={onShowFollowing}
+                  className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition cursor-pointer"
+                >
+                  <FaUserFriends size={16} />
+                  <span className="font-semibold">{followingCount || 0}</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    Following
+                  </span>
+                </button>
+              </div>
+            )}
 
             {/* Moderation Warning (Own Profile Only) */}
             {isOwnProfile && user.details?.warningCount > 0 && (
@@ -251,7 +253,18 @@ const ProfileHeader = ({
                 >
                   {isFollowing ? "Following" : "Follow"}
                 </button>
-                <button className="px-4 py-2 rounded-full border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                <button 
+                  onClick={() => {
+                    if (typeof window !== 'undefined' && window.handleOpenChat) {
+                      window.handleOpenChat({
+                        id: user?.id,
+                        username: user?.username || user?.displayName,
+                        displayName: user?.displayName || user?.username,
+                      });
+                    }
+                  }}
+                  className="px-4 py-2 rounded-full border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                >
                   Message
                 </button>
               </div>

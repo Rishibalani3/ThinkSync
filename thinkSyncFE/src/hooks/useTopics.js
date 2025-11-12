@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import api from "../utils/axios";
+import { log } from "../utils/Logger.js";
 
 const useTopics = () => {
   const getTrendingTopics = useCallback(async () => {
@@ -15,8 +16,8 @@ const useTopics = () => {
 
   const getPostsByTopic = useCallback(async (topicName) => {
     const res = await api.get(`/topics/posts/${encodeURIComponent(topicName)}`);
-    
-    console.log("Fetched posts for topic:", topicName, res.data.posts);
+
+    log("Fetched posts for topic:", topicName, res.data.posts);
     return res.data.posts || [];
   }, []);
 

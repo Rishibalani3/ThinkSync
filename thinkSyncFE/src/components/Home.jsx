@@ -10,6 +10,7 @@ import useBookmark from "../hooks/useBookmark";
 import { staggerContainer, pageVariants } from "../utils/animations";
 import PostTrackerWrapper from "./PostCard/PostTrackerWrapper";
 import io from "socket.io-client";
+import { log } from "../utils/Logger.js";
 
 const Home = () => {
   const { user, isAuthenticated } = useAuth();
@@ -52,20 +53,25 @@ const Home = () => {
   // Socket.IO real-time updates
   useEffect(() => {
     // Initialize socket
-    const socket = io(import.meta.env.VITE_BACKEND_URL, {
+    const backendUrl =
+      import.meta.env.VITE_SOCKET_URL || "http://localhost:3000";
+    const socket = io(backendUrl, {
       withCredentials: true,
-      transports: ["websocket"], // ✅ force websocket transport
+      transports: ["websocket", "polling"], // Allow fallback to polling
       path: "/socket.io",
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
     });
 
     // ✅ Wait for connection before listening or emitting
     socket.on("connect", () => {
-      console.log("✅ Socket connected (Home):", socket.id);
+      log("✅ Socket connected (Home):", socket.id);
     });
 
     // ✅ Listen for new posts
     socket.on("newPost", (newPost) => {
-      consolelog("📩 newPost event received:", newPost);
+      log("📩 newPost event received:", newPost);
       const transformedPost = {
         ...newPost,
         author: newPost.author || {
@@ -87,12 +93,12 @@ const Home = () => {
 
     // ✅ Listen for postFlagged
     socket.on("postFlagged", ({ postId }) => {
-      console.log("🚩 postFlagged:", postId);
+      log("🚩 postFlagged:", postId);
       setPosts((prev) => prev.filter((post) => post.id !== postId));
     });
 
     socket.on("disconnect", (reason) => {
-      console.log("🔌 Socket disconnected (Home):", reason);
+      log("🔌 Socket disconnected (Home):", reason);
     });
 
     // cleanup

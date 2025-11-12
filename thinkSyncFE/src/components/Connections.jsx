@@ -15,7 +15,6 @@ import { useNavigate } from "react-router-dom";
 import api from "../utils/axios";
 import useAIRecommendations from "../hooks/useAIRecommendations";
 import { showToast } from "../utils/toast";
-import ChatModal from "./Messages/ChatModel";
 
 const Connections = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -84,12 +83,14 @@ const Connections = () => {
       navigate("/login");
       return;
     }
+
     const connectionId = connection.id || connection.user_id;
     if (!connectionId) {
       showToast.error("Unable to open chat for this user");
       return;
     }
-    setActiveChatUser({
+
+    const userData = {
       id: connectionId,
       username:
         connection.username ||
@@ -101,7 +102,15 @@ const Connections = () => {
         connection.name ||
         connection.profile?.displayName ||
         connection.username,
-    });
+    };
+
+    // 🔥 Call the global chat opener defined in FloatingChatButton
+    if (window.handleOpenChat) {
+      window.handleOpenChat(userData);
+    } else {
+      console.error("Chat system not ready");
+      showToast.error("Chat system not ready. Please try again.");
+    }
   };
 
   const handleCloseChat = () => setActiveChatUser(null);
@@ -372,9 +381,7 @@ const Connections = () => {
                         {(occupation || company) && (
                           <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700/60">
                             <FaBriefcase className="text-indigo-500" />
-                            {[occupation, company]
-                              .filter(Boolean)
-                              .join(" • ")}
+                            {[occupation, company].filter(Boolean).join(" • ")}
                           </span>
                         )}
                         {mutualConnections > 0 && (
@@ -489,7 +496,8 @@ const Connections = () => {
                     </motion.div>
                   );
                 })}
-              {(activeTab === "my" ? connections : suggestions).length === 0 && (
+              {(activeTab === "my" ? connections : suggestions).length ===
+                0 && (
                 <div className="col-span-2 text-center py-8 text-gray-500 dark:text-gray-400">
                   {activeTab === "my"
                     ? "No connections yet. Start following users to build your network!"
@@ -497,14 +505,6 @@ const Connections = () => {
                 </div>
               )}
             </div>
-          )}
-
-          {activeChatUser && (
-            <ChatModal
-              user={activeChatUser}
-              goBack={handleCloseChat}
-              onMarkRead={() => {}}
-            />
           )}
 
           {/* (Optional) Footer spacing */}

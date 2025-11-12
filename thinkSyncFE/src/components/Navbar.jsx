@@ -35,7 +35,6 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
     latestUnread,
     markAsRead,
     deleteNotification,
-    notifications,
     loading: notificationsLoading,
   } = useNotifications();
 
@@ -90,9 +89,11 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
                     <FaBrain className="text-3xl text-blue-600 dark:text-blue-400 animate-pulse" />
                   </div>
                 </motion.div>
-                <span className="text-xl bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
-                  ThinkSync
-                </span>
+                <Link to={"/"}>
+                  <span className="text-xl bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                    ThinkSync
+                  </span>
+                </Link>
               </Link>
             </motion.div>
 
@@ -112,7 +113,7 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
                   >
                     <button
                       onClick={() => handleProtectedClick(item.auth, item.path)}
-                      className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all duration-300 group ${
+                      className={`cursor-pointer relative flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all duration-300 group ${
                         isActive
                           ? "bg-blue-600 text-white shadow-lg"
                           : "text-gray-700 dark:text-gray-200 hover:bg-gray-100/80 dark:hover:bg-gray-800/80"
@@ -352,7 +353,6 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
               </AnimatePresence>
 
               {/* Mobile Menu Button */}
-            
             </div>
           </div>
         </div>

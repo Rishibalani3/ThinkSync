@@ -6,7 +6,6 @@ import {
   FaComment,
   FaBookmark,
   FaChartLine,
-  FaUsers,
 } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
@@ -110,43 +109,6 @@ const PostStatisticsModal = ({ isOpen, onClose, postId }) => {
                     <FaChartLine className="text-4xl opacity-80" />
                   </div>
                 </div>
-
-                {/* Recent Viewers */}
-                {stats.recentViewers?.length > 0 && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                      <FaUsers className="text-blue-500" />
-                      Recent Viewers
-                    </h3>
-                    <div className="space-y-2">
-                      {stats.recentViewers.map((viewer) => (
-                        <div
-                          key={viewer.id}
-                          className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
-                        >
-                          <img
-                            src={
-                              viewer.details?.avatar ||
-                              `https://placehold.co/40x40/667eea/ffffff?text=${
-                                viewer.displayName?.[0] || "U"
-                              }`
-                            }
-                            alt={viewer.displayName}
-                            className="w-10 h-10 rounded-full"
-                          />
-                          <div>
-                            <p className="font-medium text-gray-900 dark:text-white">
-                              {viewer.displayName || viewer.username}
-                            </p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
-                              @{viewer.username}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             ) : (
               <p className="text-center text-gray-500 dark:text-gray-400 py-8">

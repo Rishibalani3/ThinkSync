@@ -5,6 +5,7 @@ import { uploadOnCloudinary } from "../utils/Cloudinary.js";
 import { timeAgo } from "../utils/HelperFunction.js";
 import { scheduleModerationCheck } from "../services/backgroundModeration.service.js";
 import { io } from "../app.js";
+import { log } from "../utils/Logger.js";
 const createPost = async (req, res) => {
   try {
     const { content, type } = req.body;
@@ -24,11 +25,11 @@ const createPost = async (req, res) => {
       const images = Array.isArray(req.files.image)
         ? req.files.image
         : [req.files.image];
-
       for (const file of images) {
         const url = await uploadOnCloudinary(file.path);
         if (url) {
           mediaData.push({ url, type: "image" });
+          log("Media uploaded:", url);
         }
       }
     }
@@ -42,6 +43,7 @@ const createPost = async (req, res) => {
         status: "under_review",
         authorId: req.user.id,
         media: { create: mediaData },
+
         links: {
           create: links.map((link) => ({ url: link.url })),
         },
@@ -84,6 +86,14 @@ const createPost = async (req, res) => {
         links: true,
         mentions: { include: { user: true } },
         topics: { include: { topic: true } },
+        author: {
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+            details: { select: { avatar: true } },
+          },
+        },
       },
     });
 
@@ -92,6 +102,12 @@ const createPost = async (req, res) => {
     // Transform post for real-time broadcast
     const transformedPost = {
       ...fullPost,
+      author: {
+        id: fullPost.authorId,
+        username: fullPost.author?.username || "user",
+        displayName: fullPost.author?.displayName || "User",
+        details: fullPost.author?.details || null,
+      },
       timestamp: timeAgo(fullPost.createdAt || new Date()),
       isLiked: false,
       isBookmarked: false,
@@ -162,11 +178,41 @@ const getFeed = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const skip = (page - 1) * limit;
 
-    // Fetch posts with relations - exclude flagged posts (unless admin/moderator)
-    const feed = await prisma.post.findMany({
-      where: {
-        status: { not: "flagged" }, // Filter out flagged posts
+    let postIds = null;
+    let orderBy = { createdAt: "desc" };
+
+    // If user is logged in, get personalized feed recommendations from AI
+    if (userId) {
+      try {
+        const { getPersonalizedFeed } = await import("../services/aiRecommendation.service.js");
+        const recommendedPostIds = await getPersonalizedFeed(userId, limit * 2); // Get more for pagination
+        
+        if (recommendedPostIds && recommendedPostIds.length > 0) {
+          postIds = recommendedPostIds;
+          // Use custom ordering based on AI recommendations
+          orderBy = undefined; // Will order by array position
+        }
+      } catch (error) {
+        console.error("Error fetching personalized feed:", error);
+        // Fall back to default feed if AI service fails
+      }
+    }
+
+    // Build where clause
+    const whereClause = {
+      status: { 
+        notIn: ["flagged", "under_review", "achieved"] // Filter out flagged, under review, and archived posts
       },
+    };
+
+    // If we have personalized post IDs, filter by them
+    if (postIds && postIds.length > 0) {
+      whereClause.id = { in: postIds };
+    }
+
+    // Fetch posts with relations
+    let feed = await prisma.post.findMany({
+      where: whereClause,
       include: {
         author: {
           select: {
@@ -188,14 +234,27 @@ const getFeed = async (req, res) => {
         Bookmark: userId ? { where: { userId } } : false,
         comments: true,
       },
-      orderBy: { createdAt: "desc" },
-      take: limit,
-      skip,
+      orderBy: orderBy,
+      take: limit * 2, // Get more to allow for filtering
+      skip: 0, // Don't skip when using personalized feed
     });
+
+    // If we have personalized post IDs, sort by recommendation order
+    if (postIds && postIds.length > 0) {
+      const postMap = new Map(feed.map(post => [post.id, post]));
+      feed = postIds
+        .map(id => postMap.get(id))
+        .filter(Boolean)
+        .slice(skip, skip + limit);
+    } else {
+      feed = feed.slice(skip, skip + limit);
+    }
 
     const totalPosts = await prisma.post.count({
       where: {
-        status: { not: "flagged" }, // Exclude flagged posts from count
+        status: { 
+          notIn: ["flagged", "under_review", "achieved"] // Exclude flagged, under review, and archived posts from count
+        },
       },
     });
 
@@ -310,17 +369,30 @@ const trackPostView = async (userId, postId) => {
   // 1. Prevent tracking views for guests (if userId is null) or if postId is missing
   if (!userId || !postId) return;
 
-  // Optional: Add logic to prevent recording the same view too often (e.g., within 5 minutes)
-  // For simplicity, we'll record every time the frontend calls, trusting the frontend logic.
-
   try {
-    await prisma.userActivity.create({
-      data: {
+    // Check if user has viewed this post in the last 5 minutes to prevent duplicates
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    const recentView = await prisma.userActivity.findFirst({
+      where: {
         userId: userId,
         postId: postId,
-        type: "view_post", // This is the crucial signal for the AI model
+        type: "view_post",
+        createdAt: {
+          gte: fiveMinutesAgo,
+        },
       },
     });
+
+    // Only create a new view record if there's no recent view
+    if (!recentView) {
+      await prisma.userActivity.create({
+        data: {
+          userId: userId,
+          postId: postId,
+          type: "view_post", // This is the crucial signal for the AI model
+        },
+      });
+    }
   } catch (error) {
     // Log the error but do NOT throw it to prevent breaking the frontend experience
     console.error("Error tracking post view:", error.message);
@@ -392,7 +464,9 @@ const getPostStatistics = async (req, res) => {
     }
 
     if (post.authorId !== userId) {
-      return res.status(403).json(new ApiError(403, "Only post author can view statistics"));
+      return res
+        .status(403)
+        .json(new ApiError(403, "Only post author can view statistics"));
     }
 
     // Get view count from UserActivity
@@ -407,7 +481,8 @@ const getPostStatistics = async (req, res) => {
     const likesCount = post._count.likes;
     const commentsCount = post._count.comments;
     const bookmarksCount = post._count.Bookmark;
-    const engagementScore = likesCount + (commentsCount * 1.5) + (bookmarksCount * 0.8) + (viewCount * 0.1);
+    const engagementScore =
+      likesCount + commentsCount * 1.5 + bookmarksCount * 0.8 + viewCount * 0.1;
 
     // Get recent viewers (last 10, unique by userId)
     const allViewers = await prisma.userActivity.findMany({
@@ -428,15 +503,6 @@ const getPostStatistics = async (req, res) => {
       orderBy: { createdAt: "desc" },
     });
 
-    // Get unique viewers (most recent view per user)
-    const uniqueViewersMap = new Map();
-    allViewers.forEach((view) => {
-      if (!uniqueViewersMap.has(view.userId)) {
-        uniqueViewersMap.set(view.userId, view.user);
-      }
-    });
-    const recentViewers = Array.from(uniqueViewersMap.values()).slice(0, 10);
-
     return res.status(200).json(
       new ApiResponse(
         200,
@@ -447,7 +513,6 @@ const getPostStatistics = async (req, res) => {
           comments: commentsCount,
           bookmarks: bookmarksCount,
           engagementScore: Math.round(engagementScore * 10) / 10,
-          recentViewers,
         },
         "Post statistics fetched successfully"
       )
@@ -458,4 +523,11 @@ const getPostStatistics = async (req, res) => {
   }
 };
 
-export { createPost, deletePost, getFeed, getSinglePost, recordPostView, getPostStatistics };
+export {
+  createPost,
+  deletePost,
+  getFeed,
+  getSinglePost,
+  recordPostView,
+  getPostStatistics,
+};

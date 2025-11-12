@@ -70,6 +70,38 @@ export const getTrendingPosts = async (limit = 20, timeWindow = 72) => {
 };
 
 /**
+ * Get AI-powered personalized feed recommendations for a user
+ */
+export const getPersonalizedFeed = async (userId, limit = 20) => {
+  try {
+    const response = await axios.post(
+      `${AI_SERVICE_URL}/api/feed/personalized`,
+      {
+        userId,
+        limit,
+      }
+    );
+    // Return array of post IDs in recommended order
+    const feed = response.data.feed || [];
+    // Handle different response formats
+    if (Array.isArray(feed) && feed.length > 0) {
+      if (typeof feed[0] === 'object') {
+        // If feed contains objects, extract post_id or id
+        return feed.map(item => item.post_id || item.id || item.post?.id).filter(Boolean);
+      } else {
+        // If feed is already an array of IDs
+        return feed.filter(Boolean);
+      }
+    }
+    return [];
+  } catch (error) {
+    console.error("AI Personalized Feed Error:", error.message);
+    // Return empty array on error to fall back to default feed
+    return [];
+  }
+};
+
+/**
  * Health check for AI service
  */
 export const checkAIServiceHealth = async () => {

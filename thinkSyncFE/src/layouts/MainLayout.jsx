@@ -11,7 +11,7 @@ const MainLayout = () => {
 
   return (
     <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
-      <div className="sticky top-0 left-0 w-full h-4 sm:h-6 backdrop-blur-3xl bg-white/20 dark:bg-gray-900/20 z-50" />
+      <div className="sticky top-0 left-0 w-full display-none sm:h-8 backdrop-blur-sm bg-white/20 dark:bg-gray-900/20 z-50" />
 
       <div className="sticky top-4 sm:top-6 left-0 w-full backdrop-blur-3xl bg-white/70 dark:bg-gray-900/70 z-50 shadow-sm">
         <Navbar
