@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import api from "../utils/axios";
 import { FaImage, FaLink, FaPalette, FaUser } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
-import { toast, Toaster } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 
 import ProfileImages from "./EditProfile/ProfileImages";
 import BasicInfoSection from "./EditProfile/BasicInfoSection";
@@ -41,6 +42,7 @@ const Settings = () => {
   );
   const [isUploading, setIsUploading] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const sections = [
     { id: "images", label: "Profile Images", icon: FaImage },
@@ -115,6 +117,7 @@ const Settings = () => {
         setUser(res.data.data);
         initialData.current = { ...formData };
         toast.success("Profile updated successfully!");
+        setShowSuccessModal(true);
       } else {
         toast.error("Failed to update profile!");
       }
@@ -155,23 +158,23 @@ const Settings = () => {
     }
   };
 
+  const handleCloseModal = useCallback(
+    () => setShowSuccessModal(false),
+    []
+  );
+
   return (
+    <>
     <div className="w-full">
-      <Toaster
-        toastOptions={{
-          success: { style: { background: "green", color: "white" } },
-          error: { style: { background: "red", color: "white" } },
-        }}
-      />
-      <div className="container mx-auto py-2 px-0 sm:px-0 lg:px-0">
-        <div className="flex flex-col md:flex-row">
+      <div className="container mx-auto py-2 px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col">
           <div className="md:w-full">
-            <div className="flex flex-col md:flex-row gap-12 mb-4 mt-6">
+            <div className="flex flex-wrap md:flex-nowrap gap-4 md:gap-6 mb-4 mt-6">
               {sections.map((section) => (
                 <button
                   key={section.id}
                   onClick={() => setActiveSection(section.id)}
-                  className={`flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-gray-300 dark:text-white dark:hover:bg-black transition-all duration-300 ${
+                  className={`flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-gray-200 dark:text-white dark:hover:bg-gray-800 transition-all duration-300 ${
                     activeSection === section.id
                       ? "bg-gray-100 dark:bg-gray-700"
                       : ""
@@ -198,7 +201,57 @@ const Settings = () => {
         </div>
       </div>
     </div>
+
+    <SuccessModal
+      open={showSuccessModal}
+      message="Profile updated successfully!"
+      onClose={handleCloseModal}
+    />
+    </>
   );
 };
 
 export default Settings;
+
+const SuccessModal = ({ open, message, onClose }) => {
+  useEffect(() => {
+    if (!open) return;
+    const handleKey = (event) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [open, onClose]);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const timer = setTimeout(onClose, 3200);
+    return () => clearTimeout(timer);
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+      <div className="relative w-full max-w-md rounded-2xl bg-white p-6 text-center shadow-2xl ring-1 ring-black/5 dark:bg-gray-900">
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 text-gray-400 transition hover:text-gray-600 dark:hover:text-gray-200"
+          aria-label="Close success message"
+        >
+          ×
+        </button>
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-300">
+          ✓
+        </div>
+        <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+          Profile Updated
+        </h3>
+        <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{message}</p>
+      </div>
+    </div>,
+    document.body
+  );
+};

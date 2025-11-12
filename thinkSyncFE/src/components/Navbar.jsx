@@ -72,10 +72,10 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="fixed left-1/2 transform -translate-x-1/2 z-[101] w-[96%] max-w-7xl"
+        className="fixed inset-x-0 top-1.5 sm:top-2 z-[101] px-3 sm:px-4"
       >
-        <div className="backdrop-blur-xl bg-white/90 dark:bg-gray-800/90 border border-gray-200/50 dark:border-gray-700/50 rounded-2xl shadow-xl">
-          <div className="px-4 lg:px-6 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto backdrop-blur-xl bg-white/90 dark:bg-gray-800/90 border border-gray-200/60 dark:border-gray-700/60 rounded-2xl shadow-xl">
+          <div className="px-4 lg:px-6 h-[3.75rem] flex items-center justify-between gap-3">
             {/* Logo */}
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Link
@@ -352,23 +352,7 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
               </AnimatePresence>
 
               {/* Mobile Menu Button */}
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden p-2.5 text-center rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-all duration-300"
-              >
-                <motion.div
-                  animate={{ rotate: isMobileMenuOpen ? 180 : 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {isMobileMenuOpen ? (
-                    <FaTimes className="text-lg" />
-                  ) : (
-                    <FaBars className="text-lg" />
-                  )}
-                </motion.div>
-              </motion.button>
+            
             </div>
           </div>
         </div>
@@ -382,10 +366,10 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -20 }}
             transition={{ duration: 0.2 }}
-            className="lg:hidden fixed top-24 left-1/2 px-4 w-full max-w-md"
+            className="lg:hidden fixed top-[5.5rem] inset-x-0 px-4 z-[100]"
           >
-            <div className="backdrop-blur-xl w-full bg-white/90 dark:bg-gray-900/90 border border-gray-200/50 dark:border-gray-700/50 rounded-2xl shadow-2xl p-8">
-              <div className="space-y-1">
+            <div className="backdrop-blur-xl w-full max-w-md mx-auto bg-white/95 dark:bg-gray-900/95 border border-gray-200/60 dark:border-gray-700/60 rounded-2xl shadow-2xl p-6">
+              <div className="space-y-2">
                 {navItems.map((item, index) => {
                   const Icon = item.icon;
                   const isActive = location.pathname === item.path;
@@ -428,7 +412,7 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsMobileMenuOpen(false)}
-            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-30 lg:hidden"
+            className="fixed inset-0 bg-black/25 backdrop-blur-sm z-30 lg:hidden"
           />
         )}
       </AnimatePresence>

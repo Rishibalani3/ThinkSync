@@ -286,10 +286,19 @@ const fetchTredingTopics = async (req, res) => {
           some: {},
         },
       },
-      orderBy: { _count: { posts: "desc" } },
+      orderBy: {
+        posts: {
+          _count: "desc",
+        },
+      },
       take: limit,
-      include: { _count: { select: { posts: true } } },
+      include: {
+        _count: {
+          select: { posts: true },
+        },
+      },
     });
+    
 
     return res.status(200).json({ topics });
   } catch (error) {

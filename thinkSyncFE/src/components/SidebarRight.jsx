@@ -13,6 +13,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import useAIRecommendations from "../hooks/useAIRecommendations";
 import useTopics from "../hooks/useTopics";
+import api from "../utils/axios";
 
 const SidebarRight = () => {
   const { isAuthenticated, user } = useAuth();
@@ -68,16 +69,54 @@ const SidebarRight = () => {
       setLoadingConnections(true);
       try {
         const users = await getRecommendedUsers(5); // Get 5 suggestions
-        
-        const transformedUsers = users.map((rec) => ({
-          id: rec.user_id,
-          name: rec.displayName || rec.username || "User",
-          avatar: rec.avatar || `https://placehold.co/40x40/667eea/ffffff?text=${(rec.displayName || rec.username || "U")[0]}`,
-          bio: rec.bio || rec.reason || "",
-          mutualConnections: rec.commonTopicsCount || 0,
-          username: rec.username,
-          isFollowing: rec.isFollowing || false,
-        }));
+
+        let transformedUsers = (users || []).map((rec) => {
+          const displayName = rec.displayName || rec.username || "User";
+          const initial = displayName.charAt(0).toUpperCase();
+          return {
+            id: rec.user_id || rec.id,
+            name: displayName,
+            avatar:
+              rec.avatar ||
+              rec.details?.avatar ||
+              `https://placehold.co/40x40/667eea/ffffff?text=${initial}`,
+            bio: rec.bio || rec.summary || rec.reason || "",
+            mutualConnections:
+              rec.commonTopicsCount ??
+              rec.common_topics_count ??
+              rec.mutualConnections ??
+              0,
+            username: rec.username,
+            isFollowing: rec.isFollowing || false,
+            matchScore:
+              typeof rec.score === "number"
+                ? Math.round(Math.min(Math.max(rec.score, 0), 1) * 100)
+                : null,
+            reason: rec.reason,
+          };
+        });
+
+        if (!transformedUsers.length) {
+          const fallbackRes = await api.get("/follower/following");
+          const fallbackUsers = fallbackRes.data?.data || [];
+          transformedUsers = fallbackUsers.slice(0, 5).map((u) => {
+            const displayName = u.displayName || u.username || "User";
+            const initial = displayName.charAt(0).toUpperCase();
+            return {
+              id: u.id,
+              name: displayName,
+              avatar:
+                u.details?.avatar ||
+                `https://placehold.co/40x40/667eea/ffffff?text=${initial}`,
+              bio: u.details?.bio || "From your network",
+              mutualConnections: u.details?.mutualConnections || 0,
+              username: u.username,
+              isFollowing: true,
+              matchScore: null,
+              reason: "Already in your network",
+            };
+          });
+        }
 
         setSuggestedConnections(transformedUsers);
       } catch (error) {
@@ -219,6 +258,16 @@ const SidebarRight = () => {
                   <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                     {connection.name}
                   </h4>
+                  {connection.matchScore !== null && (
+                    <p className="text-xs text-blue-600 dark:text-blue-400 font-semibold">
+                      {connection.matchScore}% match
+                    </p>
+                  )}
+                  {connection.reason && (
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate">
+                      {connection.reason}
+                    </p>
+                  )}
                   <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                     {connection.bio}
                   </p>

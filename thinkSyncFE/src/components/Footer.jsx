@@ -10,11 +10,11 @@ const Footer = () => {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative  dark:from-gray-900/40 dark:via-blue-950/30 dark:to-gray-900/40 backdrop-blur-2xl border-t border-gray-200/50 dark:border-gray-700/50 py-16 mt-12 overflow-hidden">
+    <footer className="relative dark:from-gray-900/40 dark:via-blue-950/30 dark:to-gray-900/40 backdrop-blur-2xl border-t border-gray-200/50 dark:border-gray-700/50 py-12 sm:py-16 pb-24 sm:pb-16 mt-12 overflow-hidden">
       {/* Animated background effect */}
 
-      <div className="relative max-w-7xl mx-auto px-4">
-        <div className="grid md:grid-cols-3 gap-12 mb-12">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12 mb-12 text-center md:text-left">
           <div className="flex flex-col items-center md:items-start gap-4">
             <div className="flex items-center gap-3 text-3xl font-bold">
               <FaBrain className="text-4xl text-blue-600 dark:text-blue-400 animate-pulse" />

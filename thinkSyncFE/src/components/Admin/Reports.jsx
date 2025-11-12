@@ -90,14 +90,14 @@ const Reports = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 flex gap-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 sm:gap-4">
         <select
           value={filters.status}
           onChange={(e) => {
             setFilters({ ...filters, status: e.target.value });
             setPage(1);
           }}
-          className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+          className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
         >
           <option value="">All Status</option>
           <option value="pending">Pending</option>
@@ -114,7 +114,7 @@ const Reports = () => {
             setFilters({ ...filters, type: e.target.value });
             setPage(1);
           }}
-          className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+          className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
         >
           <option value="">All Types</option>
           <option value="post">Post</option>
@@ -138,7 +138,7 @@ const Reports = () => {
               animate={{ opacity: 1, y: 0 }}
               className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6"
             >
-              <div className="flex justify-between items-start mb-4">
+              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mb-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <span
@@ -190,7 +190,7 @@ const Reports = () => {
                       </div>
                     )}
 
-                    <div className="flex gap-4 mt-3 text-sm">
+                    <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 mt-3 text-sm">
                       <span className="text-gray-600 dark:text-gray-400">
                         Reporter: {report.reporter?.displayName || report.reporter?.username}
                       </span>
@@ -206,7 +206,7 @@ const Reports = () => {
               </div>
 
               {report.status === "pending" && (
-                <div className="flex gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
                   <button
                     onClick={() => openActionModal(report, "dismiss")}
                     className="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors flex items-center gap-2"

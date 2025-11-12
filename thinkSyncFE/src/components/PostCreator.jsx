@@ -13,7 +13,7 @@ import {
 } from "react-icons/fa";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { toast, Toaster } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 import api from "../utils/axios";
 
 const PostCreator = ({ onNewPost }) => {
@@ -189,36 +189,21 @@ const PostCreator = ({ onNewPost }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-md"
+      className="bg-white dark:bg-gray-800 p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-md"
     >
-      <Toaster
-        containerClassName="!text-green-300"
-        toastOptions={{
-          success: {
-            style: {
-              background: "green",
-              color: "white",
-            },
-          },
-          error: {
-            style: {
-              background: "red",
-              color: "white",
-            },
-          },
-        }}
-      />
-      <div className="flex gap-3">
-        <img
-          src={
-            user?.details?.avatar ||
-            `https://via.placeholder.com/150?text=${
-              user?.displayName?.[0] || "U"
-            }`
-          }
-          alt="avatar"
-          className="w-10 h-10 rounded-full"
-        />
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex items-center sm:items-start gap-3">
+          <img
+            src={
+              user?.details?.avatar ||
+              `https://via.placeholder.com/150?text=${
+                user?.displayName?.[0] || "U"
+              }`
+            }
+            alt="avatar"
+            className="w-12 h-12 rounded-full object-cover border border-gray-200 dark:border-gray-700"
+          />
+        </div>
 
         <div className="flex-1">
           <textarea
@@ -230,7 +215,7 @@ const PostCreator = ({ onNewPost }) => {
                 ? "Share an idea, question, or thought..."
                 : "Log in to post..."
             }
-            className="w-full dark:text-white border border-black dark:border-white rounded-lg p-3 resize-none focus:outline-none"
+            className="w-full dark:text-white border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 rounded-xl p-3 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition"
             rows={state.isExpanded ? 4 : 2}
             disabled={!isAuthenticated}
           />
@@ -288,7 +273,7 @@ const PostCreator = ({ onNewPost }) => {
               >
                 {/* Image Preview */}
                 {state.uploadedImages.length > 0 && (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                     {state.uploadedImages.map((img) => (
                       <div key={img.id} className="relative group">
                         <img
@@ -336,7 +321,7 @@ const PostCreator = ({ onNewPost }) => {
 
                 {/* Mention Input */}
                 {state.showMentionInput && (
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <input
                       type="text"
                       value={state.mentionInput}
@@ -358,7 +343,7 @@ const PostCreator = ({ onNewPost }) => {
 
                 {/* Hashtag Input */}
                 {state.showHashtagInput && (
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <input
                       type="text"
                       value={state.hashtagInput}
@@ -379,7 +364,7 @@ const PostCreator = ({ onNewPost }) => {
                 )}
 
                 {state.showLinkInput && (
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <input
                       type="text"
                       value={state.linkInput}
@@ -400,7 +385,7 @@ const PostCreator = ({ onNewPost }) => {
                 )}
 
                 {/* Post Type Selector */}
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {postTypes.map((t) => {
                     const Icon = t.icon;
                     return (
@@ -421,7 +406,7 @@ const PostCreator = ({ onNewPost }) => {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="flex gap-2">
                     <input
                       type="file"
@@ -480,7 +465,7 @@ const PostCreator = ({ onNewPost }) => {
                       state.mentions.length === 0 &&
                       state.hashtags.length === 0
                     }
-                    className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg font-medium flex items-center gap-2 transition"
+                    className="inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-2.5 rounded-xl font-medium transition"
                   >
                     <FaPaperPlane size={14} />
                     Share

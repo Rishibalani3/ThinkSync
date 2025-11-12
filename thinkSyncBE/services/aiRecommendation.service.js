@@ -27,7 +27,7 @@ export const getTopicRecommendations = async (userId, limit = 10) => {
  */
 export const getUserRecommendations = async (userId, limit = 10) => {
   try {
-    const response = await axios.post(`${AI_SERVICE_URL}/api/recommend/users`, {
+    const response = await axios.post(`${AI_SERVICE_URL}/ai/recommend/users`, {
       userId,
       limit,
     });
@@ -86,7 +86,7 @@ export const analyzeContentModeration = async (
 ) => {
   try {
     const response = await axios.post(
-      `${AI_SERVICE_URL}/api/moderation/analyze`,
+      `${AI_SERVICE_URL}/ai/moderation/analyze`,
       {
         content,
         contentType,

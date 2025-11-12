@@ -66,17 +66,17 @@ const FlaggedContent = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Flagged Content</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">Review and manage flagged posts and comments</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <FaFilter className="text-gray-500" />
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           >
             <option value="all">All Content</option>
             <option value="post">Posts Only</option>
@@ -86,7 +86,7 @@ const FlaggedContent = () => {
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 mb-6">
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center sm:text-left">
           <div className="text-center">
             <p className="text-2xl font-bold text-gray-900 dark:text-white">{pagination.totalPosts || 0}</p>
             <p className="text-sm text-gray-600 dark:text-gray-400">Flagged Posts</p>
@@ -115,7 +115,7 @@ const FlaggedContent = () => {
               animate={{ opacity: 1, y: 0 }}
               className="bg-white dark:bg-gray-800 rounded-lg border border-red-200 dark:border-red-800 p-6"
             >
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <span className={`px-2 py-1 rounded text-sm font-medium ${
@@ -154,13 +154,13 @@ const FlaggedContent = () => {
                     {item.content.length >= 200 && "..."}
                   </p>
                   {item.type === "post" && (
-                    <div className="flex gap-4 text-sm text-gray-600 dark:text-gray-400">
+                    <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400">
                       <span>❤️ {item.likesCount || 0} likes</span>
                       <span>💬 {item.commentsCount || 0} comments</span>
                     </div>
                   )}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => handleUnflag(item.id, item.type)}
                     className="px-4 py-2 bg-green-100 dark:bg-green-900 hover:bg-green-200 dark:hover:bg-green-800 text-green-700 dark:text-green-300 rounded-lg flex items-center gap-2"

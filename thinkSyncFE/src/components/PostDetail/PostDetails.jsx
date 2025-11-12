@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import api from "../../utils/axios";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   FaArrowLeft,
   FaHeart,
@@ -11,11 +11,15 @@ import {
   FaEllipsisH,
   FaReply,
   FaClock,
+  FaLink,
 } from "react-icons/fa";
 import useLike from "../../hooks/useLike";
 import useComment from "../../hooks/useComment";
+import useBookmark from "../../hooks/useBookmark";
 import LoadingScreen from ".././LoadingScreen";
 import Comments from "./Comments";
+import ShareModal from "../PostCard/ShareModel";
+import { showToast } from "../../utils/toast";
 
 const PostDetail = () => {
   const { id } = useParams();
@@ -27,6 +31,11 @@ const PostDetail = () => {
   const [error, setError] = useState("");
   const { getComments, addComment, toggleCommentLike } = useComment();
   const { toggleLike } = useLike();
+  const { toggleBookmark } = useBookmark();
+  const commentTextareaRef = useRef(null);
+  const optionsRef = useRef(null);
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -35,7 +44,7 @@ const PostDetail = () => {
         const response = await api.get(`/posts/${id}`);
         setPost(response.data.post);
         setIsLiked(!!response.data.post?.isLiked);
-        setIsBookmarked(false);
+        setIsBookmarked(!!response.data.post?.isBookmarked);
       } catch (err) {
         console.error(err);
         setError("Failed to fetch post");
@@ -50,6 +59,16 @@ const PostDetail = () => {
     fetchPost();
   }, [id]);
   const [commentsTree, setCommentsTree] = useState([]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (optionsRef.current && !optionsRef.current.contains(event.target)) {
+        setShowOptions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleSubmitRootComment = async (e) => {
     e.preventDefault();
@@ -161,6 +180,61 @@ const PostDetail = () => {
     }
   };
 
+  const handleToggleBookmark = useCallback(async () => {
+    const prev = isBookmarked;
+    setIsBookmarked(!prev);
+    setPost((p) =>
+      p
+        ? {
+            ...p,
+            isBookmarked: !prev,
+          }
+        : p
+    );
+
+    const result = await toggleBookmark(id);
+    if (result?.error) {
+      setIsBookmarked(prev);
+      setPost((p) =>
+        p
+          ? {
+              ...p,
+              isBookmarked: prev,
+            }
+          : p
+      );
+    }
+  }, [id, isBookmarked, toggleBookmark]);
+
+  const handleShareOpen = useCallback(() => {
+    setIsShareOpen(true);
+    setShowOptions(false);
+  }, []);
+
+  const handleCopyLink = useCallback(async () => {
+    if (!post?.id) return;
+    try {
+      await navigator.clipboard.writeText(
+        `${window.location.origin}/post/${post.id}`
+      );
+      showToast.success("Link copied to clipboard");
+    } catch (err) {
+      console.error("Failed to copy link:", err);
+      showToast.error("Unable to copy link. Please try again.");
+    } finally {
+      setShowOptions(false);
+    }
+  }, [post]);
+
+  const focusCommentInput = useCallback(() => {
+    if (!commentTextareaRef.current) return;
+    commentTextareaRef.current.focus({ preventScroll: false });
+    commentTextareaRef.current.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  }, []);
+
   const handleSubmitComment = handleSubmitRootComment;
 
   const getTypeColor = (type) => {
@@ -232,13 +306,44 @@ const PostDetail = () => {
               </div>
             </div>
 
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
-            >
-              <FaEllipsisH />
-            </motion.button>
+            <div className="relative" ref={optionsRef}>
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setShowOptions((prev) => !prev)}
+                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                aria-label="Post options"
+              >
+                <FaEllipsisH />
+              </motion.button>
+
+              <AnimatePresence>
+                {showOptions && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: -6 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: -6 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-900 z-20"
+                  >
+                    <button
+                      onClick={handleShareOpen}
+                      className="flex w-full items-center gap-2 px-4 py-3 text-sm text-gray-700 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:text-gray-200 dark:hover:bg-blue-900/30"
+                    >
+                      <FaShare className="text-blue-500" />
+                      Share post
+                    </button>
+                    <button
+                      onClick={handleCopyLink}
+                      className="flex w-full items-center gap-2 px-4 py-3 text-sm text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
+                    >
+                      <FaLink className="text-indigo-500" />
+                      Copy link
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
 
           {/* Post Content */}
@@ -338,15 +443,23 @@ const PostDetail = () => {
                 {post?.likesCount || 0}
               </motion.button>
 
-              <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={focusCommentInput}
+                className="flex items-center gap-2 text-sm text-gray-500 transition-colors hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-400"
+                aria-label="Jump to comments"
+              >
                 <FaComment />
                 {post.comments}
-              </div>
+              </motion.button>
 
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
+                onClick={handleShareOpen}
                 className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 transition-colors"
+                aria-label="Share post"
               >
                 <FaShare />
               </motion.button>
@@ -355,7 +468,7 @@ const PostDetail = () => {
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              onClick={() => setIsBookmarked(!isBookmarked)}
+              onClick={handleToggleBookmark}
               className={`p-2 rounded-full transition-colors ${
                 isBookmarked
                   ? "text-blue-500 bg-blue-50 dark:bg-blue-900/30"
@@ -381,6 +494,7 @@ const PostDetail = () => {
               />
               <div className="flex-1">
                 <textarea
+                  ref={commentTextareaRef}
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   placeholder="Add a comment..."
@@ -415,6 +529,11 @@ const PostDetail = () => {
           </div>
         </div>
       </motion.div>
+      <ShareModal
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        post={post}
+      />
     </div>
   );
 };

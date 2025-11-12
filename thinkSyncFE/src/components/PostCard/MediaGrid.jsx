@@ -38,7 +38,7 @@ const MediaGrid = ({ post, setActiveIndex }) => {
       )}
 
       {mediaCount === 2 && (
-        <div className="grid grid-cols-2 gap-0.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-0.5">
           {post.media.map((m, idx) => (
             <div key={m.id} className="relative">
               {m.type === "image" && (
@@ -47,7 +47,7 @@ const MediaGrid = ({ post, setActiveIndex }) => {
                   transition={{ duration: 0.15 }}
                   src={m.url}
                   alt="media"
-                  className="w-full h-64 object-cover cursor-pointer"
+                  className="w-full h-52 sm:h-64 object-cover cursor-pointer"
                   onClick={(e) => handleClick(e, idx)}
                   style={{ willChange: 'transform' }}
                 />
@@ -66,7 +66,7 @@ const MediaGrid = ({ post, setActiveIndex }) => {
       )}
 
       {mediaCount >= 3 && (
-        <div className="grid grid-cols-2 gap-0.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-0.5">
           <div className="">
             {post.media[0].type === "image" && (
               <motion.img
@@ -74,7 +74,7 @@ const MediaGrid = ({ post, setActiveIndex }) => {
                 transition={{ duration: 0.15 }}
                 src={post.media[0].url}
                 alt="media"
-                className="w-full h-64 object-cover cursor-pointer"
+                className="w-full h-52 sm:h-64 object-cover cursor-pointer"
                 onClick={(e) => handleClick(e, 0)}
                 style={{ willChange: 'transform' }}
               />
@@ -90,7 +90,7 @@ const MediaGrid = ({ post, setActiveIndex }) => {
                     transition={{ duration: 0.15 }}
                     src={m.url}
                     alt="media"
-                    className="w-full h-32 object-cover cursor-pointer"
+                    className="w-full h-36 sm:h-32 object-cover cursor-pointer"
                     onClick={(e) => handleClick(e, idx + 1)}
                     style={{ willChange: 'transform' }}
                   />

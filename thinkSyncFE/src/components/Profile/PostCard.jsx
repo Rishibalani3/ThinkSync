@@ -56,10 +56,10 @@ const PostCard = ({ post, onLike, onBookmark, onDelete }) => {
 
   return (
     <motion.article
-      whileHover={{ scale: 1.01 }}
-      className="group bg-white/80 dark:bg-gray-800/90 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 hover:shadow-md  transition-all duration-500 cursor-pointer overflow-hidden"
+      whileHover={{ scale: 1.005 }}
+      className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl transition-shadow duration-300 hover:shadow-lg overflow-hidden"
     >
-      <div className="flex gap-3 p-4 sm:p-6 relative">
+      <div className="flex gap-4 p-4 sm:p-6 relative">
         <Link to={`/profile/${post.author.username}`}>
           <motion.img
             whileHover={{ scale: 1.05 }}

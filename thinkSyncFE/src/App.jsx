@@ -203,25 +203,33 @@ function App() {
 
         {isAuthenticated && <FloatingChatButton />}
         <Toaster
-          position="bottom-right"
+          position="bottom-center"
+          containerStyle={{
+            bottom: 24,
+            zIndex: 9999,
+          }}
           toastOptions={{
             duration: 3000,
             style: {
-              background: "#363636",
-              color: "#fff",
+              background: "#1f2937",
+              color: "#f9fafb",
+              borderRadius: "0.75rem",
+              padding: "0.75rem 1.25rem",
+              boxShadow:
+                "0 10px 25px -10px rgba(30, 64, 175, 0.45), 0 6px 15px -8px rgba(15, 23, 42, 0.35)",
             },
             success: {
               duration: 3000,
               iconTheme: {
                 primary: "#10b981",
-                secondary: "#fff",
+                secondary: "#f9fafb",
               },
             },
             error: {
               duration: 4000,
               iconTheme: {
                 primary: "#ef4444",
-                secondary: "#fff",
+                secondary: "#f9fafb",
               },
             },
           }}

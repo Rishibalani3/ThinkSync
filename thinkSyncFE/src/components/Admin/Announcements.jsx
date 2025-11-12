@@ -73,7 +73,7 @@ const Announcements = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Announcements</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">Manage platform announcements</p>
@@ -84,7 +84,7 @@ const Announcements = () => {
             setFormData({ title: "", content: "", type: "info", priority: 0, isActive: true });
             setShowModal(true);
           }}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-2"
+          className="w-full md:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center justify-center gap-2"
         >
           <FaPlus /> Create Announcement
         </button>
@@ -103,7 +103,7 @@ const Announcements = () => {
               animate={{ opacity: 1, y: 0 }}
               className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6"
             >
-              <div className="flex justify-between items-start">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white">
@@ -121,7 +121,7 @@ const Announcements = () => {
                     Priority: {announcement.priority} • Created: {new Date(announcement.createdAt).toLocaleDateString()}
                   </p>
                 </div>
-                <div className="flex gap-2 ml-4">
+                <div className="flex flex-wrap gap-2 lg:ml-4">
                   <button
                     onClick={() => {
                       setEditing(announcement);
@@ -186,7 +186,7 @@ const Announcements = () => {
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Type
