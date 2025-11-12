@@ -84,6 +84,9 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
     likesCount: localLikesCount,
   };
 
+  const extraOptions =
+    extraClass && typeof extraClass === "object" ? extraClass : {};
+
   return (
     <motion.article
       variants={cardVariants}
@@ -91,11 +94,11 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
       animate="animate"
       whileHover="hover"
       style={{ willChange: "transform, opacity" }}
-      className={`bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-800/70 transition-colors duration-200 cursor-pointer ${
-        extraClass || ""
+      className={`bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl hover:bg-gray-50/50 dark:hover:bg-gray-800/70 transition-colors duration-200 cursor-pointer ${
+        typeof extraClass === "string" ? extraClass : ""
       }`}
     >
-      <div className="flex gap-3 p-4">
+      <div className="flex gap-3 sm:gap-4 p-4 sm:p-5">
         {/* Avatar */}
         <div className="flex-shrink-0">
           <Link to={`/profile/${post.author.username}`}>
@@ -118,11 +121,11 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
             getTypeColor={getTypeColor}
             formatTimeAgo={formatTimeAgo}
             optionsRef={optionsRef}
-            onDelete={extraClass?.onDelete}
+            onDelete={extraOptions.onDelete}
           />
 
           {/* Content */}
-          <div className="mt-1">
+          <div className="mt-1 space-y-3">
             <div className="text-gray-900 dark:text-gray-100 leading-relaxed text-[15px] break-words">
               {displayContent}
               {shouldTruncate && (
@@ -144,25 +147,21 @@ const PostCard = ({ post, onLike, onBookmark, extraClass }) => {
             {/* Mentions */}
             {post.mentions?.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-1">
-                {post.mentions.map(
-                  (m, idx) => (
-                    (
-                      <Link
-                        key={idx}
-                        to={`/profile/${m.username || "user"}`}
-                        className="text-blue-500 dark:text-blue-400 hover:underline text-[15px]"
-                      >
-                        @{m.name}
-                      </Link>
-                    )
-                  )
-                )}
+                {post.mentions.map((m, idx) => (
+                  <Link
+                    key={idx}
+                    to={`/profile/${m.username || m.user.username}`}
+                    className="text-blue-500 dark:text-blue-400 hover:underline text-[15px]"
+                  >
+                    @{m.name || m.user.displayName}
+                  </Link>
+                ))}
               </div>
             )}
 
             {/* Topics */}
             {post.topics?.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-1">
+              <div className="flex flex-wrap gap-2 text-sm">
                 {post.topics.map((t) => (
                   <Link
                     key={t.id}

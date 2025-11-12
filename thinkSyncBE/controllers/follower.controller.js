@@ -180,4 +180,10 @@ const getUserFollowing = async (req, res) => {
   }
 };
 
-export { followUser, getFollowers, getFollowing, getUserFollowers, getUserFollowing };
+export {
+  followUser,
+  getFollowers,
+  getFollowing,
+  getUserFollowers,
+  getUserFollowing,
+};

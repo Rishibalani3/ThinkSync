@@ -37,6 +37,16 @@ export default function FloatingChatButton() {
 
   useEffect(() => {
     fetchUsers();
+
+    // Expose global function to open chat from anywhere
+    window.handleOpenChat = (user) => {
+      setSelectedUser(user);
+      setIsOpen(true);
+    };
+
+    return () => {
+      delete window.handleOpenChat;
+    };
   }, []);
 
   // Memoized mark read callback
@@ -56,7 +66,7 @@ export default function FloatingChatButton() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-[9999] w-14 h-14 rounded-full shadow-2xl flex items-center justify-center text-white bg-gradient-to-br from-blue-500 to-blue-600 hover:scale-110 active:scale-95 transition"
+          className="fixed bottom-28 sm:bottom-6 right-4 sm:right-6 z-[100] w-14 h-14 rounded-full shadow-2xl flex items-center justify-center text-white bg-gradient-to-br from-blue-500 to-blue-600 hover:scale-110 active:scale-95 transition"
         >
           <IoChatbubbles size={24} />
         </button>
@@ -64,7 +74,7 @@ export default function FloatingChatButton() {
 
       {/* Chat list modal */}
       {isOpen && !selectedUser && (
-        <div className="fixed bottom-24 right-6 w-96 max-h-[500px] rounded-2xl shadow-2xl flex flex-col bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 z-[9999]">
+        <div className="fixed inset-0 sm:inset-auto sm:bottom-24 sm:right-6 sm:w-96 sm:max-h-[500px] h-full w-full sm:rounded-2xl shadow-2xl flex flex-col bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 z-[10001]">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-t-2xl">
             <h3 className="font-bold text-lg flex items-center gap-2">

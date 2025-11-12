@@ -20,11 +20,11 @@ import notificationRoutes from "./routes/notification.routes.js";
 import aiRecommendationRoutes from "./routes/aiRecommendation.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import announcementRoutes from "./routes/announcement.routes.js";
-import { pgPool } from "./config/db.js";
-
 import { createServer } from "http";
 import { Server } from "socket.io";
-
+import fs from "fs";
+import { log } from "./utils/Logger.js";
+import path from "path";
 dotenv.config();
 
 // Create Express app
@@ -41,34 +41,50 @@ const server = createServer(app);
 // Setting here origin to allow requests from frontend
 const io = new Server(server, {
   cors: {
-    origin: process.env.CORS_ORIGIN,
+    origin:
+      process.env.CORS_ORIGIN ||
+      "http://localhost:5173" ||
+      "https://thinksync.me",
     credentials: true,
-    methods: ["GET", "POST"],
   },
-  transports: ["websocket", "polling"],
 });
 
 // ---- USER-SOCKETID MAPPING ----
 const userSocketMap = {}; // userId: socketId
 
 io.on("connection", (socket) => {
-  socket.on("registerUser", (userId) => {
-    userSocketMap[userId] = socket.id;
-    socket.userId = userId;
-  });
+  log("🔌 New socket connection:", socket.id);
 
-  socket.on("disconnect", () => {
-    if (socket.userId && userSocketMap[socket.userId] === socket.id) {
-      delete userSocketMap[socket.userId];
+  socket.on("registerUser", (userId) => {
+    if (userId) {
+      userSocketMap[userId] = socket.id;
+      socket.userId = userId;
+      log(`✅ User ${userId} registered with socket ${socket.id}`);
     }
   });
 
+  socket.on("disconnect", (reason) => {
+    log(`🔌 Socket ${socket.id} disconnected:`, reason);
+    if (socket.userId && userSocketMap[socket.userId] === socket.id) {
+      delete userSocketMap[socket.userId];
+      log(`🗑️ Removed user ${socket.userId} from socket map`);
+    }
+  });
+
+  socket.on("error", (error) => {
+    console.error("❌ Socket error:", error);
+  });
+
   // Join a chat room between two users
-  socket.on("joinRoom", (roomId) => socket.join(roomId));
+  socket.on("joinRoom", (roomId) => {
+    socket.join(roomId);
+    log(`📥 Socket ${socket.id} joined room: ${roomId}`);
+  });
 
   // Send a message in real-time
   socket.on("sendMessage", ({ roomId, message }) => {
     io.to(roomId).emit("receiveMessage", message);
+    log(`💬 Message sent to room ${roomId}`);
   });
 });
 
@@ -115,6 +131,16 @@ app.get("/proxy", async (req, res) => {
     res.status(500).send("Failed to load image");
   }
 });
+
+// ---------------------
+// Serve static files (for uploads, images, etc.)
+// ---------------------
+
+const tempDir = path.join(process.cwd(), "public", "temp");
+if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
+
+// This lets users access images via: /public/temp/filename.jpg
+app.use("/public", express.static(path.join(process.cwd(), "public")));
 
 // ---------------------
 // Routes
@@ -180,50 +206,6 @@ app.get("/api/v1/test-session", (req, res) => {
       },
     });
   });
-});
-
-// Check session in database directly
-app.get("/api/v1/check-db-session", async (req, res) => {
-  try {
-    const sessionId = req.sessionID;
-
-    const result = await pgPool.query(
-      "SELECT * FROM user_sessions WHERE sid = $1",
-      [sessionId]
-    );
-
-    if (result.rows.length === 0) {
-      return res.json({
-        found: false,
-        sessionId,
-        message: "Session not found in database",
-      });
-    }
-
-    const sessionData = result.rows[0];
-    let sessData = null;
-    try {
-      sessData =
-        typeof sessionData.sess === "string"
-          ? JSON.parse(sessionData.sess)
-          : sessionData.sess;
-    } catch (e) {
-      sessData = sessionData.sess;
-    }
-
-    res.json({
-      found: true,
-      sessionId,
-      sessionData: {
-        sid: sessionData.sid,
-        expire: sessionData.expire,
-        sess: sessData,
-        passport: sessData?.passport,
-      },
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message, stack: err.stack });
-  }
 });
 
 export { app, server, io, userSocketMap };

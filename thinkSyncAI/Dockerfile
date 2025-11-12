@@ -1,9 +1,20 @@
+# Use lightweight base image
 FROM python:3.11-slim
-WORKDIR /flask
 
+# Set working directory
+WORKDIR /app
+
+# Copy only requirements first (for caching)
 COPY thinkSyncAI/requirements.txt .
+
+# Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY thinkSyncAI .
-EXPOSE 5001
+# Copy rest of the app
+COPY thinkSyncAI/ .
+
+# Railway provides the PORT environment variable
+EXPOSE 8080
+
+# Run the app
 CMD ["python", "app.py"]

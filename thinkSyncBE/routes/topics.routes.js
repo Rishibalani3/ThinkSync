@@ -10,9 +10,9 @@ import {
 } from "../controllers/topics.controller.js";
 import { ensureAuth } from "../middleware/ensureAuth.middleware.js";
 
-router.get("/trending", ensureAuth, fetchTredingTopics);
+router.get("/trending", fetchTredingTopics);
 router.get("/posts/:topicName", ensureAuth, fetchPostsByTopic);
-router.get("/trending-posts", ensureAuth, fetchTredingPosts);
+router.get("/trending-posts", fetchTredingPosts);
 
 router.get("/", getTopics);
 router.post("/", updateUserTopics);

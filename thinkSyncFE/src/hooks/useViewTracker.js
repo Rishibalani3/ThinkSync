@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import api from "../utils/axios"; // Use your existing axios instance
+import { log } from "../utils/Logger.js";
 
 // Utility to track when a post element is visible
 const useViewTracker = (postId, ref, userId, duration = 2000) => {
@@ -18,7 +19,7 @@ const useViewTracker = (postId, ref, userId, duration = 2000) => {
         isViewRecorded = true;
 
         // Optional: For debugging
-        // console.log(`View recorded for post: ${postId}`);
+        log(`View recorded for post: ${postId}`);
       } catch (error) {
         console.error(`Failed to record view for ${postId}:`, error);
         // Important: Do NOT stop the main app flow on this error.

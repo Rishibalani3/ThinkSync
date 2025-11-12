@@ -1,44 +1,63 @@
 import { useEffect, useState, useRef } from "react";
-import io from "socket.io-client";
+import { io } from "socket.io-client";
 import api from "../../utils/axios";
 import { useAuth } from "../../contexts/AuthContext";
+import { log } from "../../utils/Logger.js";
 import { IoArrowBack, IoSend } from "react-icons/io5";
-
-const socket = io(import.meta.env.VITE_BACKEND_URL, { withCredentials: true });
 
 export default function ChatModal({ user, goBack, onMarkRead }) {
   const { user: currentUser } = useAuth();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef(null);
+  const socketRef = useRef(null);
   const roomId = [user.id, currentUser.id].sort().join("_");
 
-  // Scroll to bottom on message update
+  // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Join room & listen for messages
+  // Setup socket and listeners
   useEffect(() => {
-    if (!currentUser?.id || !user?.id) return;
+    const backendUrl =
+      import.meta.env.VITE_SOCKET_URL || "http://localhost:3000";
+    socketRef.current = io(backendUrl, {
+      withCredentials: true,
+      transports: ["websocket", "polling"], // Allow fallback to polling
+      path: "/socket.io",
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+    });
 
-    socket.emit("joinRoom", roomId);
+    socketRef.current.on("connect", () => {
+      log("✅ Socket connected (Chat):", socketRef.current.id);
+      socketRef.current.emit("joinRoom", roomId); // join after connect
+    });
 
     const handleReceiveMessage = (message) => {
+      log("💬 Message received:", message);
       setMessages((prev) =>
         prev.some((m) => m.id === message.id) ? prev : [...prev, message]
       );
     };
 
-    socket.on("receiveMessage", handleReceiveMessage);
+    socketRef.current.on("receiveMessage", handleReceiveMessage);
 
+    socketRef.current.on("disconnect", (reason) => {
+      log("🔌 Socket disconnected (Chat):", reason);
+    });
+
+    // Cleanup
     return () => {
-      socket.off("receiveMessage", handleReceiveMessage);
-      socket.emit("leaveRoom", roomId);
+      socketRef.current.off("receiveMessage", handleReceiveMessage);
+      socketRef.current.emit("leaveRoom", roomId);
+      socketRef.current.disconnect();
     };
-  }, [roomId, currentUser?.id, user?.id]);
+  }, [roomId]);
 
-  // Fetch messages & mark as read (runs only once per user)
+  // Fetch messages on load
   useEffect(() => {
     const fetchMessages = async () => {
       if (!user?.id) return;
@@ -48,23 +67,22 @@ export default function ChatModal({ user, goBack, onMarkRead }) {
         });
         setMessages(res.data);
 
-        // Optimistically mark messages as read
+        // Mark locally as read
         setMessages((prev) =>
           prev.map((msg) =>
             msg.senderId === user.id ? { ...msg, read: true } : msg
           )
         );
 
-        // Mark unread messages in backend
-        const resMark = await api.post(
+        // Mark read in backend
+        await api.post(
           `/messages/${user.id}/mark-read`,
           {},
           { withCredentials: true }
         );
-
         onMarkRead(user.id);
       } catch (err) {
-        console.error(" Failed to fetch messages:", err);
+        console.error("❌ Failed to fetch messages:", err);
       }
     };
     fetchMessages();
@@ -79,12 +97,11 @@ export default function ChatModal({ user, goBack, onMarkRead }) {
         { receiverId: user.id, content: input },
         { withCredentials: true }
       );
-
-      // socket emits message to room (backend sends back to everyone)
-      socket.emit("sendMessage", { roomId, message: res.data });
+      // Emit through socket
+      socketRef.current.emit("sendMessage", { roomId, message: res.data });
       setInput("");
     } catch (err) {
-      console.error("Error sending message:", err);
+      console.error("❌ Error sending message:", err);
     }
   };
 
@@ -95,7 +112,7 @@ export default function ChatModal({ user, goBack, onMarkRead }) {
     });
 
   return (
-    <div className="fixed bottom-6 right-6 w-96 h-[600px] rounded-2xl shadow-2xl flex flex-col bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 z-[9999]">
+    <div className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 sm:w-96 sm:h-[600px] h-full w-full sm:rounded-2xl shadow-2xl flex flex-col bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 z-[10000]">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-t-2xl">
         <div className="flex items-center gap-3">

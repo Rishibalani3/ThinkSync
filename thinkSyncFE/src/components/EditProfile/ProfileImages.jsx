@@ -74,10 +74,8 @@ const ProfileImages = ({ userData, onUpload, isUploading }) => {
         >
           <img
             src={
-              `${
-                import.meta.env.VITE_BACKEND_URL
-              }/proxy?url=${encodeURIComponent(userData.avatar)}` ||
-              "/default-avatar.jpg"
+              userData.avatar ||
+              "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
             }
             alt="Profile"
             className="w-32 h-32 sm:w-40 sm:h-40 rounded-3xl border-4 border-white dark:border-gray-900 shadow-2xl"

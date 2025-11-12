@@ -32,8 +32,26 @@ export default function setupPassport() {
       { usernameField: "email" },
       async (email, password, done) => {
         try {
-          const user = await prisma.user.findUnique({ where: { email } });
+          const user = await prisma.user.findUnique({ 
+            where: { email },
+            include: { details: true }
+          });
           if (!user) return done(null, false, { message: "No user found" });
+
+          // Check if user is banned
+          if (user.details?.isBanned) {
+            return done(null, false, { message: "Your account has been banned. Please contact support." });
+          }
+
+          // Check if user is suspended
+          if (user.details?.isSuspended) {
+            const suspendedUntil = user.details?.suspendedUntil;
+            if (suspendedUntil && new Date(suspendedUntil) > new Date()) {
+              return done(null, false, { 
+                message: `Your account is suspended until ${new Date(suspendedUntil).toLocaleDateString()}. Please contact support.` 
+              });
+            }
+          }
 
           if (!user.password) {
             return done(null, false, { message: "Account uses Google login" });
@@ -79,6 +97,21 @@ export default function setupPassport() {
             user = await prisma.user.findUnique({
               where: { email: profile.emails[0].value },
             });
+          }
+
+          // Check if existing user is banned or suspended
+          if (user) {
+            if (user.details?.isBanned) {
+              return done(null, false, { message: "Your account has been banned. Please contact support." });
+            }
+            if (user.details?.isSuspended) {
+              const suspendedUntil = user.details?.suspendedUntil;
+              if (suspendedUntil && new Date(suspendedUntil) > new Date()) {
+                return done(null, false, { 
+                  message: `Your account is suspended until ${new Date(suspendedUntil).toLocaleDateString()}. Please contact support.` 
+                });
+              }
+            }
           }
 
           // Create user if not found

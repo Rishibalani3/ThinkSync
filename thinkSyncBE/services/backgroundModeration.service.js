@@ -2,7 +2,6 @@ import { prisma } from "../config/db.js";
 import { analyzeContentModeration } from "./aiRecommendation.service.js";
 import { sendNotification } from "../utils/notification.js";
 import { io, userSocketMap } from "../app.js";
-import nodemailer from "nodemailer";
 import { sendMailToUser } from "../utils/SendEmail.js";
 import { log } from "../utils/Logger.js";
 
@@ -105,23 +104,30 @@ const processModeration = async (contentId, contentType) => {
     });
 
     // Only take action if content is flagged with medium or high severity
-    if (moderationResult.flagged && moderationResult.confidence >= 0.4) {
-      // Update content status to "flagged"
+    const severity = (moderationResult.severity || "").toLowerCase();
+    const isMediumOrHigh = severity === "medium" || severity === "high";
+    const hasHighConfidence = moderationResult.confidence >= 0.4;
+    
+    if (moderationResult.flagged && (isMediumOrHigh || hasHighConfidence)) {
+      // Update content status to "flagged" or "under_review" based on severity
+      const newStatus = isMediumOrHigh ? "flagged" : "under_review";
+      
       if (contentType === "post") {
         await prisma.post.update({
           where: { id: contentId },
-          data: { status: "flagged" },
+          data: { status: newStatus },
         });
 
         // Emit real-time update to remove post from feeds
         io.emit("postFlagged", {
           postId: contentId,
-          reason: moderationResult.reasons.join(", "),
+          reason: moderationResult.reasons?.join(", ") || "Content flagged for review",
+          severity: severity,
         });
       } else {
         await prisma.comment.update({
           where: { id: contentId },
-          data: { status: "flagged" },
+          data: { status: newStatus },
         });
       }
 

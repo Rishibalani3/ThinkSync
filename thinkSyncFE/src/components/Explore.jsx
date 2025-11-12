@@ -191,7 +191,7 @@ const Explore = () => {
         transition={{ duration: 0.5 }}
       >
         {/* Search and Filters */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-6">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-6 space-y-6">
           <div className="relative mb-6">
             <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
@@ -203,7 +203,7 @@ const Explore = () => {
             />
           </div>
 
-          <div className="flex gap-2 mb-6">
+          <div className="flex flex-wrap gap-2">
             {filters.map((filter) => {
               const Icon = filter.icon;
               return (
@@ -249,7 +249,7 @@ const Explore = () => {
         {/* Trending Posts */}
         <div className="grid grid-cols-1 gap-6 mb-8">
           <div className="col-span-1">
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
               <div className="flex items-center gap-2 mb-4">
                 <BiTrendingUp className="text-orange-500" />
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
@@ -294,7 +294,7 @@ const Explore = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2, duration: 0.5 }}
-              className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6"
+              className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-4 sm:p-6"
             >
               <div className="flex items-center gap-2 mb-4">
                 <FaFire className="text-red-500" />
@@ -334,7 +334,7 @@ const Explore = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4, duration: 0.5 }}
-              className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6"
+              className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-4 sm:p-6"
             >
               <div className="flex items-center gap-2 mb-4">
                 <FaUsers className="text-blue-500" />

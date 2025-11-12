@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import api from "../utils/axios";
-import io from "socket.io-client";
+import { io } from "socket.io-client";
+import { log } from "../utils/Logger.js";
 
 export function useNotifications() {
   const { user } = useAuth();
@@ -9,6 +10,7 @@ export function useNotifications() {
   const [loading, setLoading] = useState(true);
   const socketRef = useRef(null);
 
+  // Fetch notifications once or on demand
   const fetchNotifications = useCallback(async () => {
     if (!user) return;
     setLoading(true);
@@ -21,28 +23,58 @@ export function useNotifications() {
         e.response?.data || e.message
       );
       setNotifications([]);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, [user]);
 
   useEffect(() => {
     if (!user) return;
 
+    // Disconnect any existing socket
     if (socketRef.current) socketRef.current.disconnect();
 
-    socketRef.current = io(import.meta.env.VITE_BACKEND_URL, {
+    // Create new socket with fallback to polling
+    const backendUrl =
+      import.meta.env.VITE_SOCKET_URL || "http://localhost:3000";
+    socketRef.current = io(backendUrl, {
       withCredentials: true,
+      transports: ["websocket", "polling"], // Allow fallback to polling
+      path: "/socket.io",
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      timeout: 20000,
     });
-    socketRef.current.emit("registerUser", user.id);
+
+    // Wait until connected, then register user
+    socketRef.current.on("connect", () => {
+      log("✅ Socket connected (Notifications):", socketRef.current.id);
+      socketRef.current.emit("registerUser", user.id);
+    });
+
+    socketRef.current.on("connect_error", (error) => {
+      console.error("❌ Socket connection error (Notifications):", error);
+    });
 
     socketRef.current.on("newNotification", (notif) => {
+      log("🔔 New notification:", notif);
       setNotifications((prev) => [notif, ...prev]);
+    });
+
+    socketRef.current.on("disconnect", (reason) => {
+      log("🔌 Socket disconnected (Notifications):", reason);
+    });
+
+    socketRef.current.on("error", (error) => {
+      console.error("❌ Socket error (Notifications):", error);
     });
 
     fetchNotifications();
 
+    // Cleanup
     return () => {
-      if (socketRef.current) socketRef.current.disconnect();
+      socketRef.current?.disconnect();
     };
   }, [user, fetchNotifications]);
 

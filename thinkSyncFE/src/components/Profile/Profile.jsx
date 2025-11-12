@@ -36,7 +36,9 @@ const Profile = () => {
       try {
         setLoading(true);
 
-        const isOwn = !username;
+        const normalizedUsername = username?.toLowerCase();
+        const currentUsername = currentUser?.username?.toLowerCase();
+        const isOwn = !username || normalizedUsername === currentUsername;
         let profileUser = currentUser;
         let posts = [];
         let isFollowing = false;
@@ -69,7 +71,7 @@ const Profile = () => {
             followersCount,
             followingCount,
           });
-        } else {
+        } else if (currentUser?.id) {
           const postsRes = await api.get(`/user/${currentUser.id}/posts`);
           posts = postsRes.data || [];
           
@@ -80,12 +82,14 @@ const Profile = () => {
             const followersCount = profileRes.data.followersCount || 0;
             const followingCount = profileRes.data.followingCount || 0;
             
-            const [followersRes, followingRes] = await Promise.all([
-              api.get(`/follower/${currentUser.id}/followers`),
-              api.get(`/follower/${currentUser.id}/following`),
-            ]);
-            setFollowersList(followersRes.data.data || []);
-            setFollowingList(followingRes.data.data || []);
+            if (currentUser?.id) {
+              const [followersRes, followingRes] = await Promise.all([
+                api.get(`/follower/${currentUser.id}/followers`),
+                api.get(`/follower/${currentUser.id}/following`),
+              ]);
+              setFollowersList(followersRes.data.data || []);
+              setFollowingList(followingRes.data.data || []);
+            }
             
             setProfileData({
               profileUser,
@@ -107,6 +111,8 @@ const Profile = () => {
               followingCount: 0,
             });
           }
+        } else {
+          showToast.error("Unable to load profile data.");
         }
 
         const ideas = posts.filter((p) => p.type === "idea");
@@ -269,11 +275,11 @@ const Profile = () => {
   };
 
   const handlePostDelete = (postId) => {
-    setProfileData((prev) => ({
-      ...prev,
-      posts: prev.posts.filter((post) => post.id !== postId),
-    }));
-    updatePostTypes(profileData.posts.filter((post) => post.id !== postId));
+    setProfileData((prev) => {
+      const filteredPosts = prev.posts.filter((post) => post.id !== postId);
+      updatePostTypes(filteredPosts);
+      return { ...prev, posts: filteredPosts };
+    });
   };
 
   const renderPosts = (list) =>
@@ -322,19 +328,13 @@ const Profile = () => {
           <Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
         </div>
 
-        <div className="p-4 sm:p-6 md:p-2 min-h-[50vh] ">
-          {loading ? (
-            <p className="text-center text-gray-500">Loading posts...</p>
-          ) : (
-            <>
-              <div className="gap-6 flex flex-col">
-                {activeTab === "posts" && renderPosts(posts)}
-                {activeTab === "ideas" && renderPosts(postTypes.ideas)}
-                {activeTab === "questions" && renderPosts(postTypes.questions)}
-                {activeTab === "thoughts" && renderPosts(postTypes.thoughts)}
-              </div>
-            </>
-          )}
+        <div className="py-6">
+          <div className="flex flex-col gap-4">
+            {activeTab === "posts" && renderPosts(posts)}
+            {activeTab === "ideas" && renderPosts(postTypes.ideas)}
+            {activeTab === "questions" && renderPosts(postTypes.questions)}
+            {activeTab === "thoughts" && renderPosts(postTypes.thoughts)}
+          </div>
         </div>
       </div>
     </div>

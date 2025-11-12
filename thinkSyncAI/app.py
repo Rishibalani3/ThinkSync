@@ -15,8 +15,18 @@ from database import (
 )
 
 app = Flask(__name__)
-CORS(app)
+CORS(
+    app,
+    resources={r"/api/*": {"origins": "*"}},
+    supports_credentials=True,
+    methods=["GET", "POST", "OPTIONS"]
+)
 recommendation_engine = RecommendationEngine()
+
+
+@app.before_request
+def log_incoming_request():
+    print(f"Incoming {request.method} {request.path} from {request.remote_addr}")
 
 # ---------------------------
 # Health Check
@@ -70,10 +80,7 @@ def recommend_topics():
         print(f"Error in recommend_topics: {e}")
         return jsonify({'error': str(e)}), 500
 
-# ---------------------------
-# Recommend Users (userId)
-# ---------------------------
-@app.route('/api/recommend/users', methods=['POST'])
+@app.route('/ai/recommend/users', methods=['POST'])
 def recommend_users():
     try:
         data = request.get_json()
@@ -103,7 +110,7 @@ def recommend_users():
             user_following=user_following,
             limit=int(data.get('limit', 10))
         )
-
+        print(f"User recommendations for {user_id}: {recommendations}")
         return jsonify({'success': True, 'recommendations': recommendations})
 
     except Exception as e:
@@ -258,7 +265,7 @@ def get_personalized_feed():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/api/moderation/analyze', methods=['POST'])
+@app.route('/ai/moderation/analyze', methods=['POST'])
 def analyze_content():
     try:
         data = request.get_json()
