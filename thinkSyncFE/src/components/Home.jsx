@@ -51,15 +51,21 @@ const Home = () => {
 
   // Socket.IO real-time updates
   useEffect(() => {
+    // Initialize socket
     const socket = io(import.meta.env.VITE_BACKEND_URL, {
       withCredentials: true,
-      transports: ["websocket"],
+      transports: ["websocket"], // ✅ force websocket transport
       path: "/socket.io",
     });
 
-    // Listen for new posts
+    // ✅ Wait for connection before listening or emitting
+    socket.on("connect", () => {
+      console.log("✅ Socket connected (Home):", socket.id);
+    });
+
+    // ✅ Listen for new posts
     socket.on("newPost", (newPost) => {
-      // Transform the post to match our format
+      consolelog("📩 newPost event received:", newPost);
       const transformedPost = {
         ...newPost,
         author: newPost.author || {
@@ -74,22 +80,23 @@ const Home = () => {
       };
 
       setPosts((prev) => {
-        // Avoid duplicates
-        if (prev.some((p) => p.id === transformedPost.id)) {
-          return prev;
-        }
+        if (prev.some((p) => p.id === transformedPost.id)) return prev;
         return [transformedPost, ...prev];
       });
     });
 
-    // Listen for flagged posts to remove them
+    // ✅ Listen for postFlagged
     socket.on("postFlagged", ({ postId }) => {
+      console.log("🚩 postFlagged:", postId);
       setPosts((prev) => prev.filter((post) => post.id !== postId));
     });
 
-    return () => {
-      socket.disconnect();
-    };
+    socket.on("disconnect", (reason) => {
+      console.log("🔌 Socket disconnected (Home):", reason);
+    });
+
+    // cleanup
+    return () => socket.disconnect();
   }, []);
 
   // Handle liking a post

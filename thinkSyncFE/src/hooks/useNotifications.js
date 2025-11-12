@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import api from "../utils/axios";
-import io from "socket.io-client";
+import { io } from "socket.io-client";
 
 export function useNotifications() {
   const { user } = useAuth();
@@ -9,6 +9,7 @@ export function useNotifications() {
   const [loading, setLoading] = useState(true);
   const socketRef = useRef(null);
 
+  // Fetch notifications once or on demand
   const fetchNotifications = useCallback(async () => {
     if (!user) return;
     setLoading(true);
@@ -21,30 +22,44 @@ export function useNotifications() {
         e.response?.data || e.message
       );
       setNotifications([]);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, [user]);
 
   useEffect(() => {
     if (!user) return;
 
+    // Disconnect any existing socket
     if (socketRef.current) socketRef.current.disconnect();
 
+    // Create new socket
     socketRef.current = io(import.meta.env.VITE_BACKEND_URL, {
       withCredentials: true,
-      transports: ["websocket"],
+      transports: ["websocket"], // force WebSocket only
       path: "/socket.io",
     });
-    socketRef.current.emit("registerUser", user.id);
+
+    // Wait until connected, then register user
+    socketRef.current.on("connect", () => {
+      console.log("✅ Socket connected (Notifications):", socketRef.current.id);
+      socketRef.current.emit("registerUser", user.id);
+    });
 
     socketRef.current.on("newNotification", (notif) => {
+      console.log("🔔 New notification:", notif);
       setNotifications((prev) => [notif, ...prev]);
+    });
+
+    socketRef.current.on("disconnect", (reason) => {
+      console.log("🔌 Socket disconnected (Notifications):", reason);
     });
 
     fetchNotifications();
 
+    // Cleanup
     return () => {
-      if (socketRef.current) socketRef.current.disconnect();
+      socketRef.current?.disconnect();
     };
   }, [user, fetchNotifications]);
 
