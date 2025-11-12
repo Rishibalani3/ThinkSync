@@ -53,6 +53,8 @@ const Home = () => {
   useEffect(() => {
     const socket = io(import.meta.env.VITE_BACKEND_URL, {
       withCredentials: true,
+      transports: ["websocket"],
+      path: "/socket.io",
     });
 
     // Listen for new posts

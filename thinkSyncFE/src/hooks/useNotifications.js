@@ -32,6 +32,8 @@ export function useNotifications() {
 
     socketRef.current = io(import.meta.env.VITE_BACKEND_URL, {
       withCredentials: true,
+      transports: ["websocket"],
+      path: "/socket.io",
     });
     socketRef.current.emit("registerUser", user.id);
 

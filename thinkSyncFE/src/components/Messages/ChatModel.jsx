@@ -4,7 +4,12 @@ import api from "../../utils/axios";
 import { useAuth } from "../../contexts/AuthContext";
 import { IoArrowBack, IoSend } from "react-icons/io5";
 
-const socket = io(import.meta.env.VITE_BACKEND_URL, { withCredentials: true });
+const socket = io(import.meta.env.VITE_BACKEND_URL, {
+  withCredentials: true,
+
+  transports: ["websocket"],
+  path: "/socket.io",
+});
 
 export default function ChatModal({ user, goBack, onMarkRead }) {
   const { user: currentUser } = useAuth();
